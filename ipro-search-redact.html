@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search & Redact — IPRO | Barbara Broadnax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <a href="index.html" class="logo">bb<span>.</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html#work">Work</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="mailto:barbara.m.broadnax@gmail.com">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="case-hero">
+    <div class="container">
+      <p class="label animate-in">IPRO</p>
+      <h1 class="animate-in delay-1">Search & Redact</h1>
+      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">Redesigning the transcript annotation workspace so legal professionals never lose sight of their documents.</p>
+      <div class="case-meta animate-in delay-3">
+        <div class="case-meta-item">
+          <p class="label">Role</p>
+          <p>Product Designer</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Domain</p>
+          <p>Legal Technology / eDiscovery</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Focus</p>
+          <p>Workspace redesign & annotation UX</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Images -->
+  <div class="container">
+    <div class="image-showcase">
+      <img src="images/Search & Redact - V2 - Desktop.png" alt="Search & Redact — Redesigned workspace">
+      <p class="image-caption">The redesigned transcript workspace — annotations, issues, and exhibits accessible without losing sight of the document.</p>
+    </div>
+  </div>
+
+  <!-- Problem -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">The Problem</p>
+      <h2>A modal that blocked the very thing users needed to see</h2>
+      <p>Legal professionals using IPRO's transcript review tool had a fundamental problem: every time they tried to annotate a document — tagging an issue, linking an exhibit, or adding a note — a modal popped up and covered the transcript text. They literally couldn't see what they were working on.</p>
+      <p>This forced users into a constant cycle of reading, remembering, opening the modal, making an edit, closing it, and re-finding their place. Combined with opening links in new tabs and juggling the exhibit manager, reviewers were spending as much energy navigating the interface as they were doing their actual work.</p>
+      <p>The UI had also grown cluttered over time. A single Cancel/OK pattern handled issues, exhibits, and notes — three distinct actions crammed into one interaction model.</p>
+    </div>
+  </section>
+
+  <!-- Before/After -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/Search & Redact - V1 - Desktop.png" alt="Search & Redact — Original workspace">
+        <p class="image-caption">Before — the original workspace with modal-based annotation flow.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/Search & Redact - V2 - Desktop.png" alt="Search & Redact — Redesigned workspace">
+        <p class="image-caption">After — side panel approach keeps the transcript visible at all times.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Solution -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">The Solution</p>
+      <h2>From modals to side panels — eyes on the transcript</h2>
+      <p>The core design move was transitioning from a single blocking modal to a set of collapsible side panels. This kept the transcript visible while users annotated, tagged, and linked — eliminating the context-switching that had plagued the old experience.</p>
+      <p>Key design decisions included:</p>
+      <ul>
+        <li>A collapsible transcript navigation panel that could be tucked away when not needed, since users told us they rarely jump between transcripts while annotating.</li>
+        <li>A "Notebook" panel replacing the modal — housing issues, exhibits, and notes with inline editing.</li>
+        <li>Tabs to toggle between the Word Index and Notebook, keeping the layout clean.</li>
+        <li>The ability to tag and link content without ever taking eyes off the transcript text.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Redaction Categories -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/search-redact-categories.png" alt="Redaction categories — advanced experience">
+        <p class="image-caption">Redaction categories — organizing redaction rules for consistent, repeatable application across documents.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/search-redact-suggestions.png" alt="Suggested redactions">
+        <p class="image-caption">Suggested redactions — surfacing likely redaction targets to accelerate the review process.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Highlighting -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Design Detail</p>
+      <h2>Rethinking text highlighting for accessibility</h2>
+      <p>The annotation system relied heavily on colored highlights, but the existing approach created problems. Blue underlined links were an accessibility issue — and with multiple IPRO features requiring text emphasis (entity highlighting, annotations, redactions, search results), the same visual style was being reused for entirely different functions.</p>
+      <p>I moved away from underlines to dotted outlines for selected text, making the distinction between issue highlights and links immediately clear. This also left room for future URL linking without visual collision.</p>
+      <p>For the color system, I stuck with highlighting but developed a researched palette of accessible colors that could be recycled across IPRO's entire product suite. Users could also control opacity and contrast as needed — critical for professionals spending hours reviewing dense documents.</p>
+    </div>
+  </section>
+
+  <!-- Outcome -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Outcome</p>
+      <h2>A workspace that works with — not against — its users</h2>
+      <p>The redesigned workspace fundamentally changed how legal reviewers interacted with transcripts. By keeping the document visible at all times and making annotations feel like a natural extension of reading rather than an interruption, we reduced the cognitive overhead of a task that already demands intense focus.</p>
+      <p>The modular panel system also opened the door to future enhancements — exhibit management, expanded linking, and deeper integration with IPRO's broader review tools — all without adding another modal to the stack.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="case-nav">
+      <a href="alaska-view-reservation.html">
+        <span class="label">&larr; Previous</span>
+        <span>View Reservation</span>
+      </a>
+      <a href="ipro-ner.html" class="next">
+        <span class="label">Next &rarr;</span>
+        <span>Named Entity Recognition</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Barbara Broadnax</p>
+    </div>
+  </footer>
+
+</body>
+</html>

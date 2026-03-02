@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Named Entity Recognition — IPRO | Barbara Broadnax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <a href="index.html" class="logo">bb<span>.</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html#work">Work</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="mailto:barbara.m.broadnax@gmail.com">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="case-hero">
+    <div class="container">
+      <p class="label animate-in">IPRO</p>
+      <h1 class="animate-in delay-1">Named Entity Recognition</h1>
+      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">Integrating AI-powered entity detection and communication charting into a legal review platform.</p>
+      <div class="case-meta animate-in delay-3">
+        <div class="case-meta-item">
+          <p class="label">Role</p>
+          <p>Product Designer</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Team</p>
+          <p>UX, PM, and NexLP partnership</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">User Rating</p>
+          <p>4.13 / 5 (concept testing)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Image -->
+  <div class="container">
+    <div class="image-showcase">
+      <img src="images/NER - Desktop.png" alt="Named Entity Recognition — Communication chart and entity panel">
+      <p class="image-caption">The communication chart with collapsible entity panel — giving legal reviewers a visual way to navigate complex case data.</p>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Overview</p>
+      <h2>Making data navigable, not just searchable</h2>
+      <p>IPRO partnered with NexLP to integrate their AI-driven entity detection tools — communication charts and entity management — directly into the legal review search experience. The goal was to give users a more visual, interactive way to explore case data rather than relying solely on keyword searches.</p>
+      <p>This meant designing components based on NexLP's existing UI using Material UI, pulling in chart controls and functionality, and creating an experience that felt native to IPRO's platform while leveraging NexLP's powerful underlying technology.</p>
+      <div class="tags">
+        <span class="tag">NexLP Integration</span>
+        <span class="tag">Material UI</span>
+        <span class="tag">Communication Charts</span>
+        <span class="tag">Entity Management</span>
+        <span class="tag">Search & Filter</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Research -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Research</p>
+      <h2>Testing with expert users</h2>
+      <p>We ran concept testing with 5 expert users — a mix of internal service providers and external clients — through 45-minute prototype screenshare sessions. Users were given the prototype and observed as they navigated, providing feedback in real time.</p>
+      <p>Feedback on the existing NexLP experience revealed clear pain points:</p>
+      <ul>
+        <li>Tooltips and contextual clues were sparse — users had to guess what things did.</li>
+        <li>Actions were scattered across the screen with no clear logic to their placement.</li>
+        <li>Merging entities was complex, and there was no way to unmerge.</li>
+        <li>Colors and symbols lacked explanation — the meaning wasn't clear at a glance.</li>
+        <li>Data that users expected to be interactive (like profile cards) wasn't.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Interactive Demos -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/ner-in-action.png" alt="NER in action — entity detection on case data">
+        <p class="image-caption">Named Entity Recognition in action — automatically detecting people, organizations, and addresses across case documents.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/ner-merge-entities.png" alt="Merge entities dialogue">
+        <p class="image-caption">The merge entities dialogue — combining duplicate entities with clear warnings to prevent unintended changes.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Navigation GIF -->
+  <div class="container">
+    <div class="image-showcase">
+      <img src="images/ner-charts-demo.gif" alt="NER communication chart — interactive demo">
+      <p class="image-caption">Interactive communication chart — drilling into entity relationships and filtering connections in real time.</p>
+    </div>
+  </div>
+
+  <!-- Concept -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Concept Design</p>
+      <h2>Five integrated components</h2>
+      <p>The proposed design brought together five connected pieces into a cohesive experience:</p>
+      <ul>
+        <li>A full-width communication chart with collapsible entities panel — large enough to be legible, with drill-down capabilities via the API.</li>
+        <li>An entities launchpad for quick access and search integration.</li>
+        <li>Person entity profiles with relevant details surfaced at the right moment.</li>
+        <li>A merge entity dialogue with clear warnings to prevent unintended results.</li>
+        <li>Chart controls carried over from NexLP, supplemented with tooltips, legends, and help text.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Findings -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Findings</p>
+      <h2>What users valued most</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <p class="stat-number">4.13</p>
+          <p class="stat-label">Average experience rating (out of 5)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number">5/5</p>
+          <p class="stat-label">Users engaged with chart interactivity</p>
+        </div>
+      </div>
+
+      <p>The entity list was the standout feature — users found it immediately useful for building searches. Every participant commented on the ability to interact directly with the communication chart. Users also expected charts on screen to update in tandem, functioning like a live search — an ambitious feature that we planned to phase in after initial implementation.</p>
+      <p>One thing we cut: the business card section of entity profiles. Users saw the information but couldn't articulate its value in their workflow. We recommended abandoning it.</p>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Recommendations</p>
+      <h2>Phased rollout: now, next, later</h2>
+      <p>We structured the implementation into three phases. The immediate priority was implementing NexLP's API for the communication chart, controls, and entities list — along with quick wins like making the entities list visible by default and giving the chart maximum container space.</p>
+      <p>The next phase focused on tighter integration: better merge visibility, updated baseball card information based on user feedback, timeline integration, and support for live Early Data Assessment use.</p>
+      <p>The long-term vision included leveraging the entities list across other widgets, introducing NexLP's tree chart, full-size chart views, and the live searching feature users had asked for.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="case-nav">
+      <a href="ipro-search-redact.html">
+        <span class="label">&larr; Previous</span>
+        <span>Search & Redact</span>
+      </a>
+      <a href="ipro-eda.html" class="next">
+        <span class="label">Next &rarr;</span>
+        <span>Early Data Assessment</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Barbara Broadnax</p>
+    </div>
+  </footer>
+
+</body>
+</html>
