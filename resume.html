@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume — Barbara Broadnax</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    /* ── Resume page wrapper ── */
+    .resume-page {
+      padding-top: 6rem;
+      padding-bottom: 5rem;
+    }
+
+    /* ── Action bar ── */
+    .resume-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .resume-actions-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+    }
+
+    .resume-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-decoration: none;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0b0b0f;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      color: #0b0b0f;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(192, 132, 252, 0.3);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary.copied {
+      border-color: #4ade80;
+      color: #4ade80;
+    }
+
+    /* ── Resume paper ── */
+    .resume-paper {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    .resume-inner {
+      padding: clamp(2rem, 5vw, 3rem) clamp(2rem, 5vw, 3.5rem);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-size: 11px;
+      line-height: 1.55;
+      color: #1a1a1a;
+    }
+
+    /* ── Resume header ── */
+    .r-header {
+      margin-bottom: 18px;
+      border-bottom: 2px solid #1a1a1a;
+      padding-bottom: 14px;
+    }
+
+    .r-header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 3px;
+      color: #1a1a1a;
+      line-height: 1.1;
+    }
+
+    .r-subtitle {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .r-contact {
+      font-size: 10px;
+      color: #555;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 0;
+    }
+
+    .r-contact span::after {
+      content: " | ";
+      color: #bbb;
+      margin: 0 5px;
+    }
+
+    .r-contact span:last-child::after { content: ""; }
+
+    .r-contact a {
+      color: #555;
+      text-decoration: none;
+    }
+
+    .r-contact a:hover { color: #1a1a1a; }
+
+    /* ── Resume sections ── */
+    .r-section { margin-bottom: 16px; }
+
+    .r-section h2 {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      color: #1a1a1a;
+    }
+
+    /* ── Skills grid ── */
+    .r-skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px 28px;
+      font-size: 10.5px;
+    }
+
+    .r-skill-cat { font-weight: 600; color: #1a1a1a; }
+
+    /* ── Jobs ── */
+    .r-job { margin-bottom: 14px; }
+    .r-job:last-child { margin-bottom: 0; }
+
+    .r-job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1px;
+    }
+
+    .r-job-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .r-job-date {
+      font-size: 10px;
+      color: #666;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: 1rem;
+    }
+
+    .r-job-company {
+      font-size: 10.5px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    .r-ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .r-ul li {
+      font-size: 10.5px;
+      line-height: 1.55;
+      padding-left: 14px;
+      position: relative;
+      margin-bottom: 3px;
+      color: #222;
+    }
+
+    .r-ul li::before {
+      content: "•";
+      position: absolute;
+      left: 2px;
+      color: #777;
+    }
+
+    /* ── Projects ── */
+    .r-project { margin-bottom: 10px; }
+    .r-project:last-child { margin-bottom: 0; }
+
+    .r-project-name {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      color: #1a1a1a;
+    }
+
+    .r-project-name a {
+      color: #555;
+      font-weight: 400;
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    /* ── Education ── */
+    .r-edu { margin-bottom: 5px; font-size: 10.5px; color: #222; }
+    .r-edu strong { font-weight: 600; }
+
+    @media (max-width: 600px) {
+      .r-skills-grid { grid-template-columns: 1fr; }
+      .r-job-header { flex-direction: column; gap: 0.15rem; }
+      .r-job-date { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="index.html" class="logo">bb<span>.</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html#work">Work</a></li>
+        <li><a href="index.html#side-projects">Side Projects</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="resume.html" style="color: var(--accent);">Resume</a></li>
+        <li><a href="mailto:broadnaxux@gmail.com">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="resume-page">
+    <div class="container">
+
+      <!-- Action bar -->
+      <div class="resume-actions">
+        <p class="resume-actions-title">Resume</p>
+        <div class="resume-buttons">
+          <button class="btn btn-secondary" id="shareBtn" onclick="copyLink()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span id="shareBtnText">Copy Link</span>
+          </button>
+          <a class="btn btn-primary" href="barbara-broadnax-resume.pdf" download="Barbara-Broadnax-Resume.pdf">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </div>
+
+      <!-- Resume paper -->
+      <div class="resume-paper">
+        <div class="resume-inner">
+
+          <!-- Header -->
+          <div class="r-header">
+            <h1>Barbara Broadnax</h1>
+            <div class="r-subtitle">Senior Product Designer · AI-Augmented Design · Accessibility Specialist</div>
+            <div class="r-contact">
+              <span><a href="mailto:broadnaxux@gmail.com">broadnaxux@gmail.com</a></span>
+              <span>610-937-9849</span>
+              <span>Phoenix, AZ · Remote</span>
+              <span><a href="https://www.barbarabroadnax.com">barbarabroadnax.com</a></span>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="r-section">
+            <h2>Summary</h2>
+            <p style="font-size:10.5px;color:#222;line-height:1.6;">Senior Product Designer with 8+ years of experience designing complex, regulated digital products across aviation, SaaS, and e-commerce. Combines deep human-centered design expertise with hands-on AI tool fluency — using generative AI, prompt engineering, and vibe coding to accelerate prototyping, build functional web applications, and ship accessible digital experiences. Proven ability to lead cross-functional design strategy, define product requirements, and translate ambiguity into clear, scalable solutions. Seeking remote roles at the intersection of product design, product management, and design technology.</p>
+          </div>
+
+          <!-- Core Competencies -->
+          <div class="r-section">
+            <h2>Core Competencies</h2>
+            <div class="r-skills-grid">
+              <div><span class="r-skill-cat">AI &amp; Emerging Tools:</span> Prompt Engineering · Vibe Coding · Claude · ChatGPT · Midjourney · Microsoft Cowork · AI-Assisted Prototyping</div>
+              <div><span class="r-skill-cat">Product &amp; Strategy:</span> Product Thinking · Requirements Definition · Roadmap Contribution · Stakeholder Alignment · OKRs · Data-Informed Decisions</div>
+              <div><span class="r-skill-cat">Design:</span> Figma · Design Systems · High-Fidelity UI · Responsive &amp; Mobile-First · Interaction Design · End-to-End UX Process</div>
+              <div><span class="r-skill-cat">Technical:</span> HTML · CSS · React (Vibe Coding) · WCAG 2.2 / 3.0+ Accessibility · Omnichannel Design · Design-to-Dev Handoff</div>
+              <div><span class="r-skill-cat">Research:</span> Usability Testing (Moderated &amp; Unmoderated) · Qualitative &amp; Quantitative Analysis · Discovery Research · A/B Testing</div>
+              <div><span class="r-skill-cat">Collaboration:</span> Agile · Cross-Functional Leadership · Workshop Facilitation · Design Reviews · Inclusive Team Practices</div>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="r-section">
+            <h2>Professional Experience</h2>
+
+            <div class="r-job">
+              <div class="r-job-header">
+                <span class="r-job-title">Senior Product Designer</span>
+                <span class="r-job-date">April 2022 – Present</span>
+              </div>
+              <div class="r-job-company">Alaska Airlines / Hawaiian Airlines — Remote</div>
+              <ul class="r-ul">
+                <li>Lead design for large-scale modernization of the Manage Reservation experience, serving millions of passengers across web and native mobile platforms in a complex, regulated environment.</li>
+                <li>Partner with product managers to define problem statements, shape requirements, and prioritize features — balancing user needs, business objectives, and operational constraints.</li>
+                <li>Integrate AI tools (Claude, ChatGPT, Midjourney) into daily design workflows to accelerate ideation, generate content, draft documentation, and rapidly prototype interaction concepts.</li>
+                <li>Contribute to the evolution of an enterprise omnichannel design system, ensuring accessibility (WCAG compliance), visual consistency, and scalability across all digital touchpoints.</li>
+                <li>Design high-fidelity interfaces and interactive prototypes in Figma; facilitate usability testing and synthesize qualitative and quantitative insights to drive iterative improvements.</li>
+                <li>Collaborate closely with engineering teams to ensure design fidelity in production, participating in code reviews and providing implementation guidance via HTML/CSS fluency.</li>
+                <li>Facilitate cross-functional workshops and present during design and product reviews, articulating rationale, tradeoffs, and measurable user impact to executive stakeholders.</li>
+                <li>Champion accessibility initiatives and inclusive design practices, ensuring experiences meet or exceed WCAG standards across the Alaska/Hawaiian Airlines digital ecosystem.</li>
+              </ul>
+            </div>
+
+            <div class="r-job">
+              <div class="r-job-header">
+                <span class="r-job-title">UX Designer</span>
+                <span class="r-job-date">January 2020 – May 2022</span>
+              </div>
+              <div class="r-job-company">IPRO — Tempe, AZ</div>
+              <ul class="r-ul">
+                <li>Supported consolidation of four siloed applications into a unified SaaS platform, improving workflow clarity and reducing user task completion time.</li>
+                <li>Partnered with AI and data science teams to improve usability of complex NLP-powered workflows, translating machine learning capabilities into intuitive user interfaces.</li>
+                <li>Conducted 10–25 discovery and usability sessions per month, rapidly iterating designs based on user feedback within Agile sprint cycles.</li>
+                <li>Contributed to scaling the organization's design system, establishing reusable component patterns that improved cross-team consistency and development velocity.</li>
+                <li>Designed responsive, high-fidelity interfaces aligned to both business objectives and technical feasibility constraints.</li>
+              </ul>
+            </div>
+
+            <div class="r-job">
+              <div class="r-job-header">
+                <span class="r-job-title">UX Designer</span>
+                <span class="r-job-date">May 2017 – January 2020</span>
+              </div>
+              <div class="r-job-company">InkSoft — Tempe, AZ</div>
+              <ul class="r-ul">
+                <li>Led transition of a desktop-only e-commerce platform to mobile-responsive and mobile-first experiences, increasing mobile engagement.</li>
+                <li>Advocated for integrating user research into sprint planning, establishing research-informed design as a team practice.</li>
+                <li>Worked within and contributed to a Material UI design system, maintaining visual and interaction consistency across product features.</li>
+                <li>Created low- to high-fidelity designs using Sketch, InVision, and Adobe Creative Suite; partnered with developers using HTML/CSS to clarify implementation details.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- AI Projects -->
+          <div class="r-section">
+            <h2>AI-Powered Projects &amp; Independent Work</h2>
+
+            <div class="r-project">
+              <div class="r-project-name">MTRCD — Modern Toolkit for Reaching Compliant Design · <a href="https://mtrcd.com" target="_blank">mtrcd.com</a></div>
+              <ul class="r-ul">
+                <li>Founded and built a comprehensive WCAG 2.2 quick-reference tool covering all 56 Level A and AA criteria with plain-English explanations and code snippets — vibe coded with Claude and deployed as a monetizable web product.</li>
+                <li>Developed ChollaCalendar, an enterprise-grade accessible booking calendar component (WCAG 3.0+ compliant) with 22+ customizable color properties, responsive down to 360px, built through AI-assisted development.</li>
+              </ul>
+            </div>
+
+            <div class="r-project">
+              <div class="r-project-name">The Lez List — Community Event Platform</div>
+              <ul class="r-ul">
+                <li>Designed and vibe coded a full-stack React event management platform with admin approval workflows, batch operations, RSVP tracking, role-based permissions, and CSV exports — built to serve underrepresented communities.</li>
+              </ul>
+            </div>
+
+            <div class="r-project">
+              <div class="r-project-name">AIRXME — Flight Tracking Mobile App Concept</div>
+              <ul class="r-ul">
+                <li>Designed a mobile flight tracking app concept with customizable home screen widgets, gamification systems, and admin dashboards for managing branding and achievement badges.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="r-section">
+            <h2>Education &amp; Certifications</h2>
+            <div class="r-edu"><strong>Interaction Design Certificate</strong> — Nielsen Norman Group</div>
+            <div class="r-edu"><strong>BFA, Graphic Design</strong> — West Chester University of Pennsylvania</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Barbara Broadnax</p>
+      <ul class="footer-links">
+        <li><a href="mailto:broadnaxux@gmail.com">Email</a></li>
+        <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank">LinkedIn</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    function copyLink() {
+      const btn = document.getElementById('shareBtn');
+      const text = document.getElementById('shareBtnText');
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        btn.classList.add('copied');
+        text.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          text.textContent = 'Copy Link';
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
