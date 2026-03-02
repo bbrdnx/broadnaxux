@@ -230,6 +230,96 @@ nav .nav-links a:hover { color: var(--text); }
 }
 
 /* ============================================
+   Side Project Card
+   ============================================ */
+.side-project-card {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  text-decoration: none;
+  color: inherit;
+}
+
+.side-project-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(192, 132, 252, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px var(--accent-glow);
+}
+
+.side-project-preview {
+  background: var(--bg-elevated);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  gap: 1.5rem;
+  border-right: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.side-project-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.side-project-badge {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  position: relative;
+  z-index: 1;
+}
+
+.side-project-body {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.side-project-body h3 { color: var(--text); }
+
+.side-project-body p { max-width: none; }
+
+.side-project-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  transition: gap var(--transition), color var(--transition);
+}
+
+.side-project-card:hover .side-project-cta {
+  gap: 0.7rem;
+  color: var(--accent-hover);
+}
+
+@media (max-width: 768px) {
+  .side-project-card {
+    grid-template-columns: 1fr;
+  }
+
+  .side-project-preview {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem;
+  }
+}
+
+/* ============================================
    Case Study — Hero
    ============================================ */
 .case-hero {
