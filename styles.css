@@ -252,32 +252,22 @@ nav .nav-links a:hover { color: var(--text); }
 
 .side-project-preview {
   background: var(--bg-elevated);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 2rem;
-  gap: 1.5rem;
   border-right: 1px solid var(--border);
-  position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: stretch;
 }
 
-.side-project-preview::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%);
-  pointer-events: none;
+.side-project-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+  transition: transform var(--transition);
 }
 
-.side-project-badge {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  color: var(--accent);
-  position: relative;
-  z-index: 1;
+.side-project-card:hover .side-project-preview img {
+  transform: scale(1.03);
 }
 
 .side-project-body {
