@@ -321,17 +321,14 @@ nav .nav-links a:hover { color: var(--text); }
 }
 
 /* ============================================
-   Company Context Band
+   Company Context Card (inside case hero)
    ============================================ */
 .company-context {
-  padding-top: 3rem;
-}
-
-.company-context .container {
+  margin-top: 2rem;
   display: flex;
   gap: 2.5rem;
   align-items: baseline;
-  padding: 1.75rem clamp(1.5rem, 4vw, 3rem);
+  padding: 1.75rem;
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
@@ -353,7 +350,7 @@ nav .nav-links a:hover { color: var(--text); }
 }
 
 @media (max-width: 768px) {
-  .company-context .container {
+  .company-context {
     flex-direction: column;
     gap: 0.5rem;
   }
