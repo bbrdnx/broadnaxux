@@ -104,7 +104,6 @@ nav .logo {
   letter-spacing: -0.02em;
 }
 
-.logo-short { display: none; }
 
 nav .nav-links {
   display: flex;
@@ -660,8 +659,6 @@ footer .footer-links a:hover { color: var(--accent); }
   .case-nav a { max-width: 100%; }
 
   nav .nav-links { gap: 1.25rem; }
-  .logo-full { display: none; }
-  .logo-short { display: inline; }
 }
 
 @media (max-width: 480px) {
