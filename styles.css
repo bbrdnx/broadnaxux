@@ -324,16 +324,20 @@ nav .nav-links a:hover { color: var(--text); }
    Company Context Band
    ============================================ */
 .company-context {
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-card);
+  padding-top: 3rem;
 }
 
 .company-context .container {
   display: flex;
   gap: 2.5rem;
   align-items: baseline;
-  padding-top: 1.75rem;
-  padding-bottom: 1.75rem;
+  padding: 1.75rem clamp(1.5rem, 4vw, 3rem);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .company-context .label {
