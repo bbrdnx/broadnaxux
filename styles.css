@@ -104,7 +104,7 @@ nav .logo {
   letter-spacing: -0.02em;
 }
 
-nav .logo span { color: var(--accent); }
+.logo-short { display: none; }
 
 nav .nav-links {
   display: flex;
@@ -318,6 +318,41 @@ nav .nav-links a:hover { color: var(--text); }
 
   .side-project-body {
     padding: 2rem;
+  }
+}
+
+/* ============================================
+   Company Context Band
+   ============================================ */
+.company-context {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.company-context .container {
+  display: flex;
+  gap: 2.5rem;
+  align-items: baseline;
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
+}
+
+.company-context .label {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.company-context p:last-child {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  max-width: none;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .company-context .container {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
@@ -625,6 +660,8 @@ footer .footer-links a:hover { color: var(--accent); }
   .case-nav a { max-width: 100%; }
 
   nav .nav-links { gap: 1.25rem; }
+  .logo-full { display: none; }
+  .logo-short { display: inline; }
 }
 
 @media (max-width: 480px) {
