@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Easy SSL Install — InkSoft | Barbara Broadnax</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
@@ -13,15 +13,21 @@
 <body>
 
   <nav>
-    <div class="container">
-      <a href="index.html" class="logo">Barbara Broadnax</a>
-      <ul class="nav-links">
-        <li><a href="index.html#work">Work</a></li>
-        <li><a href="index.html#about">About</a></li>
-        <li><a href="resume.html">Resume</a></li>
-        <li><a href="mailto:broadnaxux@gmail.com">Contact</a></li>
-      </ul>
+    <a href="index.html" class="site-name" aria-label="Barbara Broadnax, home">
+      <span class="name-first">Barbara</span>
+      <span class="name-last">Broadnax</span>
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <div class="ticker">
+      <span class="ticker-label">I design</span>
+      <div class="ticker-track" id="ticker" aria-live="polite"></div>
     </div>
+    <ul class="nav-links">
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a href="mailto:broadnaxux@gmail.com">Contact</a></li>
+    </ul>
   </nav>
 
   <section class="case-hero">
@@ -160,10 +166,38 @@
   </div>
 
   <footer>
-    <div class="container">
-      <p>&copy; 2026 Barbara Broadnax</p>
-    </div>
+    <p>&copy; 2026 Barbara Broadnax</p>
+    <ul class="footer-links">
+      <li><a href="mailto:broadnaxux@gmail.com">Email</a></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
   </footer>
 
+  <script>
+    /* Ticker */
+    const phrases = ['cross-functional teams','revenue outcomes','products at scale','AI-powered tools','design strategy','for complexity'];
+    const track = document.getElementById('ticker');
+    let current = 0;
+    phrases.forEach((p, i) => {
+      const span = document.createElement('span');
+      span.className = 'ticker-word';
+      span.textContent = p;
+      span.id = 'tw-' + i;
+      track.appendChild(span);
+    });
+    function showWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.classList.add('is-in');
+      el.addEventListener('animationend', () => { el.classList.remove('is-in'); el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, { once: true });
+    }
+    function hideWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.style.opacity = ''; el.style.transform = '';
+      el.classList.add('is-out');
+      el.addEventListener('animationend', () => { el.classList.remove('is-out'); el.style.opacity = 0; }, { once: true });
+    }
+    showWord(0);
+    setInterval(() => { hideWord(current); current = (current + 1) % phrases.length; setTimeout(() => showWord(current), 320); }, 2600);
+  </script>
 </body>
 </html>
