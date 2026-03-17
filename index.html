@@ -268,6 +268,99 @@
     }
 
     /* ============================================================
+       COMPANY CONTEXT
+    ============================================================ */
+    .co-section {
+      padding: 0 var(--pad) 3rem;
+    }
+
+    .co-eyebrow {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .co-eyebrow.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .co-row {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr 1.6fr;
+      align-items: start;
+      gap: 0 2.5rem;
+      padding: 1.75rem 0;
+      border-bottom: 1px solid var(--rule);
+      /* Curtain wipe left-to-right */
+      clip-path: inset(0 100% 0 0);
+      opacity: 0;
+      transition: clip-path 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.05s linear;
+    }
+
+    .co-row:first-of-type {
+      border-top: 1px solid var(--rule);
+    }
+
+    .co-row.visible {
+      clip-path: inset(0 0% 0 0);
+      opacity: 1;
+    }
+
+    .co-index {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding-top: 0.25rem;
+    }
+
+    .co-name {
+      font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .co-right {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .co-industry {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--purple);
+    }
+
+    .co-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 460px;
+    }
+
+    @media (max-width: 640px) {
+      .co-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem 0;
+      }
+      .co-index { display: none; }
+    }
+
+    /* ============================================================
        WORK RECORD
     ============================================================ */
     .work-record {
@@ -306,12 +399,37 @@
       margin: 0 calc(-1 * var(--pad));
       padding: 1.5rem var(--pad);
       position: relative;
-      cursor: default;
+      cursor: pointer;
+      color: inherit;
+      text-decoration: none;
       transition: background 0.25s ease;
     }
 
     .record-row:hover {
       background: rgba(45, 10, 94, 0.025);
+    }
+
+    .record-row:focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: -2px;
+    }
+
+    /* Subtle arrow that appears on row hover */
+    .record-row .record-arrow {
+      position: absolute;
+      right: var(--pad);
+      top: 50%;
+      translate: 4px -50%;
+      opacity: 0;
+      font-size: 0.75rem;
+      color: var(--purple);
+      transition: opacity 0.2s ease, translate 0.25s cubic-bezier(0.16,1,0.3,1);
+      pointer-events: none;
+    }
+
+    .record-row:hover .record-arrow {
+      opacity: 1;
+      translate: 0 -50%;
     }
 
     /* Animated bottom border */
@@ -342,6 +460,9 @@
     .record-row.visible > span:nth-child(2) { opacity:1; transform:none; transition-delay:0.26s; }
     .record-row.visible > span:nth-child(3) { opacity:1; transform:none; transition-delay:0.34s; }
     .record-row.visible > span:nth-child(4) { opacity:1; transform:none; transition-delay:0.42s; }
+
+    /* Arrow fades in after columns animate */
+    .record-row.visible .record-arrow { transition-delay: 0s; }
 
     .record-company {
       font-size: 0.65rem;
@@ -667,26 +788,29 @@
       <span>Outcome</span>
     </div>
 
-    <div class="record-row">
+    <a href="ipro-ner.html" class="record-row">
       <span class="record-company">IPRO</span>
       <span class="record-project">Named Entity Recognition</span>
       <span class="record-role">Product Designer</span>
       <span class="record-outcome">4.1 / 5 in concept testing</span>
-    </div>
+      <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>
 
-    <div class="record-row">
+    <a href="inksoft-design-studio.html" class="record-row">
       <span class="record-company">InkSoft</span>
       <span class="record-project">Design Studio: Signs &amp; Banners</span>
       <span class="record-role">Product Designer</span>
       <span class="record-outcome">New revenue module, shipped on time</span>
-    </div>
+      <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>
 
-    <div class="record-row">
+    <a href="alaska-view-reservation.html" class="record-row">
       <span class="record-company">Alaska Airlines</span>
       <span class="record-project">View Reservation</span>
       <span class="record-role">Lead Product Designer</span>
       <span class="record-outcome">120% lift in car rental bookings</span>
-    </div>
+      <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>
 
     <!-- INTERSTITIAL -->
     <div class="interstitial">
@@ -698,33 +822,37 @@
       </p>
     </div>
 
-    <div class="record-row">
+    <a href="ipro-search-redact.html" class="record-row">
       <span class="record-company">IPRO</span>
       <span class="record-project">Search &amp; Redact</span>
       <span class="record-role">Product Designer</span>
       <span class="record-outcome">Workspace redesign, annotation UX</span>
-    </div>
+      <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>
 
-    <div class="record-row">
+    <a href="ipro-eda.html" class="record-row">
       <span class="record-company">IPRO</span>
       <span class="record-project">Early Data Assessment</span>
       <span class="record-role">Product Designer</span>
       <span class="record-outcome">Net-new pre-discovery product</span>
-    </div>
+      <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>
 
-    <div class="record-row">
+    <a href="alaska-same-day-change.html" class="record-row">
       <span class="record-company">Alaska Airlines</span>
       <span class="record-project">Same Day Change</span>
       <span class="record-role">Lead Product Designer</span>
       <span class="record-outcome">$612K revenue in 6 months</span>
-    </div>
+      <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>
 
-    <div class="record-row">
+    <a href="inksoft-ssl.html" class="record-row">
       <span class="record-company">InkSoft</span>
       <span class="record-project">Easy SSL Install</span>
       <span class="record-role">UI Design &amp; UX Copy</span>
       <span class="record-outcome">34% to near-full SSL adoption</span>
-    </div>
+      <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>
   </div>
 
   <!-- SIDE PROJECTS -->
