@@ -3,3 +3,11 @@ Thumbs.db
 *.log
 node_modules/
 package-lock.json
+
+# Cloudflare scaffolding
+# Static assets in workers/public/public/ are duplicates of files at the repo
+# root, populated by `npm run prepare-assets`. They're a build artifact.
+cloudflare/workers/public/public/*
+!cloudflare/workers/public/public/.gitkeep
+.wrangler/
+.dev.vars

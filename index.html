@@ -365,12 +365,177 @@
       max-width: 460px;
     }
 
+    /* Company name block: button-styled trigger that holds name + hint */
+    .co-name-block {
+      background: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.55rem;
+      cursor: pointer;
+    }
+
+    .co-name-block:focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 6px;
+      border-radius: 2px;
+    }
+
+    .co-toggle-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .co-toggle-hint .chevron {
+      width: 6px;
+      height: 6px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg) translate(-1px, -1px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .co-row:hover .co-toggle-hint,
+    .co-row.is-expanded .co-toggle-hint,
+    .co-name-block:hover .co-toggle-hint {
+      color: var(--purple);
+    }
+
+    .co-row:hover .co-toggle-hint .chevron,
+    .co-row.is-expanded .co-toggle-hint .chevron {
+      transform: rotate(225deg) translate(-1px, -1px);
+    }
+
+    /* Projects panel — collapsible row of thumbnails */
+    .co-projects-wrap {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .co-row:hover .co-projects-wrap,
+    .co-row.is-expanded .co-projects-wrap {
+      grid-template-rows: 1fr;
+    }
+
+    .co-projects {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .co-projects-inner {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.5rem 0 0.25rem;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.3s ease 0.05s,
+                  transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.05s,
+                  visibility 0s linear 0.45s;
+    }
+
+    .co-projects-inner::-webkit-scrollbar { display: none; }
+
+    .co-row:hover .co-projects-inner,
+    .co-row.is-expanded .co-projects-inner {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.35s ease 0.08s,
+                  transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s,
+                  visibility 0s linear 0s;
+    }
+
+    .co-thumb {
+      flex: 0 0 auto;
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: inherit;
+      scroll-snap-align: start;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .co-thumb:hover {
+      transform: translateY(-3px);
+    }
+
+    .co-thumb:focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .co-thumb-frame {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: #f5f3fa;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.3s;
+    }
+
+    .co-thumb:hover .co-thumb-frame {
+      border-color: rgba(45, 10, 94, 0.28);
+      box-shadow: 0 14px 32px rgba(21, 13, 38, 0.09);
+    }
+
+    .co-thumb-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top left;
+      display: block;
+    }
+
+    .co-thumb-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+    }
+
+    .co-thumb-meta {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
     @media (max-width: 640px) {
       .co-row {
         grid-template-columns: 1fr;
         gap: 0.5rem 0;
       }
       .co-index { display: none; }
+      .co-projects-inner {
+        padding-right: var(--pad);
+        margin-right: calc(-1 * var(--pad));
+      }
+      .co-thumb { width: 180px; }
     }
 
     /* ============================================================
@@ -883,7 +1048,7 @@
       <li><a href="#work">Work</a></li>
       <li><a href="resume.html">Resume</a></li>
       <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
-      <li><a href="mailto:broadnaxux@gmail.com">Contact</a></li>
+      <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
 
@@ -907,28 +1072,104 @@
 
     <div class="co-row">
       <span class="co-index">01</span>
-      <span class="co-name">IPRO</span>
+      <button type="button" class="co-name-block" aria-expanded="false" aria-controls="co-projects-ipro">
+        <span class="co-name">IPRO</span>
+        <span class="co-toggle-hint"><span class="chevron" aria-hidden="true"></span>3 case studies</span>
+      </button>
       <div class="co-right">
         <span class="co-industry">Legal technology</span>
         <p class="co-desc">Enterprise software that helps legal teams manage, review, and produce millions of documents in litigation and investigations. High stakes, complex workflows, zero room for error.</p>
+      </div>
+      <div class="co-projects-wrap">
+        <div class="co-projects" id="co-projects-ipro">
+          <div class="co-projects-inner">
+            <a href="ipro-ner.html" class="co-thumb">
+              <span class="co-thumb-frame">
+                <img src="images/NER - Desktop.png" alt="" loading="lazy">
+              </span>
+              <span class="co-thumb-title">Named Entity Recognition</span>
+              <span class="co-thumb-meta">4.1 / 5 in concept testing</span>
+            </a>
+            <a href="ipro-search-redact.html" class="co-thumb">
+              <span class="co-thumb-frame">
+                <img src="images/Search & Redact - V2 - Desktop.png" alt="" loading="lazy">
+              </span>
+              <span class="co-thumb-title">Search &amp; Redact</span>
+              <span class="co-thumb-meta">Workspace redesign, annotation UX</span>
+            </a>
+            <a href="ipro-eda.html" class="co-thumb">
+              <span class="co-thumb-frame">
+                <img src="images/eda-full-workflow.png" alt="" loading="lazy">
+              </span>
+              <span class="co-thumb-title">Early Data Assessment</span>
+              <span class="co-thumb-meta">Net-new pre-discovery product</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="co-row">
       <span class="co-index">02</span>
-      <span class="co-name">Alaska Airlines</span>
+      <button type="button" class="co-name-block" aria-expanded="false" aria-controls="co-projects-alaska">
+        <span class="co-name">Alaska Airlines</span>
+        <span class="co-toggle-hint"><span class="chevron" aria-hidden="true"></span>2 case studies</span>
+      </button>
       <div class="co-right">
         <span class="co-industry">Commercial aviation</span>
         <p class="co-desc">A major U.S. carrier serving tens of millions of travelers each year. Digital products span booking, check-in, and post-purchase experiences, all while navigating DOT regulations and legacy infrastructure.</p>
+      </div>
+      <div class="co-projects-wrap">
+        <div class="co-projects" id="co-projects-alaska">
+          <div class="co-projects-inner">
+            <a href="alaska-view-reservation.html" class="co-thumb">
+              <span class="co-thumb-frame">
+                <img src="images/VPNR - v1 - desktop.png" alt="" loading="lazy">
+              </span>
+              <span class="co-thumb-title">View Reservation</span>
+              <span class="co-thumb-meta">120% lift in car rental bookings</span>
+            </a>
+            <a href="alaska-same-day-change.html" class="co-thumb">
+              <span class="co-thumb-frame">
+                <img src="images/SDC - Desktop.png" alt="" loading="lazy">
+              </span>
+              <span class="co-thumb-title">Same Day Change</span>
+              <span class="co-thumb-meta">$612K revenue in 6 months</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="co-row">
       <span class="co-index">03</span>
-      <span class="co-name">InkSoft</span>
+      <button type="button" class="co-name-block" aria-expanded="false" aria-controls="co-projects-inksoft">
+        <span class="co-name">InkSoft</span>
+        <span class="co-toggle-hint"><span class="chevron" aria-hidden="true"></span>2 case studies</span>
+      </button>
       <div class="co-right">
         <span class="co-industry">E-commerce</span>
         <p class="co-desc">A platform for custom print shop owners to run storefronts, create designs, and manage orders. Built for small business operators who need powerful tools without enterprise complexity.</p>
+      </div>
+      <div class="co-projects-wrap">
+        <div class="co-projects" id="co-projects-inksoft">
+          <div class="co-projects-inner">
+            <a href="inksoft-design-studio.html" class="co-thumb">
+              <span class="co-thumb-frame">
+                <img src="images/Signs and Banners.png" alt="" loading="lazy">
+              </span>
+              <span class="co-thumb-title">Design Studio: Signs &amp; Banners</span>
+              <span class="co-thumb-meta">New revenue module, shipped on time</span>
+            </a>
+            <a href="inksoft-ssl.html" class="co-thumb">
+              <span class="co-thumb-frame">
+                <img src="images/SSL - 1 - Desktop.png" alt="" loading="lazy">
+              </span>
+              <span class="co-thumb-title">Easy SSL Install</span>
+              <span class="co-thumb-meta">34% to near-full SSL adoption</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1215,6 +1456,18 @@
     }, { threshold: 0.2 });
 
     if (coEyebrow) coObserver.observe(coEyebrow);
+
+    /* ================================================================
+       COMPANY CONTEXT — click to lock-open project thumbnails
+    ================================================================ */
+    document.querySelectorAll('.co-name-block').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.closest('.co-row');
+        if (!row) return;
+        const isOpen = row.classList.toggle('is-expanded');
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    });
 
     /* ================================================================
        INTERSECTION OBSERVER

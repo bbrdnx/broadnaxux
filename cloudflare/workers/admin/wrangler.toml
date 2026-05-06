@@ -1,0 +1,26 @@
+name = "broadnaxux-admin"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "broadnaxux-content"
+database_id = "71f7a5bb-c05d-4325-8fac-fc2b8968f7f2"
+
+[[r2_buckets]]
+binding = "PUBLIC_BUCKET"
+bucket_name = "broadnaxux-public"
+
+[[r2_buckets]]
+binding = "PRIVATE_BUCKET"
+bucket_name = "broadnaxux-private"
+
+[observability]
+enabled = true
+
+# Custom domain routing. If `admin.barbarabroadnax.com` already has a DNS
+# record, delete it in the CF dashboard before redeploying.
+[[routes]]
+pattern = "admin.barbarabroadnax.com"
+custom_domain = true
