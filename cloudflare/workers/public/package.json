@@ -1,0 +1,19 @@
+{
+  "name": "broadnaxux-public",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare-assets": "node ../../scripts/prepare-public-assets.mjs",
+    "predev": "npm run prepare-assets",
+    "predeploy": "npm run prepare-assets",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250401.0",
+    "typescript": "^5.4.0",
+    "wrangler": "^3.114.0"
+  }
+}
