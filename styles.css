@@ -203,6 +203,43 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
 .nav-links a:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; border-radius: 2px; }
 
 /* ============================================
+   Mobile sticky subnav (shown only on narrow screens)
+   ============================================ */
+.mobile-subnav { display: none; }
+
+@media (max-width: 560px) {
+  .mobile-subnav {
+    position: sticky;
+    top: 56px; /* sits directly below the 56px primary nav */
+    z-index: 99;
+    display: flex;
+    gap: 1.75rem;
+    justify-content: center;
+    align-items: center;
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.6rem var(--pad);
+    list-style: none;
+  }
+
+  .mobile-subnav a {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .mobile-subnav a:hover { color: var(--purple); }
+  .mobile-subnav a:focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+/* ============================================
    Company Context Card
    ============================================ */
 .company-context {
