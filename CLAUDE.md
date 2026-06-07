@@ -11,10 +11,10 @@
 - Text muted: #8a8a9a
 
 ## Color Palette (Light Theme — home page)
-- Background: #ffffff
-- Ink (headings/body): #150d26
-- Purple accent: to be confirmed after prototype sign-off
-- Muted text: #7c6d90
+- Background: #FBF8F1 (warm cream)
+- Ink (headings/body): #05334A (navy)
+- Accent: #FF5B59 (red — replaces purple)
+- Muted text: #8B7F6A
 
 ## Case Study Order (home page grid)
 1. Named Entity Recognition — IPRO

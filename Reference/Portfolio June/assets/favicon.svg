@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="6" fill="#05334A"></rect>
+  <text x="16" y="22" font-family="Inter Tight, Inter, -apple-system, sans-serif" font-size="14" font-weight="800" fill="#FCF0D6" text-anchor="middle" letter-spacing="-0.5">BB</text>
+  <rect x="4" y="26" width="4" height="2" fill="#E88F93"></rect>
+</svg>

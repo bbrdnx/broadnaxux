@@ -224,21 +224,14 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
   const footerEmail   = getText(content, 'footer_email', 'broadnaxux@gmail.com');
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
 
-  // Build the work record rows. Insert the interstitial after the Nth row.
-  const rows: string[] = [];
-  caseStudies.forEach((cs, i) => {
-    rows.push(workRecordRow(cs));
-    if (i + 1 === interAfter && (inter1 || inter2)) {
-      rows.push(interstitialBlock(inter1, inter2));
-    }
-  });
+  const workCardsHtml = caseStudies.map((cs, i) => workCard(cs, i)).join('\n');
 
   const html = homepageTemplate({
     tickerPhrases, tickerLabel,
     thesis1, thesis2, asterisk,
     coEyebrow, companyRows,
     recordHeader,
-    workRowsHtml: rows.join('\n\n'),
+    workCardsHtml,
     spEyebrow, spHeadline, spLead, spQuote, spCite,
     footerEmail, footerLinkedIn,
   });
@@ -260,6 +253,25 @@ function workRecordRow(cs: CaseStudyRow): string {
       <span class="record-role">${htmlEscape(cs.role ?? '')}</span>
       <span class="record-outcome">${htmlEscape(cs.outcome_metric ?? '')}</span>
       <span class="record-arrow" aria-hidden="true">&#8599;</span>
+    </a>`;
+}
+
+// Image-forward card for the masonry grid.
+// Cards at positions 0 and 5 (then every 6) get the wide "featured" treatment.
+function workCard(cs: CaseStudyRow, index: number): string {
+  const isFeatured = index === 0 || (index > 0 && (index - 5) % 6 === 0);
+  const imgUrl = cs.hero_image_key ? `/uploads/${attrEscape(cs.hero_image_key)}` : '';
+  const imgEl = imgUrl
+    ? `<img src="${imgUrl}" alt="" loading="${index < 2 ? 'eager' : 'lazy'}">`
+    : '';
+  return `    <a href="/work/${attrEscape(cs.id)}" class="work-card${isFeatured ? ' work-card--featured' : ''}">
+      <div class="card-img">${imgEl}</div>
+      <div class="card-overlay">
+        <span class="card-company">${htmlEscape(cs.company)}</span>
+        <h2 class="card-title">${htmlEscape(cs.title)}</h2>
+        ${cs.outcome_metric ? `<span class="card-metric">${htmlEscape(cs.outcome_metric)}</span>` : ''}
+      </div>
+      <span class="card-arrow" aria-hidden="true">&#8599;</span>
     </a>`;
 }
 
@@ -442,7 +454,7 @@ interface HomeData {
   coEyebrow: string;
   companyRows: Array<{ index?: string; name: string; industry: string; description: string }>;
   recordHeader: string[];
-  workRowsHtml: string;
+  workCardsHtml: string;
   spEyebrow: string;
   spHeadline: string;
   spLead: string;
@@ -453,46 +465,39 @@ interface HomeData {
 }
 
 function homepageTemplate(d: HomeData): string {
-  const headerCells = d.recordHeader.map((h) => `<span>${htmlEscape(h)}</span>`).join('\n      ');
-  const companyHtml = d.companyRows.map((c, i) => `
-    <div class="co-row">
-      <span class="co-index">${htmlEscape(c.index ?? String(i + 1).padStart(2, '0'))}</span>
-      <span class="co-name">${htmlEscape(c.name)}</span>
-      <div class="co-right">
-        <span class="co-industry">${htmlEscape(c.industry)}</span>
-        <p class="co-desc">${htmlEscape(c.description)}</p>
-      </div>
-    </div>`).join('\n');
+  const tagline = [d.thesis1, d.thesis2].filter(Boolean).join(' ') ||
+    'Three industries. Seven shipped products. One through-line: design that performs.';
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barbara Broadnax | Product & Design</title>
+  <title>Barbara Broadnax | Product &amp; Design</title>
   <meta name="description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Case studies on accessibility and design that performs.">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Barbara Broadnax | Product & Design">
+  <meta property="og:title" content="Barbara Broadnax | Product &amp; Design">
   <meta property="og:description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Case studies on accessibility and design that performs.">
   <meta property="og:site_name" content="Barbara Broadnax">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Barbara Broadnax | Product & Design">
+  <meta name="twitter:title" content="Barbara Broadnax | Product &amp; Design">
   <meta name="twitter:description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Case studies on accessibility and design that performs.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script defer src="/_vercel/insights/script.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --white:  #ffffff;
-      --ink:    #150d26;
-      --purple: #2d0a5e;
-      --muted:  #7c6d90;
-      --rule:   rgba(21, 13, 38, 0.1);
+      --bg:     #FBF8F1;
+      --ink:    #05334A;
+      --accent: #FF5B59;
+      --muted:  #8B7F6A;
+      --rule:   rgba(5, 51, 74, 0.1);
       --pad:    clamp(1.25rem, 5vw, 4rem);
     }
 
@@ -500,7 +505,7 @@ function homepageTemplate(d: HomeData): string {
 
     body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--white);
+      background: var(--bg);
       color: var(--ink);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
@@ -509,14 +514,16 @@ function homepageTemplate(d: HomeData): string {
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; }
 
+    /* ── Scroll progress ──────────────────────────────────────────── */
     .scroll-progress {
       position: fixed; top: 56px; left: 0; height: 2px; width: 0%;
-      background: var(--purple); z-index: 101; pointer-events: none;
+      background: var(--accent); z-index: 101; pointer-events: none;
     }
 
+    /* ── Nav ──────────────────────────────────────────────────────── */
     nav {
       position: sticky; top: 0; z-index: 100;
-      background: var(--white); border-bottom: 1px solid var(--rule);
+      background: var(--bg); border-bottom: 1px solid var(--rule);
       height: 56px; display: flex; align-items: center; justify-content: space-between;
       padding: 0 var(--pad); gap: 2rem;
     }
@@ -529,14 +536,14 @@ function homepageTemplate(d: HomeData): string {
 
     .site-name { display: flex; flex-direction: column; gap: 1px; line-height: 1; flex-shrink: 0; text-decoration: none; }
     .site-name .name-first { display: block; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink); }
-    .site-name .name-last { display: block; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.155em; text-transform: uppercase; color: var(--ink); }
+    .site-name .name-last  { display: block; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.155em; text-transform: uppercase; color: var(--ink); }
 
     .nav-divider { width: 1px; height: 22px; background: var(--rule); flex-shrink: 0; }
 
     .ticker { display: flex; align-items: center; gap: 0.45rem; flex: 1; }
     .ticker-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); white-space: nowrap; line-height: 1; }
     .ticker-track { position: relative; height: 1em; overflow: hidden; min-width: 210px; }
-    .ticker-word { position: absolute; inset: 0; display: flex; align-items: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--purple); white-space: nowrap; opacity: 0; transform: translateY(110%); line-height: 1; }
+    .ticker-word  { position: absolute; inset: 0; display: flex; align-items: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); white-space: nowrap; opacity: 0; transform: translateY(110%); line-height: 1; }
     .ticker-word.is-in  { animation: wordIn  0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
     .ticker-word.is-out { animation: wordOut 0.3s ease-in forwards; }
     @keyframes wordIn  { from{opacity:0;transform:translateY(110%)} to{opacity:1;transform:translateY(0)} }
@@ -544,123 +551,164 @@ function homepageTemplate(d: HomeData): string {
 
     .nav-links { display: flex; gap: 2rem; list-style: none; flex-shrink: 0; }
     .nav-links a { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
-    .nav-links a:hover { color: var(--purple); }
-    .nav-links a:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; border-radius: 2px; }
+    .nav-links a:hover         { color: var(--accent); }
+    .nav-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 
-    .thesis { padding: 5rem var(--pad) 4.5rem; }
-    .thesis-line { display: block; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.3; color: var(--ink); overflow: hidden; }
-    .thesis-line-inner { display: block; transform: translateY(105%); opacity: 0; transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease; }
-    .thesis-line-inner.visible { transform: translateY(0); opacity: 1; }
-    .thesis-line-inner em { font-style: normal; color: var(--purple); }
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .hero {
+      padding: clamp(4rem, 10vw, 8rem) var(--pad) clamp(3rem, 6vw, 5rem);
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(2rem, 5vw, 5rem);
+    }
 
-    .asterisk-trigger { color: var(--purple); cursor: pointer; font-size: 0.5em; font-weight: 800; vertical-align: super; line-height: 0; user-select: none; transition: color 0.15s; }
-    .asterisk-trigger:hover { color: var(--ink); }
-    .asterisk-trigger:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; border-radius: 2px; }
+    .hero-initials-wrap { flex-shrink: 0; }
 
-    .asterisk-tooltip { position: fixed; background: var(--ink); color: #f0edf7; font-size: 0.82rem; font-weight: 400; font-family: 'Inter', sans-serif; letter-spacing: 0; text-transform: none; line-height: 1.65; padding: 0.9rem 1.1rem; border-radius: 10px; width: 268px; max-width: calc(100vw - 2rem); z-index: 1000; box-shadow: 0 8px 32px rgba(21, 13, 38, 0.18); opacity: 0; transform: translateY(-5px) scale(0.96); pointer-events: none; transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1); }
-    .asterisk-tooltip.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .asterisk-tooltip::before { content: ''; position: absolute; top: -5px; left: 16px; width: 10px; height: 5px; background: var(--ink); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+    .hero-initials {
+      display: block;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(6rem, 16vw, 15rem);
+      font-weight: 700;
+      line-height: 0.88;
+      letter-spacing: 0.03em;
+      color: var(--ink);
+    }
 
-    .co-section { padding: 0 var(--pad) 3rem; }
-    .co-eyebrow { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; opacity: 0; transform: translateY(8px); transition: opacity 0.5s ease, transform 0.5s ease; }
-    .co-eyebrow.visible { opacity: 1; transform: none; }
+    .hero-bar {
+      height: 0.45rem;
+      width: 100%;
+      background: var(--accent);
+      margin-top: 0.9rem;
+    }
 
-    .co-row { display: grid; grid-template-columns: 2.5rem 1fr 1.6fr; align-items: start; gap: 0 2.5rem; padding: 1.75rem 0; border-bottom: 1px solid var(--rule); clip-path: inset(0 100% 0 0); opacity: 0; transition: clip-path 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.05s linear; }
-    .co-row:first-of-type { border-top: 1px solid var(--rule); }
-    .co-row.visible { clip-path: inset(0 0% 0 0); opacity: 1; }
-    .co-index { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); padding-top: 0.25rem; }
-    .co-name { font-size: clamp(1.2rem, 2.5vw, 1.75rem); font-weight: 800; letter-spacing: -0.03em; color: var(--ink); text-transform: uppercase; line-height: 1.1; }
-    .co-right { display: flex; flex-direction: column; gap: 0.45rem; }
-    .co-industry { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple); }
-    .co-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; max-width: 460px; }
-    @media (max-width: 640px) { .co-row { grid-template-columns: 1fr; gap: 0.5rem 0; } .co-index { display: none; } }
+    .hero-text { padding-top: 0.5rem; max-width: 480px; }
 
-    .work-record { padding: 0 var(--pad); border-top: 1px solid var(--rule); }
-    .record-header { display: grid; grid-template-columns: 20% 1fr 22% 24%; padding: 0.75rem 0; border-bottom: 1px solid var(--rule); opacity: 0; transform: translateY(6px); transition: opacity 0.5s ease, transform 0.5s ease; }
-    .record-header.visible { opacity: 1; transform: none; }
-    .record-header span { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .hero-name { display: flex; flex-direction: column; margin-bottom: 1.25rem; }
+    .hero-name span {
+      display: block;
+      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink);
+      line-height: 1.2;
+    }
 
-    .record-row { display: grid; grid-template-columns: 20% 1fr 22% 24%; align-items: center; margin: 0 calc(-1 * var(--pad)); padding: 1.5rem var(--pad); position: relative; cursor: pointer; color: inherit; text-decoration: none; transition: background 0.25s ease; }
-    .record-row:hover { background: rgba(45, 10, 94, 0.025); }
-    .record-row:focus-visible { outline: 2px solid var(--purple); outline-offset: -2px; }
-    .record-row .record-arrow { position: absolute; right: var(--pad); top: 50%; translate: 4px -50%; opacity: 0; font-size: 0.75rem; color: var(--purple); transition: opacity 0.2s ease, translate 0.25s cubic-bezier(0.16,1,0.3,1); pointer-events: none; }
-    .record-row:hover .record-arrow { opacity: 1; translate: 0 -50%; }
-    .record-row::after { content: ''; position: absolute; bottom: 0; left: var(--pad); right: var(--pad); height: 1px; width: 0; background: var(--rule); transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1); }
-    .record-row.visible::after { width: calc(100% - var(--pad) * 2); }
-    .record-row > span { opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; }
-    .record-row.visible > span:nth-child(1) { opacity:1; transform:none; transition-delay:0.18s; }
-    .record-row.visible > span:nth-child(2) { opacity:1; transform:none; transition-delay:0.26s; }
-    .record-row.visible > span:nth-child(3) { opacity:1; transform:none; transition-delay:0.34s; }
-    .record-row.visible > span:nth-child(4) { opacity:1; transform:none; transition-delay:0.42s; }
-    .record-row.visible .record-arrow { transition-delay: 0s; }
+    .hero-role {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
 
-    .record-company { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple); }
-    .record-project { font-size: 0.95rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
-    .record-role { font-size: 0.78rem; font-weight: 400; color: var(--muted); }
-    .record-outcome { font-size: 0.78rem; font-weight: 600; color: var(--ink); }
+    .hero-tagline { font-size: clamp(0.95rem, 1.4vw, 1.05rem); color: var(--muted); line-height: 1.8; }
 
-    .interstitial { padding: 5rem 0; max-width: 720px; }
-    .interstitial p { font-size: clamp(1rem, 1.5vw, 1.15rem); font-weight: 400; line-height: 1.8; color: var(--muted); max-width: none; }
-    .interstitial p strong { color: var(--ink); font-weight: 600; }
-    .reveal-word { display: inline-block; opacity: 0; transform: translateY(12px); filter: blur(4px); transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease; }
-    .reveal-word.visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+    /* ── Work grid ────────────────────────────────────────────────── */
+    .work-section { padding: 0 var(--pad) 6rem; }
 
-    .side-projects { background: #212121; padding-bottom: 5rem; }
-    .sp-intro { padding: 5rem var(--pad) 3rem; opacity: 0; transform: translateY(16px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1); }
-    .sp-intro.visible { opacity: 1; transform: none; }
-    .section-eyebrow { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #c084fc; margin-bottom: 1.25rem; }
-    .sp-headline { font-size: clamp(1.6rem, 3.5vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; color: #f0edf7; line-height: 1.15; margin-bottom: 1rem; }
-    .sp-lead { font-size: clamp(0.9rem, 1.4vw, 1.05rem); color: rgba(240, 237, 247, 0.5); line-height: 1.8; max-width: 580px; }
+    .work-eyebrow {
+      display: block;
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted);
+      padding: 2rem 0 1.5rem;
+      border-top: 1px solid var(--rule);
+    }
 
-    .sp-carousel-wrap { position: relative; }
-    .sp-carousel { display: flex; gap: 1.25rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 var(--pad) 2rem; scrollbar-width: none; }
-    .sp-carousel::-webkit-scrollbar { display: none; }
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
 
-    .sp-card { display: flex; flex-direction: column; justify-content: space-between; gap: 2.5rem; background: #2c2c2c; color: #f0edf7; padding: 2.5rem; position: relative; overflow: hidden; text-decoration: none; border: 1px solid rgba(255,255,255,0.07); border-radius: 2px; flex-shrink: 0; width: clamp(300px, 38vw, 440px); min-height: 460px; scroll-snap-align: start; opacity: 0; translate: 0 32px; transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
-    .sp-card.visible { opacity: 1; translate: 0 0; transition: translate 0.65s cubic-bezier(0.16,1,0.3,1), opacity 0.65s ease, border-color 0.3s, box-shadow 0.3s, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
-    .sp-card:hover { border-color: rgba(192, 132, 252, 0.25); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4); transform: scale(1.012); }
-    .sp-glare { position: absolute; inset: 0; background: radial-gradient(500px circle at var(--gx, 50%) var(--gy, 50%), rgba(192, 132, 252, 0.08), transparent 50%); opacity: 0; transition: opacity 0.4s; pointer-events: none; z-index: 0; }
-    .sp-card:hover .sp-glare { opacity: 1; }
-    .sp-card-top { position: relative; z-index: 1; }
-    .sp-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-    .sp-live { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(192, 132, 252, 1); }
-    .sp-dot { width: 6px; height: 6px; border-radius: 50%; background: #c084fc; flex-shrink: 0; animation: livePulse 2.2s ease-in-out infinite; }
-    @keyframes livePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.75); } }
-    .sp-type { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(240, 237, 247, 0.35); }
-    .sp-title { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.04em; color: #f0edf7; line-height: 1; text-transform: uppercase; }
-    .sp-card-bottom { display: flex; flex-direction: column; gap: 1.25rem; position: relative; z-index: 1; }
-    .sp-desc { font-size: 0.88rem; color: rgba(240, 237, 247, 0.6); line-height: 1.75; max-width: 560px; }
-    .sp-desc strong { color: rgba(240, 237, 247, 0.9); font-weight: 600; }
-    .sp-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .sp-tag { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(240, 237, 247, 0.4); border: 1px solid rgba(240, 237, 247, 0.12); padding: 0.3rem 0.75rem; border-radius: 100px; }
-    .sp-cta { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #c084fc; transition: gap 0.25s; align-self: flex-start; }
-    .sp-card:hover .sp-cta { gap: 0.75rem; }
+    .work-card {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      background: #e8e4dd;
+      text-decoration: none;
+      color: inherit;
+    }
+    .work-card--featured {
+      grid-column: span 2;
+      aspect-ratio: 16 / 9;
+    }
+    .work-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
-    .sp-quote-wrap { padding: 3rem var(--pad) 0; }
-    .sp-rule { border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 2.5rem; }
-    .sp-quote { font-size: clamp(1.25rem, 2.4vw, 1.75rem); font-style: italic; font-weight: 500; color: rgba(240, 237, 247, 0.45); line-height: 1.5; letter-spacing: -0.02em; max-width: 780px; }
-    .sp-quote cite { font-style: normal; font-weight: 600; color: rgba(240, 237, 247, 0.22); display: block; margin-top: 1rem; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .card-img { position: absolute; inset: 0; overflow: hidden; }
+    .card-img img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top left;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .work-card:hover .card-img img { transform: scale(1.04); }
 
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(5,51,74,0.85) 0%, rgba(5,51,74,0.42) 40%, transparent 68%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 1.5rem;
+    }
+
+    .card-company {
+      display: block;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+    .card-title {
+      font-size: clamp(0.92rem, 1.4vw, 1.12rem);
+      font-weight: 700; letter-spacing: -0.01em; line-height: 1.25;
+      color: #f5f2ec;
+    }
+    .work-card--featured .card-title { font-size: clamp(1.1rem, 1.8vw, 1.45rem); }
+
+    .card-metric {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.72rem; font-weight: 500;
+      color: rgba(245,242,236,0.65);
+      opacity: 0; transform: translateY(4px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .work-card:hover .card-metric { opacity: 1; transform: translateY(0); }
+
+    .card-arrow {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      width: 34px; height: 34px;
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; color: rgba(255,255,255,0.7);
+      opacity: 0; transform: scale(0.8);
+      transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1), border-color 0.2s, color 0.2s;
+    }
+    .work-card:hover .card-arrow { opacity: 1; transform: scale(1); border-color: rgba(255,91,89,0.5); color: var(--accent); }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
     footer { border-top: 1px solid var(--rule); padding: 2rem var(--pad); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
     footer p { font-size: 0.72rem; color: var(--muted); }
     .footer-links { display: flex; gap: 1.5rem; list-style: none; }
-    .footer-links a { font-size: 0.72rem; color: var(--purple); transition: color 0.2s; }
+    .footer-links a { font-size: 0.72rem; color: var(--accent); transition: color 0.2s; }
     .footer-links a:hover { color: var(--ink); }
 
+    /* ── Responsive ───────────────────────────────────────────────── */
     @media (max-width: 860px) {
-      .record-header { display: none; }
-      .record-row { grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 0.2rem 0; }
-      .record-company { grid-column:1; grid-row:1; }
-      .record-project { grid-column:1/-1; grid-row:2; font-size:0.88rem; }
-      .record-role { display:none; }
-      .record-outcome { grid-column:2; grid-row:1; text-align:right; font-size:0.72rem; }
+      .hero { flex-direction: column; gap: 1.5rem; }
+      .work-grid { grid-template-columns: repeat(2, 1fr); }
+      .work-card--featured { aspect-ratio: 3 / 2; }
+      .card-metric { opacity: 1 !important; transform: none !important; }
     }
-    @media (max-width: 560px) { .nav-links { display:none; } }
 
+    @media (max-width: 560px) {
+      .nav-links { display: none; }
+      .work-grid { grid-template-columns: 1fr; }
+      .work-card, .work-card--featured { grid-column: span 1; aspect-ratio: 4 / 3; }
+      .hero-initials { font-size: clamp(4.5rem, 20vw, 6.5rem); }
+    }
+
+    /* ── Reduced motion ───────────────────────────────────────────── */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-      .thesis-line-inner, .record-row > span, .reveal-word, .section-eyebrow, .sp-card { opacity: 1 !important; transform: none !important; translate: none !important; filter: none !important; }
-      .record-row::after { width: 100% !important; }
+      .card-metric { opacity: 1 !important; transform: none !important; }
       .scroll-progress { display: none; }
     }
   </style>
@@ -671,74 +719,27 @@ function homepageTemplate(d: HomeData): string {
 
 ${navHtml(d.tickerLabel)}
 
-  <div class="thesis">
-    <span class="thesis-line">
-      <span class="thesis-line-inner">${htmlEscape(d.thesis1)}<sup class="asterisk-trigger" id="asteriskTrigger" tabindex="0" role="button" aria-label="Footnote about shipped products">*</sup></span>
-    </span>
-    <span class="thesis-line">
-      <span class="thesis-line-inner"><em>${htmlEscape(d.thesis2)}</em></span>
-    </span>
-  </div>
-
-  <div class="asterisk-tooltip" id="asteriskTooltip" role="tooltip">
-    ${htmlEscape(d.asterisk)}
-  </div>
-
-  <div class="co-section">
-    <p class="co-eyebrow" id="coEyebrow">${htmlEscape(d.coEyebrow)}</p>
-${companyHtml}
-  </div>
-
-  <div class="work-record" id="work">
-    <div class="record-header" id="recordHeader">
-      ${headerCells}
+  <section class="hero">
+    <div class="hero-initials-wrap">
+      <span class="hero-initials">BB</span>
+      <div class="hero-bar"></div>
     </div>
-
-${d.workRowsHtml}
-  </div>
-
-  <div class="side-projects">
-
-    <div class="sp-intro" id="spIntro">
-      <p class="section-eyebrow">${htmlEscape(d.spEyebrow)}</p>
-      <h2 class="sp-headline">${htmlEscape(d.spHeadline)}</h2>
-      <p class="sp-lead">${htmlEscape(d.spLead)}</p>
-    </div>
-
-    <div class="sp-carousel-wrap">
-      <div class="sp-carousel" id="spCarousel">
-        <a href="https://www.mtrcd.com/wcag" target="_blank" rel="noopener" class="sp-card" id="spCard">
-          <div class="sp-glare" id="spGlare"></div>
-          <div class="sp-card-top">
-            <div class="sp-meta">
-              <span class="sp-live"><span class="sp-dot"></span>Live</span>
-              <span class="sp-type">AI Project</span>
-            </div>
-            <h2 class="sp-title">MTRCD<br>WCAG Guide</h2>
-          </div>
-          <div class="sp-card-bottom">
-            <p class="sp-desc"><strong>This is a product design exercise, not a prompt exercise.</strong> Every feature is a decision: what to build, how to structure it, what to cut. I shape the vision and the architecture. The AI handles execution. Consistently updated with audit tools, plain-language resources, and code examples for all 56 WCAG 2.2 criteria.</p>
-            <div class="sp-tags">
-              <span class="sp-tag">WCAG 2.2</span>
-              <span class="sp-tag">Accessibility</span>
-              <span class="sp-tag">AI-assisted</span>
-              <span class="sp-tag">Design tools</span>
-            </div>
-            <span class="sp-cta">View project &rarr;</span>
-          </div>
-        </a>
+    <div class="hero-text">
+      <p class="hero-role">Senior Product Designer</p>
+      <div class="hero-name">
+        <span>Barbara</span>
+        <span>Broadnax</span>
       </div>
+      <p class="hero-tagline">${htmlEscape(tagline)}</p>
     </div>
+  </section>
 
-    <div class="sp-quote-wrap">
-      <hr class="sp-rule">
-      <blockquote class="sp-quote">
-        ${htmlEscape(d.spQuote)}
-        <cite>${htmlEscape(d.spCite)}</cite>
-      </blockquote>
+  <section class="work-section" id="work">
+    <span class="work-eyebrow">Selected work</span>
+    <div class="work-grid">
+${d.workCardsHtml}
     </div>
-
-  </div>
+  </section>
 
 ${footerHtml(d.footerEmail, d.footerLinkedIn)}
 
@@ -752,127 +753,6 @@ ${footerHtml(d.footerEmail, d.footerLinkedIn)}
     window.addEventListener('scroll', updateProgress, { passive: true });
 
 ${tickerScript(d.tickerPhrases)}
-
-    const thesisLines = document.querySelectorAll('.thesis-line-inner');
-    thesisLines.forEach((line, i) => { setTimeout(() => line.classList.add('visible'), 250 + i * 200); });
-
-    const asteriskTrigger = document.getElementById('asteriskTrigger');
-    const asteriskTooltip = document.getElementById('asteriskTooltip');
-    let dismissTimer;
-    function positionTooltip() {
-      const rect = asteriskTrigger.getBoundingClientRect();
-      const tooltipW = 268;
-      let left = rect.left - 10;
-      if (left + tooltipW > window.innerWidth - 16) left = window.innerWidth - tooltipW - 16;
-      asteriskTooltip.style.top  = (rect.bottom + 10) + 'px';
-      asteriskTooltip.style.left = Math.max(16, left) + 'px';
-    }
-    function toggleTooltip(e) {
-      e.stopPropagation();
-      const showing = asteriskTooltip.classList.contains('visible');
-      clearTimeout(dismissTimer);
-      if (showing) {
-        asteriskTooltip.classList.remove('visible');
-      } else {
-        positionTooltip();
-        asteriskTooltip.classList.add('visible');
-        dismissTimer = setTimeout(() => asteriskTooltip.classList.remove('visible'), 5000);
-      }
-    }
-    if (asteriskTrigger) {
-      asteriskTrigger.addEventListener('click', toggleTooltip);
-      asteriskTrigger.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTooltip(e); } });
-      document.addEventListener('click', () => { asteriskTooltip.classList.remove('visible'); clearTimeout(dismissTimer); });
-    }
-
-    function buildWordSpans(el) {
-      if (!el) return;
-      const nodes = el.childNodes;
-      let html = '';
-      nodes.forEach(node => {
-        if (node.nodeType === 3) {
-          node.textContent.split(/(\\s+)/).forEach(part => {
-            if (part.trim()) html += '<span class="reveal-word">' + part + '</span> ';
-            else if (part) html += part;
-          });
-        } else if (node.nodeName === 'STRONG') {
-          node.textContent.split(/(\\s+)/).forEach(part => {
-            if (part.trim()) html += '<strong class="reveal-word">' + part + '</strong> ';
-            else if (part) html += part;
-          });
-        } else {
-          html += node.outerHTML || node.textContent;
-        }
-      });
-      el.innerHTML = html;
-    }
-    const interstitialP  = document.getElementById('interstitial-text');
-    const interstitialP2 = document.getElementById('interstitial-text-2');
-    if (interstitialP)  buildWordSpans(interstitialP);
-    if (interstitialP2) buildWordSpans(interstitialP2);
-
-    const coEyebrow = document.getElementById('coEyebrow');
-    const coRows    = document.querySelectorAll('.co-row');
-    if (coEyebrow) {
-      const coObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            coEyebrow.classList.add('visible');
-            coRows.forEach((row, i) => { setTimeout(() => row.classList.add('visible'), i * 140); });
-            coObserver.disconnect();
-          }
-        });
-      }, { threshold: 0.2 });
-      coObserver.observe(coEyebrow);
-    }
-
-    const rows      = document.querySelectorAll('.record-row');
-    const recHeader = document.getElementById('recordHeader');
-    const words     = interstitialP  ? interstitialP.querySelectorAll('.reveal-word')  : [];
-    const words2    = interstitialP2 ? interstitialP2.querySelectorAll('.reveal-word') : [];
-    const spIntro   = document.getElementById('spIntro');
-    const spCard    = document.getElementById('spCard');
-
-    const rowObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) { entry.target.classList.add('visible'); rowObserver.unobserve(entry.target); }
-      });
-    }, { threshold: 0.15 });
-    if (recHeader) rowObserver.observe(recHeader);
-    rows.forEach(row => rowObserver.observe(row));
-
-    if (interstitialP) {
-      const wordObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            words.forEach((w, i) => setTimeout(() => w.classList.add('visible'), i * 30));
-            const p2Delay = words.length * 30 + 150;
-            words2.forEach((w, i) => setTimeout(() => w.classList.add('visible'), p2Delay + i * 30));
-            wordObserver.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.25 });
-      wordObserver.observe(interstitialP);
-    }
-
-    const genObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) { entry.target.classList.add('visible'); genObserver.unobserve(entry.target); }
-      });
-    }, { threshold: 0.1 });
-    if (spIntro) genObserver.observe(spIntro);
-    if (spCard)  genObserver.observe(spCard);
-
-    const spGlare = document.getElementById('spGlare');
-    if (spCard && spGlare) {
-      spCard.addEventListener('mousemove', (e) => {
-        const rect = spCard.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top)  / rect.height;
-        spGlare.style.setProperty('--gx', (x * 100) + '%');
-        spGlare.style.setProperty('--gy', (y * 100) + '%');
-      });
-    }
   </script>
 
 </body>

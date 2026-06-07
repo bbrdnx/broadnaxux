@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barbara Broadnax — Senior Product Designer</title>
+<meta name="description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Eight years turning complex, regulated products into measurable outcomes.">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Barbara Broadnax — Senior Product Designer">
+<meta property="og:description" content="Eight years across legal tech, commercial aviation, and e-commerce. Design that performs.">
+<meta property="og:site_name" content="Barbara Broadnax">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Barbara Broadnax — Senior Product Designer">
+<meta name="twitter:description" content="Eight years across legal tech, commercial aviation, and e-commerce. Design that performs.">
+
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- NOTE: Vercel analytics removed from preview; will be in final index.html -->
+
+<style>
+/* ============================================================
+   Barbara Broadnax — Portfolio Home
+   Rebuilt June 2026. Deep Space Blue ink · warm paper canvas.
+============================================================ */
+
+:root {
+  /* Ink */
+  --ink:          #05334A;
+  --ink-2:        #3D4550;
+  --muted:        #8B7F6A;
+  --ink-dark:     #042736;
+
+  /* Canvas */
+  --bg:           #FFFFFF;
+  --bg-2:         #F4F4F4;
+  --bg-card:      #FFFFFF;
+
+  /* Signature accent */
+  --accent:       #FF5B59;
+  --accent-deep:  #E2403E;
+  --accent-wash:  rgba(255,91,89,0.10);
+  --accent-line:  rgba(255,91,89,0.32);
+
+  /* Lines */
+  --rule:         rgba(5,51,74,0.10);
+  --rule-2:       rgba(5,51,74,0.18);
+  --rule-dark:    rgba(255,255,255,0.12);
+
+  /* Radii */
+  --r-xs:2px; --r-sm:4px; --r-md:8px; --r-lg:14px; --r-xl:20px; --r-pill:999px;
+
+  /* Shadows */
+  --sh-sm: 0 1px 2px rgba(5,51,74,.06), 0 1px 1px rgba(5,51,74,.04);
+  --sh-md: 0 10px 30px rgba(5,51,74,.10), 0 2px 6px rgba(5,51,74,.05);
+  --sh-lg: 0 30px 70px rgba(5,51,74,.16), 0 4px 10px rgba(5,51,74,.07);
+
+  /* Motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --d1: 120ms; --d2: 240ms; --d3: 420ms;
+
+  /* Type — SF Pro on Apple, system sans elsewhere */
+  --display: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --sans:    -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --mono:    ui-monospace, 'SF Mono', Menlo, 'Cascadia Code', monospace;
+
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --max: 1200px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+.wrap { max-width: var(--max); margin: 0 auto; padding-inline: var(--gutter); }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  margin: 0;
+}
+
+/* ── Scroll progress ── */
+.progress {
+  position: fixed; left: 0; top: 0;
+  height: 2px; width: 0%;
+  background: var(--accent);
+  z-index: 120;
+  transition: width 60ms linear;
+  pointer-events: none;
+}
+
+/* ── Nav ── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 24px;
+  padding: 14px var(--gutter);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border-bottom: 1px solid var(--rule);
+}
+.brand {
+  display: flex; flex-direction: column; line-height: 1.04;
+}
+.brand b {
+  font-family: var(--display);
+  font-weight: 700; font-size: 14px;
+  letter-spacing: 0.22em;
+}
+.brand b + b { letter-spacing: 0.135em; }
+.brand-tag {
+  font-family: var(--mono);
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--muted);
+  margin-top: 5px; text-transform: uppercase;
+}
+.nav-links {
+  display: flex; gap: 20px; margin-left: auto; align-items: center;
+}
+.nav-links .nav-resume,
+.nav-links .nav-cta { margin-left: 4px; }
+.nav-links a:not(.nav-resume):not(.nav-cta) {
+  font-size: 13.5px; font-weight: 500; color: var(--ink-2);
+  position: relative; padding: 6px 0;
+  transition: color var(--d1);
+}
+.nav-links a:not(.nav-resume):not(.nav-cta):hover { color: var(--ink); }
+.nav-links a:not(.nav-resume):not(.nav-cta)::after {
+  content: '';
+  position: absolute; left: 0; right: 100%; bottom: 0;
+  height: 1.5px; background: var(--accent);
+  transition: right var(--d2) var(--ease);
+}
+.nav-links a:not(.nav-resume):not(.nav-cta):hover::after,
+.nav-links a.on::after { right: 0; }
+.nav-links a.on { color: var(--ink); }
+.nav-resume {
+  display: inline-flex; align-items: center;
+  font-size: 13px; font-weight: 600;
+  color: var(--ink) !important;
+  background: transparent;
+  padding: 8px 20px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid rgba(5,51,74,0.25);
+  white-space: nowrap;
+  line-height: 1;
+  transition: border-color var(--d2);
+}
+.nav-resume::after { display: none; }
+.nav-resume:hover { border-color: var(--ink); }
+
+.nav-cta {
+  display: inline-flex; align-items: center;
+  font-size: 13px; font-weight: 600;
+  color: #fff !important;
+  background: var(--ink);
+  padding: 8px 20px;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+  line-height: 1;
+  transition: background var(--d2);
+}
+.nav-cta::after { display: none; }
+.nav-cta:hover { background: var(--accent); }
+
+/* ── Hero ── */
+.hero {
+  padding: clamp(3.5rem,8vw,6.5rem) 0 clamp(3rem,5vw,4.5rem);
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: 720px;
+}
+.hero-status {
+  display: inline-flex; align-items: center; gap: 9px;
+  margin: 0 0 26px;
+  padding: 7px 14px 7px 12px;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-pill);
+}
+.hero-status .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2.4s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,91,89,.45); }
+  70%  { box-shadow: 0 0 0 7px rgba(255,91,89,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,91,89,0); }
+}
+.hero-status span {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.05em; color: var(--accent-deep);
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-family: var(--display); font-weight: 700; color: var(--ink);
+  font-size: clamp(2.3rem,5vw,4rem);
+  line-height: 1.02; letter-spacing: -0.035em;
+  margin: 0 0 26px; text-wrap: balance;
+}
+.hero h1 .accent { color: var(--accent); }
+.hero h1 em { font-style: italic; font-weight: 500; color: var(--ink-2); }
+.hero-lede {
+  font-size: clamp(1rem,1.4vw,1.18rem);
+  line-height: 1.6; color: var(--ink-2);
+  max-width: 48ch; margin: 0 0 30px;
+}
+.hero-meta { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.hero-meta div { display: flex; flex-direction: column; gap: 3px; }
+.hero-meta dt {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 0;
+}
+.hero-meta dd {
+  font-size: 14px; font-weight: 500; color: var(--ink); margin: 0;
+}
+.hero-portrait { display: none; }
+
+/* ── Companies ── */
+.companies {
+  padding: clamp(2.5rem,5vw,4rem) 0;
+  border-top: 1px solid var(--rule);
+}
+.companies-head {
+  display: flex; align-items: baseline;
+  justify-content: space-between; gap: 1rem;
+  margin-bottom: 34px;
+}
+.companies-head p.note {
+  font-size: 13.5px; color: var(--muted);
+  margin: 0; max-width: 30ch; text-align: right;
+}
+.co-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 0;
+}
+.co {
+  padding: 28px 28px 28px 0;
+  border-top: 1px solid var(--rule);
+}
+.co + .co {
+  padding-left: 28px;
+  border-left: 1px solid var(--rule);
+}
+.co-name {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.5rem,2.4vw,2rem);
+  letter-spacing: -0.025em; margin: 0 0 4px;
+}
+.co-role {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent-deep); margin: 0 0 14px;
+}
+.co-industry {
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 12px;
+}
+.co-desc {
+  font-size: 13.5px; line-height: 1.6;
+  color: var(--ink-2); margin: 0;
+}
+
+/* ── Work ── */
+.work {
+  padding: clamp(3rem,6vw,5rem) 0 clamp(2rem,4vw,3rem);
+  border-top: 1px solid var(--rule);
+}
+.work-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between; gap: 1.5rem;
+  margin-bottom: 38px; flex-wrap: wrap;
+}
+.work-head h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.7rem,3vw,2.4rem);
+  letter-spacing: -0.03em; margin: 10px 0 0;
+}
+.work-head .count {
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+}
+
+/* 3-col grid: feature spans 2, rows: NER+DS / VR+SR+EDA / SDC+SSL */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.25rem,2vw,1.75rem);
+}
+
+.case {
+  display: flex; flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--d3) var(--ease), border-color var(--d2), box-shadow var(--d2);
+}
+.case:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-line);
+  box-shadow: var(--sh-md);
+}
+.case.feature {
+  grid-column: span 2;
+  flex-direction: row;
+}
+.case-figure {
+  position: relative; background: var(--bg-2); overflow: hidden;
+}
+.case .case-figure { aspect-ratio: 16/10; }
+.case.feature .case-figure {
+  aspect-ratio: auto; flex: 1 1 56%; min-height: 340px;
+}
+.case-figure img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform var(--d3) var(--ease);
+}
+.case:hover .case-figure img { transform: scale(1.03); }
+.case-badge {
+  position: absolute; left: 14px; top: 14px;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink);
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(4px);
+  padding: 5px 9px; border-radius: var(--r-pill);
+  border: 1px solid var(--rule);
+}
+
+.case-body {
+  display: flex; flex-direction: column;
+  padding: 22px 24px 24px;
+}
+.case.feature .case-body {
+  flex: 1 1 44%; justify-content: center;
+  padding: clamp(1.75rem,3vw,3rem);
+}
+.case-co {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 10px;
+}
+.case-title {
+  font-family: var(--display); font-weight: 700;
+  font-size: 1.35rem; letter-spacing: -0.02em;
+  line-height: 1.1; margin: 0 0 14px;
+}
+.case.feature .case-title {
+  font-size: clamp(1.7rem,2.6vw,2.3rem); margin-bottom: 18px;
+}
+.case-tags {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px;
+}
+.case-tag {
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.04em; color: var(--ink-2);
+  background: var(--bg-2); border: 1px solid var(--rule);
+  padding: 4px 9px; border-radius: var(--r-sm);
+}
+.case-outcome {
+  display: flex; align-items: baseline; gap: 9px; margin: 0 0 18px;
+}
+.case-outcome .stat {
+  font-family: var(--display); font-weight: 700;
+  font-size: 1.05rem; letter-spacing: -0.02em;
+  color: var(--accent-deep);
+}
+.case.feature .case-outcome .stat { font-size: 1.5rem; }
+.case-outcome .lbl { font-size: 13.5px; color: var(--ink-2); }
+.case-foot {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-top: auto; padding-top: 14px;
+  border-top: 1px solid var(--rule); gap: 1rem;
+}
+.case-role { font-size: 12.5px; color: var(--muted); }
+.case-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  transition: color var(--d2);
+  white-space: nowrap;
+}
+.case-link .arr { transition: transform var(--d2) var(--ease); }
+.case:hover .case-link { color: var(--accent-deep); }
+.case:hover .case-link .arr { transform: translate(3px,-3px); }
+
+/* ── Side projects ── */
+.side {
+  margin-top: clamp(3rem,6vw,5rem);
+  background: var(--ink); color: var(--bg);
+  padding: clamp(3rem,6vw,4.5rem) 0;
+}
+.side-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap; margin-bottom: 30px;
+}
+.side-head .l h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.5rem,2.6vw,2rem);
+  letter-spacing: -0.025em; margin: 12px 0 0; color: var(--bg);
+}
+.side-head .l .eyebrow { color: var(--accent); }
+.side-head .r {
+  font-size: 14px; line-height: 1.6;
+  color: rgba(251,248,241,.7); max-width: 38ch; margin: 0;
+}
+.side-grid {
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 14px;
+}
+.spc {
+  display: flex; align-items: center; gap: 18px; padding: 20px 22px;
+  background: var(--ink-dark);
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--r-md);
+  transition: border-color var(--d2), transform var(--d2) var(--ease);
+}
+.spc:hover { border-color: var(--accent-line); transform: translateY(-2px); }
+.spc-mark {
+  width: 46px; height: 46px; flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, #0A4862, var(--ink-dark));
+  border: 1px solid var(--rule-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--bg);
+}
+.spc .m { flex: 1; min-width: 0; }
+.spc-live {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 5px;
+}
+.spc-live .d {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 7px var(--accent);
+}
+.spc-name {
+  font-family: var(--display); font-weight: 600;
+  font-size: 1.05rem; letter-spacing: -0.015em;
+  margin: 0 0 2px; color: var(--bg);
+}
+.spc-desc {
+  font-size: 12.5px; line-height: 1.45;
+  color: rgba(251,248,241,.6); margin: 0;
+}
+.spc .arr {
+  color: rgba(251,248,241,.4); font-size: 16px;
+  transition: transform var(--d2) var(--ease), color var(--d2);
+}
+.spc:hover .arr { color: var(--accent); transform: translate(3px,-3px); }
+
+/* ── Contact / footer ── */
+.contact { padding: clamp(3.5rem,7vw,6rem) 0; }
+.contact-in {
+  display: grid; grid-template-columns: 1.4fr 1fr;
+  gap: clamp(2rem,5vw,4rem); align-items: end;
+}
+.contact h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(2rem,4.5vw,3.4rem);
+  letter-spacing: -0.035em; line-height: 1.02;
+  margin: 18px 0 0; text-wrap: balance;
+}
+.contact h2 a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--d2);
+}
+.contact h2 a:hover { border-color: var(--accent); }
+.contact-links { display: flex; flex-direction: column; gap: 2px; }
+.contact-links a {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 2px; border-top: 1px solid var(--rule);
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  transition: padding-left var(--d2) var(--ease), color var(--d2);
+}
+.contact-links a:last-child { border-bottom: 1px solid var(--rule); }
+.contact-links a:hover { padding-left: 8px; color: var(--accent-deep); }
+.contact-links a .arr {
+  color: var(--muted);
+  transition: transform var(--d2) var(--ease), color var(--d2);
+}
+.contact-links a:hover .arr { transform: translate(3px,-3px); color: var(--accent); }
+
+.foot {
+  border-top: 1px solid var(--rule);
+  padding: 24px 0 40px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.foot p {
+  font-family: var(--mono); font-size: 11.5px;
+  color: var(--muted); margin: 0; letter-spacing: 0.03em;
+}
+.foot .foot-links { display: flex; gap: 20px; }
+.foot .foot-links a {
+  font-size: 12.5px; color: var(--muted); transition: color var(--d1);
+}
+.foot .foot-links a:hover { color: var(--accent); }
+
+/* ── Entrance reveals ── */
+.reveal {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity var(--d3) var(--ease), transform var(--d3) var(--ease);
+}
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .hero-status .dot { animation: none; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hero-portrait { max-width: 360px; }
+  .co-grid { grid-template-columns: 1fr; }
+  .co + .co { padding-left: 0; border-left: none; }
+  .work-grid { grid-template-columns: repeat(2,1fr); }
+  .case.feature { grid-column: 1 / -1; flex-direction: column; }
+  .case.feature .case-figure { min-height: 240px; flex: none; }
+  .side-grid { grid-template-columns: 1fr; }
+  .contact-in { grid-template-columns: 1fr; align-items: start; }
+}
+@media (max-width: 600px) {
+  .nav-links { gap: 16px; }
+  .nav-links a.hide-sm { display: none; }
+  .companies-head p.note { display: none; }
+  .work-grid { grid-template-columns: 1fr; }
+  .case.feature { grid-column: 1; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- NAV -->
+<header class="nav">
+  <a href="#top" class="brand" aria-label="Barbara Broadnax, home">
+    <b>BARBARA</b>
+    <b>BROADNAX</b>
+    <span class="brand-tag">Design · AI · Strategy</span>
+  </a>
+  <nav class="nav-links" aria-label="Site navigation">
+    <a href="#work" class="on">Work</a>
+    <a href="#companies" class="hide-sm">Companies</a>
+    <a href="#building" class="hide-sm">Building</a>
+    <a href="resume.html" class="nav-resume">Resume</a>
+    <a href="#contact" class="nav-cta">Get in touch</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-text reveal">
+        <div class="hero-status">
+          <span class="dot"></span>
+          <span>Open to senior &amp; lead roles</span>
+        </div>
+        <h1>Senior product designer turning complex, regulated products into <span class="accent">measurable outcomes.</span></h1>
+        <p class="hero-lede">I design end-to-end experiences that work for real people under real pressure. Currently that's at a major airline, shipping customer and employee products where reliability, accessibility, and speed are table stakes. Before aviation, I spent years in legal tech and e-discovery building workflows for search, review, and automated redaction across massive datasets, which trained me to hold nuance and clarity at the same time. I partner closely with product and engineering, use research to move fast, and stay anchored to the bigger picture.</p>
+        <dl class="hero-meta">
+          <div><dt>Based</dt><dd>Phoenix, AZ · Remote</dd></div>
+          <div><dt>Now</dt><dd>Alaska Airlines</dd></div>
+          <div><dt>Focus</dt><dd>Product · AI · Accessibility</dd></div>
+        </dl>
+      </div>
+      <div class="hero-portrait reveal">
+        <!-- Replace .portrait-placeholder with <img src="..." alt="Barbara Broadnax"> when headshot is ready -->
+        <div class="portrait-placeholder" aria-hidden="true">
+          <span class="portrait-initials">BB</span>
+        </div>
+        <span class="frame-tag">Barbara Broadnax</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPANIES -->
+  <section class="companies" id="companies">
+    <div class="wrap">
+      <div class="companies-head reveal">
+        <p class="eyebrow">Experience</p>
+        <p class="note">Three industries, each with its own constraints, regulations, and high-stakes users.</p>
+      </div>
+      <div class="co-grid">
+        <div class="co reveal">
+          <h3 class="co-name">IPRO</h3>
+          <p class="co-role">Product Designer</p>
+          <p class="co-industry">Legal technology</p>
+          <p class="co-desc">Enterprise e-discovery software that helps legal teams review and produce millions of documents in litigation and investigations.</p>
+        </div>
+        <div class="co reveal">
+          <h3 class="co-name">Alaska Airlines</h3>
+          <p class="co-role">Lead Product Designer</p>
+          <p class="co-industry">Commercial aviation</p>
+          <p class="co-desc">A major U.S. carrier serving tens of millions of travelers a year across booking, check-in, and post-purchase, on legacy infrastructure under DOT regulation.</p>
+        </div>
+        <div class="co reveal">
+          <h3 class="co-name">InkSoft</h3>
+          <p class="co-role">UX Designer</p>
+          <p class="co-industry">E-commerce</p>
+          <p class="co-desc">A storefront and design platform for custom print-shop owners to build stores, create artwork, and manage orders. Built for small-business operators.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="work" id="work">
+    <div class="wrap">
+      <div class="work-head reveal">
+        <div>
+          <p class="eyebrow">Selected work</p>
+          <h2 style="display:none">Seven projects, seven outcomes.</h2>
+        </div>
+        <span class="count">07 case studies</span>
+      </div>
+
+      <div class="work-grid">
+
+        <!-- 1. Named Entity Recognition — FEATURED (spans 2 of 3 cols) -->
+        <a href="/work/ipro-ner" class="case feature reveal">
+          <div class="case-figure">
+            <img src="images/NER - Desktop.png" alt="Named Entity Recognition interface showing entity highlighting across document text" loading="eager">
+            <span class="case-badge">IPRO</span>
+          </div>
+          <div class="case-body">
+            <p class="case-co">Product Designer · AI</p>
+            <h3 class="case-title">Named Entity Recognition</h3>
+            <div class="case-tags">
+              <span class="case-tag">AI Integration</span>
+              <span class="case-tag">Legal Tech</span>
+              <span class="case-tag">Enterprise</span>
+            </div>
+            <div class="case-outcome">
+              <span class="stat">4.13/5</span>
+              <span class="lbl">in expert concept testing</span>
+            </div>
+            <div class="case-foot">
+              <span class="case-role">NexLP AI integration</span>
+              <span class="case-link">View case study <span class="arr">↗</span></span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 2. Design Studio: Signs & Banners -->
+        <a href="/work/inksoft-design-studio" class="case reveal">
+          <div class="case-figure">
+            <img src="images/Signs and Banners.png" alt="Design Studio editor with a custom sign layout" loading="eager">
+            <span class="case-badge">InkSoft</span>
+          </div>
+          <div class="case-body">
+            <p class="case-co">UX Designer</p>
+            <h3 class="case-title">Design Studio: Signs &amp; Banners</h3>
+            <div class="case-outcome">
+              <span class="stat">New</span>
+              <span class="lbl">revenue module, shipped on time</span>
+            </div>
+            <div class="case-foot">
+              <span class="case-role">0 → 1 product area</span>
+              <span class="case-link">View <span class="arr">↗</span></span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 3. View Reservation -->
+        <a href="/work/alaska-view-reservation" class="case reveal">
+          <div class="case-figure">
+            <img src="images/VPNR - v1 - desktop.png" alt="View Reservation desktop page showing booking summary and ancillary offers" loading="lazy">
+            <span class="case-badge">Alaska Airlines</span>
+          </div>
+          <div class="case-body">
+            <p class="case-co">Lead Product Designer</p>
+            <h3 class="case-title">View Reservation</h3>
+            <div class="case-outcome">
+              <span class="stat">120%</span>
+              <span class="lbl">lift in car-rental bookings</span>
+            </div>
+            <div class="case-foot">
+              <span class="case-role">Post-purchase experience</span>
+              <span class="case-link">View <span class="arr">↗</span></span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 4. Search & Redact -->
+        <a href="/work/ipro-search-redact" class="case reveal">
+          <div class="case-figure">
+            <img src="images/Search &amp; Redact - V2 - Desktop.png" alt="Search and Redact interface with category panel and document preview" loading="lazy">
+            <span class="case-badge">IPRO</span>
+          </div>
+          <div class="case-body">
+            <p class="case-co">Product Designer</p>
+            <h3 class="case-title">Search &amp; Redact</h3>
+            <div class="case-outcome">
+              <span class="stat">New</span>
+              <span class="lbl">AI-powered redaction workflow</span>
+            </div>
+            <div class="case-foot">
+              <span class="case-role">Enterprise tooling</span>
+              <span class="case-link">View <span class="arr">↗</span></span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 5. Early Data Assessment -->
+        <a href="/work/ipro-eda" class="case reveal">
+          <div class="case-figure">
+            <img src="images/eda-full-workflow.png" alt="Early Data Assessment multi-step workflow" loading="lazy">
+            <span class="case-badge">IPRO</span>
+          </div>
+          <div class="case-body">
+            <p class="case-co">Product Designer</p>
+            <h3 class="case-title">Early Data Assessment</h3>
+            <div class="case-outcome">
+              <span class="stat">Net-new</span>
+              <span class="lbl">pre-discovery product area</span>
+            </div>
+            <div class="case-foot">
+              <span class="case-role">0 → 1 feature area</span>
+              <span class="case-link">View <span class="arr">↗</span></span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 6. Same Day Change — FEATURED (spans 2 of 3 cols) -->
+        <a href="/work/alaska-same-day-change" class="case feature reveal">
+          <div class="case-figure">
+            <img src="images/SDC - Desktop.png" alt="Same Day Change booking flow showing flight selection" loading="lazy">
+            <span class="case-badge">Alaska Airlines</span>
+          </div>
+          <div class="case-body">
+            <p class="case-co">Lead Product Designer · 2023</p>
+            <h3 class="case-title">Same Day Change</h3>
+            <div class="case-tags">
+              <span class="case-tag">Booking flow</span>
+              <span class="case-tag">Revenue</span>
+              <span class="case-tag">Native + Web</span>
+            </div>
+            <div class="case-outcome">
+              <span class="stat">$612K</span>
+              <span class="lbl">in new revenue within the first 6 months</span>
+            </div>
+            <div class="case-foot">
+              <span class="case-role">Discovery → ship · UX, PM, Eng</span>
+              <span class="case-link">View case study <span class="arr">↗</span></span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 7. Easy SSL Install -->
+        <a href="/work/inksoft-ssl" class="case reveal">
+          <div class="case-figure">
+            <img src="images/SSL - 1 - Desktop.png" alt="Easy SSL Install step-by-step configuration wizard" loading="lazy">
+            <span class="case-badge">InkSoft</span>
+          </div>
+          <div class="case-body">
+            <p class="case-co">UX Designer</p>
+            <h3 class="case-title">Easy SSL Install</h3>
+            <div class="case-outcome">
+              <span class="stat">34% →</span>
+              <span class="lbl">near-full SSL adoption</span>
+            </div>
+            <div class="case-foot">
+              <span class="case-role">Self-serve security flow</span>
+              <span class="case-link">View <span class="arr">↗</span></span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILDING -->
+  <section class="side" id="building">
+    <div class="wrap">
+      <div class="side-head">
+        <div class="l reveal">
+          <p class="eyebrow">Now building</p>
+          <h2>On my own terms.</h2>
+        </div>
+        <p class="r reveal">Side projects keep me honest. No sprint planning, no stakeholders. Just decisions I make for tools I believe in.</p>
+      </div>
+      <div class="side-grid">
+        <a href="#" class="spc reveal">
+          <div class="spc-mark">M</div>
+          <div class="m">
+            <span class="spc-live"><span class="d"></span>Live</span>
+            <h3 class="spc-name">MTRCD — WCAG Guide</h3>
+            <p class="spc-desc">An accessibility reference built as a product design exercise, not a prompt exercise.</p>
+          </div>
+          <span class="arr">↗</span>
+        </a>
+        <a href="#" class="spc reveal">
+          <div class="spc-mark">L</div>
+          <div class="m">
+            <span class="spc-live"><span class="d"></span>Live</span>
+            <h3 class="spc-name">The Lez List</h3>
+            <p class="spc-desc">Connecting Black lesbians and queer women to events and experiences, by us, for us.</p>
+          </div>
+          <span class="arr">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="wrap contact-in">
+      <div class="reveal">
+        <p class="eyebrow">Let's talk</p>
+        <h2>Hiring for a senior or lead design role? <a href="mailto:broadnaxux@gmail.com">Let's talk.</a></h2>
+      </div>
+      <div class="contact-links reveal">
+        <a href="mailto:broadnaxux@gmail.com">broadnaxux@gmail.com <span class="arr">↗</span></a>
+        <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
+        <a href="resume.html">Download resume <span class="arr">↓</span></a>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="foot">
+        <p>© 2026 Barbara Broadnax · Phoenix, AZ</p>
+        <div class="foot-links">
+          <a href="#work">Work</a>
+          <a href="#contact">Contact</a>
+          <a href="resume.html">Resume</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Scroll progress
+  const prog = document.getElementById('progress');
+  const onScroll = () => {
+    const h = document.documentElement;
+    prog.style.width = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) * 100) + '%';
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Staggered entrance reveals
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const sibs = Array.from(el.parentElement.querySelectorAll(':scope > .reveal'));
+        const idx = Math.max(0, sibs.indexOf(el));
+        el.style.transitionDelay = (idx * 70) + 'ms';
+        el.classList.add('in');
+        io.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Active nav link on scroll
+  const sections = ['work', 'companies', 'building', 'contact']
+    .map(id => document.getElementById(id)).filter(Boolean);
+  const links = Array.from(document.querySelectorAll('.nav-links a'));
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('on',
+          l.getAttribute('href') === '#' + e.target.id && !l.classList.contains('nav-cta')
+        ));
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => spy.observe(s));
+</script>
+
+</body>
+</html>

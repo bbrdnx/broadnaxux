@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="240" height="60">
+  
+  <text x="0" y="24" class="b-name" font-size="14" letter-spacing="3.4">BARBARA</text>
+  <text x="0" y="46" class="b-name" font-size="14" letter-spacing="2.2">BROADNAX</text>
+  <rect x="96" y="15" width="1" height="32" fill="rgba(5,51,74,0.25)"></rect>
+  <text x="108" y="32" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#8B7F6A" letter-spacing="1.2">DESIGN · AI · STRATEGY</text>
+  <rect x="108" y="38" width="18" height="2" fill="#E88F93"></rect>
+</svg>

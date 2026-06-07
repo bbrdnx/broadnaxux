@@ -82,6 +82,24 @@
       color: #4ade80;
     }
 
+    .r-email-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      color: #555;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      line-height: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .r-email-btn:hover { color: #1a1a1a; }
+    .r-email-btn.copied { color: #16a34a; }
+
     /* ── Resume paper ── */
     .resume-paper {
       background: #fff;
@@ -304,7 +322,7 @@
             <h1>Barbara Broadnax</h1>
             <div class="r-subtitle">Senior Product Designer · Accessibility Specialist</div>
             <div class="r-contact">
-              <span><a href="mailto:broadnaxux@gmail.com">broadnaxux@gmail.com</a></span>
+              <span><button class="r-email-btn" onclick="copyEmail(this)" aria-label="Copy email address">broadnaxux@gmail.com<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button></span>
               <span>610-937-9849</span>
               <span>Phoenix, AZ · Remote</span>
               <span><a href="https://www.barbarabroadnax.com">barbarabroadnax.com</a></span>
@@ -414,12 +432,20 @@
   <footer>
     <p>&copy; 2026 Barbara Broadnax</p>
     <ul class="footer-links">
-      <li><a href="mailto:broadnaxux@gmail.com">Email</a></li>
+      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
       <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
     </ul>
   </footer>
 
   <script>
+    function copyEmail(btn) {
+      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
     function copyLink() {
       const btn = document.getElementById('shareBtn');
       const text = document.getElementById('shareBtnText');

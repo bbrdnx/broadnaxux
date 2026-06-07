@@ -534,6 +534,23 @@ footer p { font-size: 0.72rem; color: var(--muted); max-width: none; }
 .footer-links a { font-size: 0.72rem; color: var(--purple); transition: color 0.2s; }
 .footer-links a:hover { color: var(--ink); }
 
+.footer-email-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: var(--purple);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.footer-email-btn:hover { color: var(--ink); }
+.footer-email-btn.copied { color: #16a34a; }
+
 /* ============================================
    Tag pills
    ============================================ */
