@@ -225,6 +225,7 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
 
   const workCardsHtml = caseStudies.map((cs, i) => workCard(cs, i)).join('\n');
+  const navItems = caseStudies.map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
 
   const html = homepageTemplate({
     tickerPhrases, tickerLabel,
@@ -232,6 +233,7 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
     coEyebrow, companyRows,
     recordHeader,
     workCardsHtml,
+    navItems,
     spEyebrow, spHeadline, spLead, spQuote, spCite,
     footerEmail, footerLinkedIn,
   });
@@ -346,6 +348,8 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
   const footerEmail   = getText(content, 'footer_email', 'broadnaxux@gmail.com');
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
 
+  const navItems = all.map((x) => ({ id: x.id, title: x.title, company: x.company }));
+
   const html = caseStudyTemplate({
     title: cs.title,
     company: cs.company,
@@ -354,6 +358,7 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
     meta,
     body_html,
     prev, next,
+    navItems,
     tickerPhrases, tickerLabel,
     footerEmail, footerLinkedIn,
   });
@@ -384,6 +389,16 @@ function tickerScript(phrases: string[]): string {
   // Same animation as the hand-coded HTML, just with phrases injected.
   const json = JSON.stringify(phrases);
   return `
+    /* Copy email */
+    function copyEmail(btn) {
+      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+
     /* Ticker */
     const phrases = ${json};
     const track = document.getElementById('ticker');
@@ -413,7 +428,20 @@ function tickerScript(phrases: string[]): string {
 `;
 }
 
-function navHtml(tickerLabel: string): string {
+interface NavCaseItem { id: string; title: string; company: string; }
+
+// Renders the Case Studies dropdown menu items. `versionMap` (optional) maps a
+// case-study id to a version id, appended as ?v=<id> so share-link recipients
+// land on the exact version being sent to them.
+function caseDropItems(items: NavCaseItem[], versionMap: Record<string, string> = {}): string {
+  return items.map((cs) => {
+    const v = versionMap[cs.id];
+    const suffix = v ? `?v=${encodeURIComponent(v)}` : '';
+    return `          <a href="/work/${attrEscape(cs.id)}${suffix}" role="menuitem"><span class="dm-title">${htmlEscape(cs.title)}</span><span class="dm-co">${htmlEscape(cs.company)}</span></a>`;
+  }).join('\n');
+}
+
+function navHtml(tickerLabel: string, caseStudies: NavCaseItem[] = []): string {
   return `  <nav>
     <a href="/" class="site-name" aria-label="Barbara Broadnax, home">
       <span class="name-first">Barbara</span>
@@ -425,7 +453,12 @@ function navHtml(tickerLabel: string): string {
       <div class="ticker-track" id="ticker" aria-live="polite"></div>
     </div>
     <ul class="nav-links">
-      <li><a href="/#work">Work</a></li>
+      <li class="nav-drop" id="caseDrop">
+        <button type="button" class="nav-drop-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="caseDropMenu">Case Studies <span class="caret" aria-hidden="true">&#9662;</span></button>
+        <div class="nav-drop-menu" id="caseDropMenu" role="menu" aria-label="Case studies">
+${caseDropItems(caseStudies)}
+        </div>
+      </li>
       <li><a href="/resume.html">Resume</a></li>
       <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
       <li><a href="/contact.html">Contact</a></li>
@@ -433,11 +466,55 @@ function navHtml(tickerLabel: string): string {
   </nav>`;
 }
 
+// Self-contained dropdown styles, parameterised so each page (homepage,
+// case-study page, share landing) can pass its own palette tokens.
+function navDropdownStyles(o: { accent: string; ink: string; muted: string; rule: string; bg: string }): string {
+  return `
+    .nav-drop{position:relative;list-style:none;}
+    .nav-drop-toggle{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:${o.muted};background:transparent;border:0;padding:6px 0;cursor:pointer;white-space:nowrap;transition:color 0.2s;}
+    .nav-drop-toggle:hover{color:${o.accent};}
+    .nav-drop-toggle:focus-visible{outline:2px solid ${o.accent};outline-offset:3px;border-radius:2px;}
+    .nav-drop-toggle .caret{font-size:24px;line-height:1;transition:transform 0.2s;}
+    .nav-drop.open .nav-drop-toggle .caret{transform:rotate(180deg);}
+    .nav-drop-menu{position:absolute;top:calc(100% + 12px);left:0;min-width:280px;padding:7px;background:${o.bg};border:1px solid ${o.rule};border-radius:8px;box-shadow:0 18px 50px rgba(5,51,74,0.16);opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity 0.2s,transform 0.2s;z-index:200;}
+    .nav-drop.open .nav-drop-menu{opacity:1;transform:translateY(0);pointer-events:auto;}
+    .nav-drop-menu a{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 12px;border-radius:4px;transition:background 0.15s;}
+    .nav-drop-menu a:hover,.nav-drop-menu a:focus-visible{background:rgba(5,51,74,0.06);outline:none;}
+    .nav-drop-menu .dm-title{font-size:0.82rem;font-weight:600;color:${o.ink};white-space:nowrap;text-transform:none;letter-spacing:-0.01em;}
+    .nav-drop-menu .dm-co{font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${o.muted};white-space:nowrap;flex-shrink:0;}
+    @media (max-width:560px){.nav-drop-menu{left:auto;right:0;}}
+  `;
+}
+
+// Toggle behaviour: click to open/close, click-outside + Escape to close,
+// arrow keys to move between items. Shared by every page that renders the nav.
+function navDropdownScript(): string {
+  return `
+    (function(){
+      var drop=document.getElementById('caseDrop');
+      if(!drop)return;
+      var toggle=drop.querySelector('.nav-drop-toggle');
+      var menu=drop.querySelector('.nav-drop-menu');
+      var items=Array.prototype.slice.call(menu.querySelectorAll('a'));
+      function openD(){drop.classList.add('open');toggle.setAttribute('aria-expanded','true');}
+      function closeD(){drop.classList.remove('open');toggle.setAttribute('aria-expanded','false');}
+      function isOpen(){return drop.classList.contains('open');}
+      toggle.addEventListener('click',function(e){e.stopPropagation();isOpen()?closeD():openD();});
+      document.addEventListener('click',function(e){if(isOpen()&&!drop.contains(e.target))closeD();});
+      drop.addEventListener('keydown',function(e){
+        if(e.key==='Escape'){closeD();toggle.focus();return;}
+        if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!isOpen())openD();e.preventDefault();var f=items.indexOf(document.activeElement);var d=e.key==='ArrowDown'?1:-1;var n=(f+d+items.length)%items.length;if(items[n])items[n].focus();}
+      });
+    })();
+  `;
+}
+
 function footerHtml(email: string, linkedin: string): string {
+  const svgCopy = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
   return `  <footer>
     <p>&copy; 2026 Barbara Broadnax</p>
     <ul class="footer-links">
-      <li><a href="mailto:${attrEscape(email)}">Email</a></li>
+      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address">${svgCopy}Email</button></li>
       <li><a href="${attrEscape(linkedin)}" target="_blank" rel="noopener">LinkedIn</a></li>
     </ul>
   </footer>`;
@@ -455,6 +532,7 @@ interface HomeData {
   companyRows: Array<{ index?: string; name: string; industry: string; description: string }>;
   recordHeader: string[];
   workCardsHtml: string;
+  navItems: NavCaseItem[];
   spEyebrow: string;
   spHeadline: string;
   spLead: string;
@@ -465,8 +543,7 @@ interface HomeData {
 }
 
 function homepageTemplate(d: HomeData): string {
-  const tagline = [d.thesis1, d.thesis2].filter(Boolean).join(' ') ||
-    'Three industries. Seven shipped products. One through-line: design that performs.';
+  const tagline = "I design end-to-end experiences built for real people in real situations. Whether it's data management flows or tools that open up new revenue opportunities, I bring a versatile skill set to whatever the problem is. I work closely with product and engineering, lean on research to move quickly, and never lose sight of the bigger picture.";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -581,7 +658,7 @@ function homepageTemplate(d: HomeData): string {
       margin-top: 0.9rem;
     }
 
-    .hero-text { padding-top: 0.5rem; max-width: 480px; }
+    .hero-text { padding-top: 0.5rem; max-width: 540px; }
 
     .hero-name { display: flex; flex-direction: column; margin-bottom: 1.25rem; }
     .hero-name span {
@@ -689,6 +766,8 @@ function homepageTemplate(d: HomeData): string {
     .footer-links { display: flex; gap: 1.5rem; list-style: none; }
     .footer-links a { font-size: 0.72rem; color: var(--accent); transition: color 0.2s; }
     .footer-links a:hover { color: var(--ink); }
+    .footer-email-btn { background: none; border: none; cursor: pointer; padding: 0; font-size: 0.72rem; color: var(--accent); font-family: inherit; display: inline-flex; align-items: center; gap: 0.35rem; transition: color 0.2s; }
+    .footer-email-btn:hover, .footer-email-btn.copied { color: var(--ink); }
 
     /* ── Responsive ───────────────────────────────────────────────── */
     @media (max-width: 860px) {
@@ -711,13 +790,14 @@ function homepageTemplate(d: HomeData): string {
       .card-metric { opacity: 1 !important; transform: none !important; }
       .scroll-progress { display: none; }
     }
+${navDropdownStyles({ accent: '#FF5B59', ink: '#05334A', muted: '#8B7F6A', rule: 'rgba(5,51,74,0.1)', bg: '#FFFFFF' })}
   </style>
 </head>
 <body>
 
   <div class="scroll-progress" id="scrollProgress"></div>
 
-${navHtml(d.tickerLabel)}
+${navHtml(d.tickerLabel, d.navItems)}
 
   <section class="hero">
     <div class="hero-initials-wrap">
@@ -753,6 +833,7 @@ ${footerHtml(d.footerEmail, d.footerLinkedIn)}
     window.addEventListener('scroll', updateProgress, { passive: true });
 
 ${tickerScript(d.tickerPhrases)}
+${navDropdownScript()}
   </script>
 
 </body>
@@ -770,6 +851,7 @@ interface CaseData {
   body_html: string;
   prev: CaseStudyRow | null;
   next: CaseStudyRow | null;
+  navItems: NavCaseItem[];
   tickerPhrases: string[];
   tickerLabel: string;
   footerEmail: string;
@@ -831,10 +913,11 @@ function caseStudyTemplate(d: CaseData): string {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css">
+  <style>${navDropdownStyles({ accent: '#2d0a5e', ink: '#150d26', muted: '#7c6d90', rule: 'rgba(21,13,38,0.1)', bg: '#ffffff' })}</style>
 </head>
 <body>
 
-${navHtml(d.tickerLabel)}
+${navHtml(d.tickerLabel, d.navItems)}
 
   <section class="case-hero">
     <div class="container">
@@ -852,6 +935,7 @@ ${navBlock}${footerHtml(d.footerEmail, d.footerLinkedIn)}
 
   <script>
 ${tickerScript(d.tickerPhrases)}
+${navDropdownScript()}
   </script>
 </body>
 </html>`;
@@ -1342,6 +1426,20 @@ function shareLandingPage(d: ShareLandingData): string {
     ? `<a href="/share/${htmlEscapeAny(link.token)}/resume" target="_blank" rel="noopener" class="resume-btn">Download resume ↓</a>`
     : '';
 
+  // Version-aware nav dropdown: only published studies, each linked to the
+  // exact version curated for this recipient (via versionMap → ?v=<id>).
+  const navItems = caseStudies
+    .filter((cs) => cs.status === 'published')
+    .map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
+  const navDrop = navItems.length
+    ? `      <div class="nav-drop" id="caseDrop">
+        <button type="button" class="nav-drop-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="caseDropMenu">Case Studies <span class="caret" aria-hidden="true">&#9662;</span></button>
+        <div class="nav-drop-menu" id="caseDropMenu" role="menu" aria-label="Case studies">
+${caseDropItems(navItems, versionMap)}
+        </div>
+      </div>`
+    : '';
+
   const cards = caseStudies.map((cs) => {
     const isPublished = cs.status === 'published';
     const versionId = versionMap[cs.id];
@@ -1426,6 +1524,9 @@ function shareLandingPage(d: ShareLandingData): string {
       .record-role{display:none;}
       .record-outcome{grid-column:2;grid-row:1;text-align:right;font-size:0.72rem;}
     }
+    .nav-right{display:flex;align-items:center;gap:1.5rem;}
+    @media (max-width:560px){.nav-right .nav-eyebrow{display:none;}}
+${navDropdownStyles({ accent: '#2d0a5e', ink: '#150d26', muted: '#7c6d90', rule: 'rgba(21,13,38,0.1)', bg: '#ffffff' })}
   </style>
 </head>
 <body>
@@ -1434,7 +1535,10 @@ function shareLandingPage(d: ShareLandingData): string {
       <span class="name-first">Barbara</span>
       <span class="name-last">Broadnax</span>
     </a>
-    <span class="nav-eyebrow">${link.recipient_label ? 'Curated for ' + htmlEscapeAny(link.recipient_label) : 'Selected work'}</span>
+    <div class="nav-right">
+${navDrop}
+      <span class="nav-eyebrow">${link.recipient_label ? 'Curated for ' + htmlEscapeAny(link.recipient_label) : 'Selected work'}</span>
+    </div>
   </nav>
 
   <section class="hero">
@@ -1476,6 +1580,7 @@ ${cards}
         } catch (e) { /* swallow */ }
       });
     });
+${navDropdownScript()}
   </script>
 </body>
 </html>`;
