@@ -318,6 +318,8 @@ async function serveStaticWithHeader(env: Env, request: Request, headOnly: boole
   let navItems: NavCaseItem[] = [];
   let tickerLabel = DEFAULT_TICKER_LABEL;
   let tickerPhrases = DEFAULT_TICKER_PHRASES;
+  let footerEmail = 'broadnaxux@gmail.com';
+  let footerLinkedIn = 'https://www.linkedin.com/in/barbarabroadnax';
   try {
     const [caseStudies, content] = await Promise.all([
       loadPublishedCaseStudies(env),
@@ -327,11 +329,13 @@ async function serveStaticWithHeader(env: Env, request: Request, headOnly: boole
     tickerLabel = getText(content, 'ticker_label', DEFAULT_TICKER_LABEL);
     const phrases = getJSON<string[]>(content, 'ticker_phrases', []);
     if (phrases.length) tickerPhrases = phrases;
+    footerEmail = getText(content, 'footer_email', footerEmail);
+    footerLinkedIn = getText(content, 'footer_linkedin', footerLinkedIn);
   } catch {
-    // If D1 is unavailable, still inject a header (empty dropdown, default ticker).
+    // If D1 is unavailable, still inject header + footer (defaults).
   }
 
-  const bundle = siteHeaderBundle({
+  const headerBundle = siteHeaderBundle({
     brandHref: '/',
     tickerLabel,
     tickerPhrases,
@@ -339,10 +343,20 @@ async function serveStaticWithHeader(env: Env, request: Request, headOnly: boole
     contactHref: '/contact.html',
     caseStudiesHref: '/#work',
   });
+  const footerBundle = siteFooterBundle({
+    email: footerEmail,
+    linkedin: footerLinkedIn,
+    workHref: '/#work',
+    contactHref: '/contact.html',
+    resumeHref: '/resume.html',
+  });
 
   const rewritten = new HTMLRewriter()
     .on('#site-header', {
-      element(el) { el.replace(bundle, { html: true }); },
+      element(el) { el.replace(headerBundle, { html: true }); },
+    })
+    .on('#site-footer', {
+      element(el) { el.replace(footerBundle, { html: true }); },
     })
     .transform(assetRes);
 
@@ -796,15 +810,108 @@ function siteHeaderBundle(o: SiteHeaderOpts): string {
   return `<style>${siteHeaderStyles()}</style>${siteHeaderMarkup(o)}<script>${siteHeaderScript(o.tickerPhrases)}</script>`;
 }
 
-function footerHtml(email: string, linkedin: string): string {
-  const svgCopy = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-  return `  <footer>
-    <p>&copy; 2026 Barbara Broadnax</p>
-    <ul class="footer-links">
-      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address">${svgCopy}Email</button></li>
-      <li><a href="${attrEscape(linkedin)}" target="_blank" rel="noopener">LinkedIn</a></li>
-    </ul>
+// ─── universal site footer (single source of truth) ──────────────────────
+// The homepage "Let's talk" CTA block + copyright bar, ported to literal values
+// and namespaced sf-* classes so it renders identically on EVERY page (homepage,
+// case study, share landing, static contact/resume) regardless of what CSS the
+// page loads. Edit ONLY these functions to change the footer anywhere — the same
+// pattern as the shared header. Pages get it via siteFooterStyles() in <head>,
+// siteFooterMarkup() in <body>, siteFooterScript() before </body>; static pages
+// get the combined siteFooterBundle() injected at their <div id="site-footer">.
+interface SiteFooterOpts {
+  email: string;
+  linkedin: string;
+  workHref?: string;     // 'Work' link target (homepage uses in-page '#work')
+  contactHref?: string;
+  resumeHref?: string;
+}
+
+function siteFooterMarkup(o: SiteFooterOpts): string {
+  const email       = o.email || 'broadnaxux@gmail.com';
+  const linkedin    = o.linkedin || 'https://www.linkedin.com/in/barbarabroadnax';
+  const workHref    = o.workHref    ?? '/#work';
+  const contactHref = o.contactHref ?? '/contact.html';
+  const resumeHref  = o.resumeHref  ?? '/resume.html';
+  return `
+  <footer class="sf" role="contentinfo">
+    <div class="sf-wrap sf-cta">
+      <div>
+        <p class="sf-eyebrow">Let's talk</p>
+        <h2 class="sf-headline">Hiring for a senior or lead design role? <button type="button" class="sf-email-copy" onclick="sfCopyEmail(this)" aria-label="Copy email address">Let's talk.</button></h2>
+      </div>
+      <div class="sf-links">
+        <button type="button" class="sf-link sf-email" onclick="sfCopyEmail(this)" aria-label="Copy email address"><span class="sf-ec-label">${htmlEscape(email)}</span><span class="sf-arr" aria-hidden="true">&#10697;</span></button>
+        <a class="sf-link" href="${attrEscape(linkedin)}" target="_blank" rel="noopener"><span>LinkedIn</span><span class="sf-arr" aria-hidden="true">&#8599;</span></a>
+        <a class="sf-link" href="${attrEscape(resumeHref)}"><span>Download resume</span><span class="sf-arr" aria-hidden="true">&#8595;</span></a>
+      </div>
+    </div>
+    <div class="sf-wrap">
+      <div class="sf-foot">
+        <p>&copy; 2026 Barbara Broadnax &middot; Phoenix, AZ</p>
+        <div class="sf-foot-links">
+          <a href="${attrEscape(workHref)}">Work</a>
+          <a href="${attrEscape(contactHref)}">Contact</a>
+          <a href="${attrEscape(resumeHref)}">Resume</a>
+        </div>
+      </div>
+    </div>
   </footer>`;
+}
+
+// Self-contained footer CSS. Literal values (ported from the homepage contact
+// tokens); .sf overrides any global `footer{}` rule via higher specificity.
+// All three link rows share identical box metrics so the email/LinkedIn/resume
+// label text aligns to the same left edge and the arrows align right.
+function siteFooterStyles(): string {
+  return `
+    .sf{display:block;border:0;padding:0;margin:0;background:transparent;color:#0D1B1E;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;}
+    .sf-wrap{max-width:1200px;margin:0 auto;padding-left:clamp(1.25rem,5vw,4rem);padding-right:clamp(1.25rem,5vw,4rem);box-sizing:border-box;}
+    .sf-cta{padding:clamp(3.5rem,7vw,6rem) 0 0;display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(2rem,5vw,4rem);align-items:end;}
+    .sf-eyebrow{font-family:ui-monospace,'SF Mono',Menlo,'Cascadia Code',monospace;font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#8B7F6A;margin:0 0 14px;}
+    .sf-headline{font-weight:700;font-size:clamp(2rem,4.5vw,3.4rem);letter-spacing:-0.035em;line-height:1.02;margin:0;color:#0D1B1E;text-wrap:balance;}
+    .sf-email-copy{font:inherit;background:none;cursor:pointer;padding:0;color:#E2403E;border:0;border-bottom:2px solid transparent;transition:border-color 240ms;}
+    .sf-email-copy:hover{border-bottom-color:#E2403E;}
+    .sf-email-copy.copied{color:#16a34a;border-bottom-color:#16a34a;}
+    .sf-links{display:flex;flex-direction:column;gap:2px;}
+    .sf-link{display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;font-size:15px;font-weight:500;line-height:1.2;color:#0D1B1E;text-align:left;text-decoration:none;background:none;border:0;border-top:1px solid rgba(13,27,30,0.10);padding:15px 2px;cursor:pointer;transition:padding-left 240ms cubic-bezier(0.16,1,0.3,1),color 240ms;}
+    .sf-links .sf-link:last-child{border-bottom:1px solid rgba(13,27,30,0.10);}
+    .sf-link:hover{padding-left:8px;color:#C0302E;}
+    .sf-link .sf-arr{color:#8B7F6A;transition:transform 240ms cubic-bezier(0.16,1,0.3,1),color 240ms;}
+    .sf-link:hover .sf-arr{transform:translate(3px,-3px);color:#E2403E;}
+    .sf-link.copied{color:#16a34a;}
+    .sf-link.copied .sf-arr{color:#16a34a;}
+    .sf-foot{border-top:1px solid rgba(13,27,30,0.10);margin-top:32px;padding:24px 0 40px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+    .sf-foot p{font-family:ui-monospace,'SF Mono',Menlo,'Cascadia Code',monospace;font-size:11.5px;color:#8B7F6A;margin:0;letter-spacing:0.03em;}
+    .sf-foot-links{display:flex;gap:20px;}
+    .sf-foot-links a{font-size:12.5px;color:#8B7F6A;text-decoration:none;transition:color 120ms;}
+    .sf-foot-links a:hover{color:#E2403E;}
+    @media (max-width:900px){.sf-cta{grid-template-columns:1fr;align-items:start;}}
+    @media (max-width:768px){.sf-foot{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));}}
+  `;
+}
+
+// Clipboard copy for the footer email buttons. Namespaced (sfCopyEmail) so it
+// never collides with a page's own copyEmail(). Safe to run on any page.
+function siteFooterScript(email: string): string {
+  return `
+  (function(){
+    var EMAIL=${JSON.stringify(email || 'broadnaxux@gmail.com')};
+    window.sfCopyEmail=function(btn){
+      navigator.clipboard.writeText(EMAIL).then(function(){
+        var labelEl=btn.querySelector('.sf-ec-label');
+        var target=labelEl||btn;
+        var orig=target.textContent;
+        target.textContent='Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){target.textContent=orig;btn.classList.remove('copied');},2000);
+      });
+    };
+  })();`;
+}
+
+// Combined style+markup+script for HTMLRewriter injection into static pages.
+function siteFooterBundle(o: SiteFooterOpts): string {
+  return `<style>${siteFooterStyles()}</style>${siteFooterMarkup(o)}<script>${siteFooterScript(o.email)}</script>`;
 }
 
 // ─── homepage template ───────────────────────────────────────────────────
@@ -899,6 +1006,7 @@ function homepageTemplate(d: HomeData): string {
 }
 
 ${siteHeaderStyles()}
+${siteFooterStyles()}
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -953,23 +1061,23 @@ img { display: block; max-width: 100%; }
   display: inline-flex; align-items: center; gap: 9px;
   margin: 0;
   padding: 7px 14px 7px 12px;
-  background: var(--accent-wash);
-  border: 1px solid var(--accent-line);
+  background: rgba(18,116,117,0.10);
+  border: 1px solid rgba(18,116,117,0.32);
   border-radius: var(--r-pill);
 }
 .hero-status .dot {
   width: 7px; height: 7px; border-radius: 50%;
-  background: var(--accent);
+  background: #127475;
   animation: pulse 2.4s var(--ease) infinite;
 }
 @keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(226,64,62,.45); }
-  70%  { box-shadow: 0 0 0 7px rgba(226,64,62,0); }
-  100% { box-shadow: 0 0 0 0 rgba(226,64,62,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(18,116,117,.45); }
+  70%  { box-shadow: 0 0 0 7px rgba(18,116,117,0); }
+  100% { box-shadow: 0 0 0 0 rgba(18,116,117,0); }
 }
 .hero-status span {
   font-family: var(--mono); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.05em; color: var(--accent-deep);
+  letter-spacing: 0.05em; color: #0E5C5D;
   text-transform: uppercase;
 }
 .hero h1 {
@@ -1276,71 +1384,8 @@ img { display: block; max-width: 100%; }
 }
 .spc:hover .arr { color: var(--accent); transform: translate(3px,-3px); }
 
-.contact { padding: clamp(3.5rem,7vw,6rem) 0; }
-.contact-in {
-  display: grid; grid-template-columns: 1.4fr 1fr;
-  gap: clamp(2rem,5vw,4rem); align-items: end;
-}
-.contact h2 {
-  font-family: var(--display); font-weight: 700;
-  font-size: clamp(2rem,4.5vw,3.4rem);
-  letter-spacing: -0.035em; line-height: 1.02;
-  margin: 18px 0 0; text-wrap: balance;
-}
-.contact h2 a {
-  color: var(--accent); text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition: border-color var(--d2);
-}
-.contact h2 a:hover { border-color: var(--accent); }
-.contact-links { display: flex; flex-direction: column; gap: 2px; }
-.contact-links a {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 15px 2px; border-top: 1px solid var(--rule);
-  font-size: 15px; font-weight: 500; color: var(--ink);
-  transition: padding-left var(--d2) var(--ease), color var(--d2);
-}
-.contact-links a:last-child { border-bottom: 1px solid var(--rule); }
-.contact-links a:hover { padding-left: 8px; color: var(--accent-deep); }
-.contact-links a .arr {
-  color: var(--muted);
-  transition: transform var(--d2) var(--ease), color var(--d2);
-}
-.contact-links a:hover .arr { transform: translate(3px,-3px); color: var(--accent); }
-.contact h2 .email-copy {
-  font: inherit; background: none; cursor: pointer; padding: 0;
-  color: var(--accent); border: 0; border-bottom: 2px solid transparent;
-  transition: border-color var(--d2);
-}
-.contact h2 .email-copy:hover { border-bottom-color: var(--accent); }
-.contact-links .email-copy {
-  display: flex; align-items: center; justify-content: space-between; width: 100%;
-  font: inherit; background: none; border: 0; cursor: pointer; text-align: left;
-  padding: 15px 2px; border-top: 1px solid var(--rule);
-  font-size: 15px; font-weight: 500; color: var(--ink);
-  transition: padding-left var(--d2) var(--ease), color var(--d2);
-}
-.contact-links .email-copy:hover { padding-left: 8px; color: var(--accent-deep); }
-.contact-links .email-copy .arr { color: var(--muted); transition: transform var(--d2) var(--ease), color var(--d2); }
-.contact-links .email-copy:hover .arr { transform: translate(3px,-3px); color: var(--accent); }
-.contact-links .email-copy.copied, .contact h2 .email-copy.copied { color: #16a34a; }
-
-.foot {
-  border-top: 1px solid var(--rule);
-  margin-top: 32px;
-  padding: 24px 0 40px;
-  display: flex; align-items: center;
-  justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-}
-.foot p {
-  font-family: var(--mono); font-size: 11.5px;
-  color: var(--muted); margin: 0; letter-spacing: 0.03em;
-}
-.foot .foot-links { display: flex; gap: 20px; }
-.foot .foot-links a {
-  font-size: 12.5px; color: var(--muted); transition: color var(--d1);
-}
-.foot .foot-links a:hover { color: var(--accent); }
+/* Footer styles now live in siteFooterStyles() (sf-* namespace) — the universal
+   footer shared across every page. See the "universal site footer" functions. */
 
 .reveal {
   opacity: 0; transform: translateY(16px);
@@ -1368,7 +1413,6 @@ img { display: block; max-width: 100%; }
   .cine[data-side="right"] .cine-copy { order: 0; }
   .cine-copy { max-width: none; }
   .side-grid { grid-template-columns: 1fr; }
-  .contact-in { grid-template-columns: 1fr; align-items: start; }
 }
 
 @media (max-width: 768px) {
@@ -1510,29 +1554,8 @@ ${d.workRowsHtml}
     </div>
   </section>
 
-  <section class="contact" id="contact">
-    <div class="wrap contact-in">
-      <div class="reveal">
-        <p class="eyebrow">Let's talk</p>
-        <h2>Hiring for a senior or lead design role? <button type="button" class="email-copy" onclick="copyEmail(this)" aria-label="Copy email address">Let's talk.</button></h2>
-      </div>
-      <div class="contact-links reveal">
-        <button type="button" class="email-copy" onclick="copyEmail(this)" aria-label="Copy email address"><span class="ec-label">${htmlEscape(email)}</span> <span class="arr">⧉</span></button>
-        <a href="${attrEscape(linkedin)}" target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
-        <a href="/resume.html">Download resume <span class="arr">↓</span></a>
-      </div>
-    </div>
-    <div class="wrap">
-      <div class="foot">
-        <p>© 2026 Barbara Broadnax · Phoenix, AZ</p>
-        <div class="foot-links">
-          <a href="#work">Work</a>
-          <a href="#contact">Contact</a>
-          <a href="/resume.html">Resume</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <span id="contact" aria-hidden="true"></span>
+${siteFooterMarkup({ email, linkedin, workHref: '#work', contactHref: '/contact.html', resumeHref: '/resume.html' })}
 
 </main>
 
@@ -1609,6 +1632,7 @@ ${d.workRowsHtml}
   }
 
 ${siteHeaderScript(phrases)}
+${siteFooterScript(email)}
 </script>
 
 </body>
@@ -1690,7 +1714,7 @@ function caseStudyTemplate(d: CaseData): string {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css">
-  <style>${siteHeaderStyles()}
+  <style>${siteHeaderStyles()}${siteFooterStyles()}
     .case-company{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
     .case-company .label{margin:0;}
     .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:102px;height:102px;}
@@ -1715,10 +1739,11 @@ ${metaHtml}
 
   ${d.body_html}
 
-${navBlock}${footerHtml(d.footerEmail, d.footerLinkedIn)}
+${navBlock}${siteFooterMarkup({ email: d.footerEmail, linkedin: d.footerLinkedIn })}
 
   <script>
 ${siteHeaderScript(d.tickerPhrases)}
+${siteFooterScript(d.footerEmail)}
   (function(){
     var EMAIL=${JSON.stringify(d.footerEmail || 'broadnaxux@gmail.com')};
     window.copyEmail=function(btn){
@@ -2327,7 +2352,7 @@ function shareLandingPage(d: ShareLandingData): string {
       .record-role{display:none;}
       .record-outcome{grid-column:2;grid-row:1;text-align:right;font-size:0.72rem;}
     }
-${siteHeaderStyles()}
+${siteHeaderStyles()}${siteFooterStyles()}
   </style>
 </head>
 <body>
@@ -2350,13 +2375,7 @@ ${siteHeaderMarkup({ brandHref: '/', tickerLabel: DEFAULT_TICKER_LABEL, tickerPh
 ${cards}
   </div>
 
-  <footer>
-    <p>&copy; 2026 Barbara Broadnax</p>
-    <ul class="footer-links">
-      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
-      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
-    </ul>
-  </footer>
+${siteFooterMarkup({ email: 'broadnaxux@gmail.com', linkedin: 'https://www.linkedin.com/in/barbarabroadnax' })}
 
   <script>
     // Copy email to clipboard (matches the rest of the site).
@@ -2382,6 +2401,7 @@ ${cards}
       });
     });
 ${siteHeaderScript(DEFAULT_TICKER_PHRASES)}
+${siteFooterScript('broadnaxux@gmail.com')}
   </script>
 </body>
 </html>`;

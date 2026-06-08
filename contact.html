@@ -233,14 +233,10 @@
     </ul>
   </main>
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2026 Barbara Broadnax</p>
-    <ul class="footer-links">
-      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
-      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
-    </ul>
-  </footer>
+  <!-- Shared universal footer. Injected by the Worker (serveStaticWithHeader)
+       from the single source in cloudflare/workers/public/src/index.ts.
+       Do not hand-edit a footer here; edit siteFooterMarkup in the Worker. -->
+  <div id="site-footer"></div>
 
   <script>
     function copyEmail(btn) {
