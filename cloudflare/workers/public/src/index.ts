@@ -344,6 +344,14 @@ async function serveStaticWithHeader(env: Env, request: Request, headOnly: boole
     // If D1 is unavailable, still inject header + footer (defaults).
   }
 
+  // Which static page is this? Drives the current-page nav state and (on these
+  // two pages) hiding the footer's "Let's talk" CTA.
+  const reqPath = new URL(request.url).pathname;
+  const activeNav: 'resume' | 'contact' | undefined =
+    reqPath === '/resume' || reqPath === '/resume.html' ? 'resume'
+    : reqPath === '/contact' || reqPath === '/contact.html' ? 'contact'
+    : undefined;
+
   const headerBundle = siteHeaderBundle({
     brandHref: '/',
     tickerLabel,
@@ -351,6 +359,7 @@ async function serveStaticWithHeader(env: Env, request: Request, headOnly: boole
     navItems,
     contactHref: '/contact.html',
     caseStudiesHref: '/#work',
+    activeNav,
   });
   const footerBundle = siteFooterBundle({
     email: footerEmail,
@@ -358,6 +367,8 @@ async function serveStaticWithHeader(env: Env, request: Request, headOnly: boole
     workHref: '/#work',
     contactHref: '/contact.html',
     resumeHref: '/resume.html',
+    hideCta: true,
+    activeNav,
   });
 
   const rewritten = new HTMLRewriter()
@@ -665,6 +676,8 @@ interface SiteHeaderOpts {
   contactHref?: string;
   /** Where the mobile bottom-bar "Case Studies" link points. */
   caseStudiesHref?: string;
+  /** Marks the matching nav button as the current page (active + aria-current). */
+  activeNav?: 'resume' | 'contact';
 }
 
 const SH_LINKEDIN = 'https://www.linkedin.com/in/barbarabroadnax';
@@ -689,6 +702,12 @@ function siteHeaderMarkup(o: SiteHeaderOpts): string {
   const contactHref   = o.contactHref   ?? '/contact.html';
   const caseStudiesHref = o.caseStudiesHref ?? '/#work';
   const drop = siteHeaderDropItems(o.navItems, o.versionMap);
+  // Current-page markers: the button that links to the page you're on gets an
+  // `is-current` class (styled active) plus aria-current="page".
+  const resumeMark  = o.activeNav === 'resume'  ? ' is-current' : '';
+  const resumeAria  = o.activeNav === 'resume'  ? ' aria-current="page"' : '';
+  const contactMark = o.activeNav === 'contact' ? ' is-current' : '';
+  const contactAria = o.activeNav === 'contact' ? ' aria-current="page"' : '';
   return `
   <header class="sn" role="banner">
     <a href="${attrEscape(brandHref)}" class="sn-brand" aria-label="Barbara Broadnax, home">
@@ -704,17 +723,17 @@ function siteHeaderMarkup(o: SiteHeaderOpts): string {
         <button type="button" class="sn-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="snMenu">Case Studies <span class="sn-caret" aria-hidden="true">&#9662;</span></button>
         <div class="sn-menu" id="snMenu" role="menu" aria-label="Case studies">${drop}</div>
       </div>
-      <a href="${attrEscape(resumeHref)}" class="sn-btn sn-btn-out">Resume</a>
+      <a href="${attrEscape(resumeHref)}" class="sn-btn sn-btn-out${resumeMark}"${resumeAria}>Resume</a>
       <a href="${attrEscape(linkedinHref)}" target="_blank" rel="noopener" class="sn-btn sn-btn-out">LinkedIn</a>
-      <a href="${attrEscape(contactHref)}" class="sn-btn sn-btn-cta">Get in touch</a>
+      <a href="${attrEscape(contactHref)}" class="sn-btn sn-btn-cta${contactMark}"${contactAria}>Get in touch</a>
     </div>
   </header>
   <div class="sn-bottom" role="navigation" aria-label="Site">
     <div class="sn-bottom-links">
       <a href="${attrEscape(caseStudiesHref)}" class="sn-bottom-link">Case Studies</a>
-      <a href="${attrEscape(resumeHref)}" class="sn-btn sn-btn-out">Resume</a>
+      <a href="${attrEscape(resumeHref)}" class="sn-btn sn-btn-out${resumeMark}"${resumeAria}>Resume</a>
       <a href="${attrEscape(linkedinHref)}" target="_blank" rel="noopener" class="sn-btn sn-btn-out">LinkedIn</a>
-      <a href="${attrEscape(contactHref)}" class="sn-btn sn-btn-cta">Get in touch</a>
+      <a href="${attrEscape(contactHref)}" class="sn-btn sn-btn-cta${contactMark}"${contactAria}>Get in touch</a>
     </div>
   </div>`;
 }
@@ -755,6 +774,9 @@ function siteHeaderStyles(): string {
     .sn-btn-out:hover{border-color:#0D1B1E;}
     a.sn-btn-cta{color:#FBFEF9;background:#E2403E;transition:background 0.24s;}
     .sn-btn-cta:hover{background:#C0302E;}
+    /* Current-page state. The a. qualifier keeps specificity above the .sn a reset. */
+    a.sn-btn-out.is-current{color:#0D1B1E;background:rgba(13,27,30,0.07);border-color:#0D1B1E;}
+    a.sn-btn-cta.is-current{background:#C0302E;box-shadow:0 0 0 3px rgba(226,64,62,0.22);}
     .sn-bottom{display:none;}
     @media (max-width:768px){
       .sn{height:48px;justify-content:center;}
@@ -833,6 +855,10 @@ interface SiteFooterOpts {
   workHref?: string;     // 'Work' link target (homepage uses in-page '#work')
   contactHref?: string;
   resumeHref?: string;
+  /** Hide the "Let's talk" CTA block, keep the copyright bar (resume/contact pages). */
+  hideCta?: boolean;
+  /** Marks the matching copyright-bar link as the current page (aria-current). */
+  activeNav?: 'resume' | 'contact';
 }
 
 function siteFooterMarkup(o: SiteFooterOpts): string {
@@ -841,8 +867,12 @@ function siteFooterMarkup(o: SiteFooterOpts): string {
   const workHref    = o.workHref    ?? '/#work';
   const contactHref = o.contactHref ?? '/contact.html';
   const resumeHref  = o.resumeHref  ?? '/resume.html';
-  return `
-  <footer class="sf" role="contentinfo">
+  const contactCur  = o.activeNav === 'contact' ? ' class="sf-cur" aria-current="page"' : '';
+  const resumeCur   = o.activeNav === 'resume'  ? ' class="sf-cur" aria-current="page"' : '';
+  // The "Let's talk" CTA is hidden on the resume/contact pages (it's redundant
+  // there); the copyright bar still renders. `sf--foot-only` re-adds top spacing
+  // the CTA block normally provided.
+  const cta = o.hideCta ? '' : `
     <div class="sf-wrap sf-cta">
       <div>
         <p class="sf-eyebrow">Let's talk</p>
@@ -853,14 +883,16 @@ function siteFooterMarkup(o: SiteFooterOpts): string {
         <a class="sf-link" href="${attrEscape(linkedin)}" target="_blank" rel="noopener"><span>LinkedIn</span><span class="sf-arr" aria-hidden="true">&#8599;</span></a>
         <a class="sf-link" href="${attrEscape(resumeHref)}"><span>Download resume</span><span class="sf-arr" aria-hidden="true">&#8595;</span></a>
       </div>
-    </div>
+    </div>`;
+  return `
+  <footer class="sf${o.hideCta ? ' sf--foot-only' : ''}" role="contentinfo">${cta}
     <div class="sf-wrap">
       <div class="sf-foot">
         <p>&copy; 2026 Barbara Broadnax &middot; Phoenix, AZ</p>
         <div class="sf-foot-links">
           <a href="${attrEscape(workHref)}">Work</a>
-          <a href="${attrEscape(contactHref)}">Contact</a>
-          <a href="${attrEscape(resumeHref)}">Resume</a>
+          <a href="${attrEscape(contactHref)}"${contactCur}>Contact</a>
+          <a href="${attrEscape(resumeHref)}"${resumeCur}>Resume</a>
         </div>
       </div>
     </div>
@@ -894,6 +926,10 @@ function siteFooterStyles(): string {
     .sf-foot-links{display:flex;gap:20px;}
     .sf-foot-links a{font-size:12.5px;color:#8B7F6A;text-decoration:none;transition:color 120ms;}
     .sf-foot-links a:hover{color:#E2403E;}
+    .sf-foot-links a.sf-cur{color:#0D1B1E;font-weight:600;}
+    /* CTA hidden (resume/contact): give the lone copyright bar top breathing room. */
+    .sf--foot-only{padding-top:clamp(2.5rem,5vw,4rem);}
+    .sf--foot-only .sf-foot{margin-top:0;}
     @media (max-width:900px){.sf-cta{grid-template-columns:1fr;align-items:start;}}
     @media (max-width:768px){.sf-foot{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));}}
   `;
