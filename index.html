@@ -491,6 +491,12 @@ img { display: block; max-width: 100%; }
   font-size: 14px; letter-spacing: -0.01em; color: var(--ink);
   white-space: nowrap;
 }
+/* Real logo image: hidden until it loads, then it replaces the monogram
+   lockup. Drop a file at images/logos/<company>.svg (ipro / alaska / inksoft)
+   to light it up; otherwise the monogram + wordmark fallback shows. */
+.cine-logo .logo-img { display: none; height: 30px; width: auto; max-width: 132px; object-fit: contain; }
+.cine-logo.has-logo .mark,
+.cine-logo.has-logo .wm { display: none; }
 
 /* ── Copy column + staggered reveal ── */
 .cine-copy { max-width: 30rem; }
@@ -730,6 +736,7 @@ img { display: block; max-width: 100%; }
   }
   .cine-logo .mark { width: 26px; height: 26px; font-size: 13px; }
   .cine-logo .wm { font-size: 13px; }
+  .cine-logo .logo-img { height: 24px; max-width: 104px; }
 
   /* Bottom nav */
   .nav-bottom {
@@ -942,7 +949,7 @@ img { display: block; max-width: 100%; }
             <div class="cine-frame">
               <img src="images/NER - Desktop.png" alt="Named Entity Recognition interface showing entity highlighting across document text" loading="eager">
             </div>
-            <div class="cine-logo" data-co="ipro"><span class="mark">i</span><span class="wm">IPRO</span></div>
+            <div class="cine-logo" data-co="ipro"><img class="logo-img" src="images/logos/ipro.svg" alt="IPRO" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();"><span class="mark">i</span><span class="wm">IPRO</span></div>
           </div>
           <div class="cine-copy">
             <p class="cine-co">IPRO · Product Designer · AI</p>
@@ -967,7 +974,7 @@ img { display: block; max-width: 100%; }
             <div class="cine-frame">
               <img src="images/Signs and Banners.png" alt="Design Studio editor with a custom sign layout" loading="lazy">
             </div>
-            <div class="cine-logo" data-co="inksoft"><span class="mark">I</span><span class="wm">InkSoft</span></div>
+            <div class="cine-logo" data-co="inksoft"><img class="logo-img" src="images/logos/inksoft.svg" alt="InkSoft" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();"><span class="mark">I</span><span class="wm">InkSoft</span></div>
           </div>
           <div class="cine-copy">
             <p class="cine-co">InkSoft · UX Designer</p>
@@ -992,7 +999,7 @@ img { display: block; max-width: 100%; }
             <div class="cine-frame">
               <img src="images/VPNR - v1 - desktop.png" alt="View Reservation desktop page showing booking summary and ancillary offers" loading="lazy">
             </div>
-            <div class="cine-logo" data-co="alaska"><span class="mark">A</span><span class="wm">Alaska Airlines</span></div>
+            <div class="cine-logo" data-co="alaska"><img class="logo-img" src="images/logos/alaska.svg" alt="Alaska Airlines" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();"><span class="mark">A</span><span class="wm">Alaska Airlines</span></div>
           </div>
           <div class="cine-copy">
             <p class="cine-co">Alaska Airlines · Lead Product Designer</p>
@@ -1017,7 +1024,7 @@ img { display: block; max-width: 100%; }
             <div class="cine-frame">
               <img src="images/Search &amp; Redact - V2 - Desktop.png" alt="Search and Redact interface with category panel and document preview" loading="lazy">
             </div>
-            <div class="cine-logo" data-co="ipro"><span class="mark">i</span><span class="wm">IPRO</span></div>
+            <div class="cine-logo" data-co="ipro"><img class="logo-img" src="images/logos/ipro.svg" alt="IPRO" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();"><span class="mark">i</span><span class="wm">IPRO</span></div>
           </div>
           <div class="cine-copy">
             <p class="cine-co">IPRO · Product Designer</p>
@@ -1042,7 +1049,7 @@ img { display: block; max-width: 100%; }
             <div class="cine-frame">
               <img src="images/eda-full-workflow.png" alt="Early Data Assessment multi-step workflow" loading="lazy">
             </div>
-            <div class="cine-logo" data-co="ipro"><span class="mark">i</span><span class="wm">IPRO</span></div>
+            <div class="cine-logo" data-co="ipro"><img class="logo-img" src="images/logos/ipro.svg" alt="IPRO" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();"><span class="mark">i</span><span class="wm">IPRO</span></div>
           </div>
           <div class="cine-copy">
             <p class="cine-co">IPRO · Product Designer</p>
@@ -1067,7 +1074,7 @@ img { display: block; max-width: 100%; }
             <div class="cine-frame">
               <img src="images/SDC - Desktop.png" alt="Same Day Change booking flow showing flight selection" loading="lazy">
             </div>
-            <div class="cine-logo" data-co="alaska"><span class="mark">A</span><span class="wm">Alaska Airlines</span></div>
+            <div class="cine-logo" data-co="alaska"><img class="logo-img" src="images/logos/alaska.svg" alt="Alaska Airlines" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();"><span class="mark">A</span><span class="wm">Alaska Airlines</span></div>
           </div>
           <div class="cine-copy">
             <p class="cine-co">Alaska Airlines · Lead Product Designer · 2023</p>
@@ -1092,7 +1099,7 @@ img { display: block; max-width: 100%; }
             <div class="cine-frame">
               <img src="images/SSL - 1 - Desktop.png" alt="Easy SSL Install step-by-step configuration wizard" loading="lazy">
             </div>
-            <div class="cine-logo" data-co="inksoft"><span class="mark">I</span><span class="wm">InkSoft</span></div>
+            <div class="cine-logo" data-co="inksoft"><img class="logo-img" src="images/logos/inksoft.svg" alt="InkSoft" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();"><span class="mark">I</span><span class="wm">InkSoft</span></div>
           </div>
           <div class="cine-copy">
             <p class="cine-co">InkSoft · UX Designer</p>
