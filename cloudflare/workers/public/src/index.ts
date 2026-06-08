@@ -1358,28 +1358,16 @@ img { display: block; max-width: 100%; }
 .cine-frame img {
   width: 100%; height: 100%;
   object-fit: cover; display: block;
-  transform: scale(1.14);
-  transition: transform 1.3s var(--ease);
-  will-change: transform;
 }
-.cine.in .cine-frame img { transform: scale(1); }
-.cine:hover .cine-frame img { transform: scale(1.05); }
 
-/* 'contain' fit: show the whole image without cropping. The ken-burns zoom
-   would re-crop a contained image, so disable the scale transforms and let
-   the image sit, letterboxed, against the frame background. */
-.cine-frame.fit-contain img,
-.cine.in .cine-frame.fit-contain img,
-.cine:hover .cine-frame.fit-contain img {
+/* 'contain' fit: show the whole image without cropping, letterboxed against
+   the frame background. */
+.cine-frame.fit-contain img {
   object-fit: contain;
-  transform: none;
 }
 
 /* 'frame' fit: the frame takes the image's own aspect ratio (no fixed 16:10),
-   so the whole image shows with no crop and no letterbox. Because the image
-   fills the frame exactly, the ken-burns scale settle is re-enabled (it
-   inherits the base .cine-frame img transforms; overflow:hidden clips the
-   brief zoom, then it settles to the full image). */
+   so the whole image shows with no crop and no letterbox. */
 .cine-frame.fit-frame { aspect-ratio: auto; }
 .cine-frame.fit-frame img { height: auto; }
 
