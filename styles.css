@@ -6,7 +6,7 @@
 
 :root {
   /* Warm palette — matches the homepage (cream / navy / red) */
-  --white:   #FBF8F1;
+  --white:   #FFFFFF;
   --ink:     #05334A;
   --purple:  #FF5B59;   /* name kept for back-compat; now the red accent */
   --muted:   #8B7F6A;
@@ -17,7 +17,7 @@
   --radius-lg: 14px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   /* Legacy aliases so existing case study markup still works */
-  --bg:        #FBF8F1;
+  --bg:        #FFFFFF;
   --text:      #05334A;
   --text-muted:#8B7F6A;
   --accent:    #FF5B59;
@@ -109,25 +109,25 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
   display: flex;
   flex-direction: column;
   gap: 1px;
-  line-height: 1;
+  line-height: 1.04;
   flex-shrink: 0;
   text-decoration: none;
 }
 
 .site-name .name-first {
   display: block;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.24em;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink);
 }
 
 .site-name .name-last {
   display: block;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.155em;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.135em;
   text-transform: uppercase;
   color: var(--ink);
 }
@@ -190,6 +190,7 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
   gap: 2rem;
   list-style: none;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .nav-links a {

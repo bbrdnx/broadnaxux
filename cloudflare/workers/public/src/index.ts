@@ -621,11 +621,11 @@ ${caseDropItems(caseStudies)}
 // case-study page, share landing) can pass its own palette tokens.
 function navDropdownStyles(o: { accent: string; ink: string; muted: string; rule: string; bg: string }): string {
   return `
-    .nav-drop{position:relative;list-style:none;}
-    .nav-drop-toggle{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:${o.muted};background:transparent;border:0;padding:6px 0;cursor:pointer;white-space:nowrap;transition:color 0.2s;}
+    .nav-drop{position:relative;list-style:none;display:inline-flex;align-items:center;}
+    .nav-drop-toggle{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:0.68rem;font-weight:600;line-height:1;letter-spacing:0.1em;text-transform:uppercase;color:${o.muted};background:transparent;border:0;padding:6px 0;cursor:pointer;white-space:nowrap;transition:color 0.2s;}
     .nav-drop-toggle:hover{color:${o.accent};}
     .nav-drop-toggle:focus-visible{outline:2px solid ${o.accent};outline-offset:3px;border-radius:2px;}
-    .nav-drop-toggle .caret{font-size:24px;line-height:1;transition:transform 0.2s;}
+    .nav-drop-toggle .caret{display:inline-flex;align-items:center;font-size:14px;line-height:1;transition:transform 0.2s;}
     .nav-drop.open .nav-drop-toggle .caret{transform:rotate(180deg);}
     .nav-drop-menu{position:absolute;top:calc(100% + 12px);left:0;min-width:280px;padding:7px;background:${o.bg};border:1px solid ${o.rule};border-radius:8px;box-shadow:0 18px 50px rgba(5,51,74,0.16);opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity 0.2s,transform 0.2s;z-index:200;}
     .nav-drop.open .nav-drop-menu{opacity:1;transform:translateY(0);pointer-events:auto;}
@@ -896,18 +896,20 @@ img { display: block; max-width: 100%; }
 .nav-cta::after { display: none !important; }
 .nav-cta:hover { background: var(--accent); }
 
-.nav-drop { position: relative; }
+.nav-drop { position: relative; display: inline-flex; align-items: center; }
 .nav-drop-toggle {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: 5px;
   font-family: var(--sans); font-size: 13px; font-weight: 500;
+  line-height: 1;
   color: var(--ink-2); background: transparent; border: 0;
-  padding: 6px 2px; cursor: pointer; white-space: nowrap;
+  padding: 7px 2px; cursor: pointer; white-space: nowrap;
   transition: color var(--d1);
 }
 .nav-drop-toggle:hover,
 .nav-drop[aria-expanded="true"] .nav-drop-toggle { color: var(--ink); }
 .nav-drop-toggle .caret {
-  font-size: 24px; line-height: 1;
+  display: inline-flex; align-items: center;
+  font-size: 14px; line-height: 1;
   transition: transform var(--d2) var(--ease);
 }
 .nav-drop.open .nav-drop-toggle .caret { transform: rotate(180deg); }
@@ -1866,7 +1868,7 @@ function caseStudyTemplate(d: CaseData): string {
   <style>${navDropdownStyles({ accent: '#FF5B59', ink: '#05334A', muted: '#8B7F6A', rule: 'rgba(5,51,74,0.1)', bg: '#FFFFFF' })}
     .case-company{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
     .case-company .label{margin:0;}
-    .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:5px;border-radius:8px;background:color-mix(in srgb, var(--brand,#05334A) 12%, #ffffff);border:1px solid color-mix(in srgb, var(--brand,#05334A) 22%, transparent);}
+    .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:102px;height:102px;}
     .case-company-logo img{width:100%;height:100%;object-fit:contain;display:block;}
   </style>
 </head>
@@ -2437,7 +2439,7 @@ ${caseDropItems(navItems, versionMap)}
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
-      --white:#FBF8F1; --ink:#05334A; --purple:#FF5B59;
+      --white:#FFFFFF; --ink:#05334A; --purple:#FF5B59;
       --muted:#8B7F6A; --rule:rgba(5,51,74,0.1);
       --pad:clamp(1.25rem, 5vw, 4rem);
     }
@@ -2447,8 +2449,8 @@ ${caseDropItems(navItems, versionMap)}
 
     nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--rule);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad);gap:2rem;}
     .site-name{display:flex;flex-direction:column;gap:1px;line-height:1;flex-shrink:0;}
-    .site-name span{display:block;font-size:0.6rem;font-weight:800;letter-spacing:0.24em;text-transform:uppercase;color:var(--ink);}
-    .site-name .name-last{letter-spacing:0.155em;}
+    .site-name span{display:block;font-size:13px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink);}
+    .site-name .name-last{letter-spacing:0.135em;}
     .nav-eyebrow{font-size:0.6rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);}
 
     .hero{padding:5rem var(--pad) 3rem;}
