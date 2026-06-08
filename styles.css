@@ -369,6 +369,9 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
 
 .image-showcase-grid .image-showcase { margin: 0; }
 
+/* Stacked variant: force a single column so images sit one above the other. */
+.image-showcase-grid.stacked { grid-template-columns: 1fr; }
+
 .image-caption {
   padding: 1rem 1.5rem;
   font-size: 0.82rem;
