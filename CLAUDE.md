@@ -15,7 +15,7 @@ Every public-facing page (home, case study, share landing) is on a porcelain bac
 - Accent: #E2403E (strawberry red — replaces the earlier #FF5B59 and the legacy purple). Hover/deep: #C0302E.
 - Muted text: #8B7F6A
 - Hairline rule: rgba(13,27,30,0.1)
-- Optional secondary accents: stormy teal #127475 and sunflower gold #F7B32B (the gold draft chip uses sunflower gold).
+- Optional secondary accents: stormy teal #127475 and sunflower gold #F7B32B (the gold draft chip uses sunflower gold). The homepage hero status badge ("Open to senior & lead roles") uses stormy teal: a `rgba(18,116,117,0.10)` wash, `rgba(18,116,117,0.32)` border, `#127475` dot + pulse, and `#0E5C5D` text (June 2026 change from the earlier strawberry-red badge).
 
 Where the tokens live: the home page palette is in `homepageTemplate`'s `:root` (`--bg: #FBFEF9`). The case-study + share-landing palette is in `styles.css` `:root` (`--white`, `--bg`, `--bg-card`, `--bg-elevated` are all #FBFEF9) and the share-landing inline `:root` (`--white: #FBFEF9`). Cards stay legible on porcelain via their existing `1px solid var(--rule)` borders (and a couple of soft box-shadows), not via a fill, so do not reintroduce a tinted `--bg-card`/`--bg-elevated`.
 
@@ -63,14 +63,32 @@ Button text-color gotcha (June 2026): the header reset `.sn a{color:inherit}` ha
 
 How each page gets it:
 - Homepage, case-study, share-landing (Worker-rendered): call `siteHeaderStyles()` in `<head>`, `siteHeaderMarkup(...)` in `<body>`, `siteHeaderScript(...)` before `</body>`.
-- Static `resume.html` / `contact.html`: these stay static but carry only a `<div id="site-header"></div>` placeholder. The Worker route `serveStaticWithHeader` (gated by the `STATIC_HEADER_PAGES` set) fetches the asset, loads nav data from D1, and HTMLRewriter-injects `siteHeaderBundle(...)` at the placeholder. Add a path to `STATIC_HEADER_PAGES` to give any future static page the same header for free. Do NOT hand-write a nav in those files.
+- Static `resume.html` / `contact.html`: these stay static but carry a `<div id="site-header"></div>` placeholder (and a `<div id="site-footer"></div>` one, see Footer). The Worker route `serveStaticWithHeader` (gated by the `STATIC_HEADER_PAGES` set) fetches the asset, loads nav data from D1, and HTMLRewriter-injects `siteHeaderBundle(...)` and `siteFooterBundle(...)` at the two placeholders. Add a path to `STATIC_HEADER_PAGES` to give any future static page the same header and footer for free. Do NOT hand-write a nav or footer in those files.
 
 The earlier split implementation (homepage's bespoke `.nav` CSS, plus `navHtml` / `navDropdownStyles` / `navDropdownScript` / `tickerScript` for the other pages) has been removed along with all the dead `.nav*` / `.brand` / `.ticker*` CSS. Do not reintroduce it.
+
+## Footer — one shared footer for the whole site (single source of truth)
+As of June 2026 there is ONE footer used by every external-facing page, built exactly like the shared header. It lives in the Worker (`cloudflare/workers/public/src/index.ts`) as four functions and nothing else defines a footer anymore:
+
+- `siteFooterMarkup(opts)` — the HTML: a "Let's talk" CTA block (eyebrow + "Hiring for a senior or lead design role? Let's talk." headline with a click-to-copy email) beside a stacked link list (email, LinkedIn, Download resume), then a copyright bar (© line + Work / Contact / Resume links). Everything is namespaced under `sf-*` classes inside a single `<footer class="sf">`.
+- `siteFooterStyles()` — self-contained CSS with literal color/size values (no dependence on any page's CSS variables). `.sf` (specificity 0,1,0) overrides any global `footer { ... }` rule that `styles.css` applies on pages that load it. The three link rows share identical box metrics, so the email / LinkedIn / resume label text aligns to one left edge and the arrows align right.
+- `siteFooterScript(email)` — one IIFE exposing `window.sfCopyEmail` (namespaced so it never collides with a page's own `copyEmail`). Safe to run on any page.
+- `siteFooterBundle(opts)` wraps style+markup+script in one string for injection into static pages.
+
+**To change the footer anywhere, edit ONLY these functions.** Do not hand-write a per-page footer.
+
+`opts`: `email` and `linkedin` (both flow from D1 `footer_email` / `footer_linkedin`), plus optional `workHref` / `contactHref` / `resumeHref`. The footer's Contact link points at `/contact.html` on every page, the homepage included; `workHref` is the only per-page difference (the homepage passes the in-page `#work`, every other page uses `/#work`).
+
+How each page gets it:
+- Homepage, case-study, share-landing (Worker-rendered): call `siteFooterStyles()` in `<head>`, `siteFooterMarkup(...)` in `<body>`, `siteFooterScript(...)` before `</body>`. On the homepage a `<span id="contact">` anchor sits immediately before the footer so the header "Get in touch" CTA still scrolls to the CTA block.
+- Static `resume.html` / `contact.html`: they carry a `<div id="site-footer"></div>` placeholder, and `serveStaticWithHeader` HTMLRewriter-injects `siteFooterBundle(...)` at it (pulling `footer_email` / `footer_linkedin` from D1).
+
+The earlier `footerHtml()` helper (a minimal Email-button + LinkedIn footer), the per-page hardcoded `<footer>` markup on the static pages and share landing, and the homepage's old `.contact` / `.contact-links` / `.foot` CSS have all been removed. Do not reintroduce them.
 
 ## Architecture (Worker is the source of truth)
 The live site is rendered by the Cloudflare Worker at `cloudflare/workers/public/src/index.ts`, which builds the homepage, case-study pages, and share-link pages from D1, and serves `barbarabroadnax.com` / `www.barbarabroadnax.com`. The Worker's `homepageTemplate` now renders the cinematic homepage from D1 (ported June 2026); it and the static `index.html` carry the same design, but the Worker version is what ships. The static `index.html` (`vercel.json` rewrites `/` to `/index.html`) is a Vercel-era leftover kept only for local design review.
 
-**`run_worker_first` is required.** `wrangler.toml` sets `run_worker_first = true` under `[assets]`. Without it, Cloudflare's static-asset layer serves the bundled `public/index.html` for `/` BEFORE the Worker runs, so the Worker homepage never renders and the live `/` silently falls back to the stale static file (this was the root cause of the June 2026 "homepage not updating / images not showing" issue). The Worker handles `/`, `/work/:slug`, `/share/:token`, `/uploads/:key`, and 301-redirects legacy `*.html` to `/work/:slug`. The static pages in `STATIC_HEADER_PAGES` (`/resume.html`, `/contact.html`) are served by `serveStaticWithHeader`, which fetches the bundled asset via `env.ASSETS.fetch()` and HTMLRewriter-injects the shared header (see Navigation). Other genuine static files (`styles.css`, `images/`, `favicon.svg`) resolve via the plain `env.ASSETS.fetch()` fallback. `prepare-assets` still copies the static files into the bundle for both paths.
+**`run_worker_first` is required.** `wrangler.toml` sets `run_worker_first = true` under `[assets]`. Without it, Cloudflare's static-asset layer serves the bundled `public/index.html` for `/` BEFORE the Worker runs, so the Worker homepage never renders and the live `/` silently falls back to the stale static file (this was the root cause of the June 2026 "homepage not updating / images not showing" issue). The Worker handles `/`, `/work/:slug`, `/share/:token`, `/uploads/:key`, and 301-redirects legacy `*.html` to `/work/:slug`. The static pages in `STATIC_HEADER_PAGES` (`/resume.html`, `/contact.html`) are served by `serveStaticWithHeader`, which fetches the bundled asset via `env.ASSETS.fetch()` and HTMLRewriter-injects both the shared header and the shared footer (see Navigation and Footer). Other genuine static files (`styles.css`, `images/`, `favicon.svg`) resolve via the plain `env.ASSETS.fetch()` fallback. `prepare-assets` still copies the static files into the bundle for both paths.
 
 So edits to `index.html`, `styles.css`, and the static case-study HTML affect local preview only. To change the live homepage, edit the Worker's `homepageTemplate`. Note the homepage `/` response is edge-cached (`max-age=60, stale-while-revalidate=600`), so after a deploy use a cache-busting query string (`/?x=1`) to see changes immediately.
 
@@ -83,13 +101,14 @@ D1-driven (admin-editable):
 - Ticker: `site_content.ticker_label` + `ticker_phrases`.
 - Hero lede paragraph: `site_content.hero_tagline` (falls back to `DEFAULT_HERO_TAGLINE`).
 - The cinematic work rows: generated from published `case_studies` (image, logo, title, company, role, order). See the Work Section note above.
-- Footer / contact: `footer_email`, `footer_linkedin`.
+- Footer / contact: `footer_email`, `footer_linkedin` (feed the shared `siteFooterMarkup` footer; see Footer).
 
 Hardcoded in `homepageTemplate` (NOT admin-editable):
 - The hero `<h1>` headline and the hero meta (Based / Now / Focus). `site_content.hero_role` exists but the cinematic hero does not render it.
 - The Experience section (the three company blurbs).
 - The "Now building" side projects (MTRCD, The Lez List).
 - Per-card editorial copy via `HOME_CARD_COPY` (see Work Section note).
+- The footer CTA copy ("Hiring for a senior or lead design role? Let's talk.") lives in `siteFooterMarkup` (see Footer); only the email and LinkedIn target are D1-driven.
 
 Making the hardcoded pieces admin-editable is future work (new `site_content` keys or columns plus admin UI). The earlier thesis / work-record / interstitial keys were removed and should not be reintroduced.
 
