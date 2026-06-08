@@ -109,6 +109,7 @@ interface CaseStudyRow {
   id: string;
   title: string;
   company: string;
+  company_id: string | null;
   role: string | null;
   outcome_metric: string | null;
   hero_image_key: string | null;
@@ -125,9 +126,59 @@ interface CaseStudyRow {
 
 interface MetaItem { label: string; value: string; }
 
+// A company is a brand whose logo + color are reused across all its case
+// studies (homepage cards, case-study hero, share landing). Managed in admin.
+interface CompanyRow {
+  id: string;
+  name: string;
+  logo_image_key: string | null;
+  brand_color: string | null;
+}
+
+// Resolved logo info attached to a case study at render time.
+interface ResolvedCompany { logoUrl: string; brand: string; name: string; }
+
+async function loadCompanies(env: Env): Promise<CompanyRow[]> {
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT id, name, logo_image_key, brand_color FROM companies`
+    ).all<CompanyRow>();
+    return results ?? [];
+  } catch {
+    // companies table not migrated yet — degrade gracefully (no logos).
+    return [];
+  }
+}
+
+interface CompanyLookup { byId: Map<string, CompanyRow>; byName: Map<string, CompanyRow>; }
+
+function buildCompanyLookup(companies: CompanyRow[]): CompanyLookup {
+  const byId = new Map<string, CompanyRow>();
+  const byName = new Map<string, CompanyRow>();
+  for (const c of companies) {
+    byId.set(c.id, c);
+    byName.set(c.name.trim().toLowerCase(), c);
+  }
+  return { byId, byName };
+}
+
+// Resolve a case study's company logo by company_id first, then by name as a
+// fallback so an unlinked study still picks up its brand. Returns null when no
+// company matches or the matched company has no logo uploaded.
+function resolveCompany(cs: CaseStudyRow, lookup: CompanyLookup): ResolvedCompany | null {
+  const c = (cs.company_id && lookup.byId.get(cs.company_id))
+    || lookup.byName.get((cs.company ?? '').trim().toLowerCase());
+  if (!c || !c.logo_image_key) return null;
+  return {
+    logoUrl: `/uploads/${attrEscape(c.logo_image_key)}`,
+    brand: c.brand_color || '#05334A',
+    name: c.name,
+  };
+}
+
 async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -139,7 +190,7 @@ async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 
 async function loadCaseStudyBySlug(env: Env, slug: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
-    `SELECT id, title, company, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -200,10 +251,12 @@ function attrEscape(s: string): string {
 // ─── homepage renderer ───────────────────────────────────────────────────
 
 async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
-  const [caseStudies, content] = await Promise.all([
+  const [caseStudies, content, companies] = await Promise.all([
     loadPublishedCaseStudies(env),
     loadSiteContent(env),
+    loadCompanies(env),
   ]);
+  const companyLookup = buildCompanyLookup(companies);
 
   const tickerPhrases = getJSON<string[]>(content, 'ticker_phrases', []);
   const tickerLabel   = getText(content, 'ticker_label', 'I design');
@@ -212,7 +265,7 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
   const footerEmail   = getText(content, 'footer_email', 'broadnaxux@gmail.com');
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
 
-  const workCardsHtml = caseStudies.map((cs, i) => workCard(cs, i)).join('\n');
+  const workCardsHtml = caseStudies.map((cs, i) => workCard(cs, i, resolveCompany(cs, companyLookup))).join('\n');
   const navItems = caseStudies.map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
 
   const html = homepageTemplate({
@@ -245,14 +298,19 @@ function workRecordRow(cs: CaseStudyRow): string {
 
 // Image-forward card for the masonry grid.
 // Cards at positions 0 and 5 (then every 6) get the wide "featured" treatment.
-function workCard(cs: CaseStudyRow, index: number): string {
+function workCard(cs: CaseStudyRow, index: number, company: ResolvedCompany | null = null): string {
   const isFeatured = index === 0 || (index > 0 && (index - 5) % 6 === 0);
   const imgUrl = cs.hero_image_key ? `/uploads/${attrEscape(cs.hero_image_key)}` : '';
   const imgEl = imgUrl
     ? `<img src="${imgUrl}" alt="" loading="${index < 2 ? 'eager' : 'lazy'}">`
     : '';
+  // Frosted logo chip over the bottom-right corner of the image, tinted with
+  // the company's brand color. Only rendered when a logo is uploaded.
+  const logoChip = company
+    ? `<span class="card-logo" style="--brand:${attrEscape(company.brand)}"><img src="${company.logoUrl}" alt="${attrEscape(company.name)}" loading="lazy"></span>`
+    : '';
   return `    <a href="/work/${attrEscape(cs.id)}" class="work-card${isFeatured ? ' work-card--featured' : ''}">
-      <div class="card-img">${imgEl}</div>
+      <div class="card-img">${imgEl}${logoChip}</div>
       <div class="card-overlay">
         <span class="card-company">${htmlEscape(cs.company)}</span>
         <h2 class="card-title">${htmlEscape(cs.title)}</h2>
@@ -327,17 +385,20 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
     ? metaItemsFromVersion(version.meta_items, cs)
     : metaItemsFromRow(cs);
 
-  const content = await loadSiteContent(env);
+  const [content, companies] = await Promise.all([loadSiteContent(env), loadCompanies(env)]);
   const tickerPhrases = getJSON<string[]>(content, 'ticker_phrases', []);
   const tickerLabel   = getText(content, 'ticker_label', 'I design');
   const footerEmail   = getText(content, 'footer_email', 'broadnaxux@gmail.com');
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
 
   const navItems = all.map((x) => ({ id: x.id, title: x.title, company: x.company }));
+  const company = resolveCompany(cs, buildCompanyLookup(companies));
 
   const html = caseStudyTemplate({
     title: cs.title,
     company: cs.company,
+    companyLogoUrl: company?.logoUrl ?? '',
+    companyBrand: company?.brand ?? '',
     subtitle,
     about_html,
     meta,
@@ -699,6 +760,19 @@ function homepageTemplate(d: HomeData): string {
     }
     .work-card:hover .card-img img { transform: scale(1.04); }
 
+    /* Frosted company logo chip, bottom-right over the image. */
+    .card-logo {
+      position: absolute; right: 0.85rem; bottom: 0.85rem; z-index: 2;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; padding: 7px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--brand, #05334A) 78%, transparent);
+      box-shadow: 0 6px 18px rgba(5,51,74,0.28);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    .card-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
     .card-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(to top, rgba(5,51,74,0.85) 0%, rgba(5,51,74,0.42) 40%, transparent 68%);
@@ -825,6 +899,8 @@ ${navDropdownScript()}
 interface CaseData {
   title: string;
   company: string;
+  companyLogoUrl: string;
+  companyBrand: string;
   subtitle: string;
   about_html: string;
   meta: MetaItem[];
@@ -893,7 +969,12 @@ function caseStudyTemplate(d: CaseData): string {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css">
-  <style>${navDropdownStyles({ accent: '#2d0a5e', ink: '#150d26', muted: '#7c6d90', rule: 'rgba(21,13,38,0.1)', bg: '#ffffff' })}</style>
+  <style>${navDropdownStyles({ accent: '#2d0a5e', ink: '#150d26', muted: '#7c6d90', rule: 'rgba(21,13,38,0.1)', bg: '#ffffff' })}
+    .case-company{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
+    .case-company .label{margin:0;}
+    .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:5px;border-radius:8px;background:color-mix(in srgb, var(--brand,#05334A) 12%, #ffffff);border:1px solid color-mix(in srgb, var(--brand,#05334A) 22%, transparent);}
+    .case-company-logo img{width:100%;height:100%;object-fit:contain;display:block;}
+  </style>
 </head>
 <body>
 
@@ -901,7 +982,9 @@ ${navHtml(d.tickerLabel, d.navItems)}
 
   <section class="case-hero">
     <div class="container">
-      <p class="label animate-in">${htmlEscape(d.company)}</p>
+      <div class="case-company animate-in">${d.companyLogoUrl
+        ? `<span class="case-company-logo" style="--brand:${attrEscape(d.companyBrand)}"><img src="${attrEscape(d.companyLogoUrl)}" alt="${attrEscape(d.company)}"></span>`
+        : ''}<p class="label">${htmlEscape(d.company)}</p></div>
       <h1 class="animate-in delay-1">${htmlEscape(d.title)}</h1>
 ${subtitleBlock}${aboutBlock}      <div class="case-meta animate-in delay-3">
 ${metaHtml}
@@ -1075,7 +1158,7 @@ async function loadCaseStudiesByIds(env: Env, ids: string[]): Promise<CaseStudyR
   if (safe.length === 0) return [];
   const placeholders = safe.map(() => '?').join(',');
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id IN (${placeholders})`
@@ -1220,7 +1303,11 @@ async function renderShareLink(env: Env, request: Request, token: string, headOn
 
   // Load curated case studies in order
   const ids = parseCaseStudyIds(link.case_study_ids);
-  const caseStudies = await loadCaseStudiesByIds(env, ids);
+  const [caseStudies, companies] = await Promise.all([
+    loadCaseStudiesByIds(env, ids),
+    loadCompanies(env),
+  ]);
+  const companyLookup = buildCompanyLookup(companies);
 
   // Track open (dedup per browser via simple cookie that lasts the session)
   const cookies = parseCookies(request.headers.get('Cookie') ?? '');
@@ -1232,7 +1319,7 @@ async function renderShareLink(env: Env, request: Request, token: string, headOn
   }
 
   const versionMap = parseVersionMap(link.case_study_versions);
-  const html = shareLandingPage({ link, caseStudies, versionMap });
+  const html = shareLandingPage({ link, caseStudies, versionMap, companyLookup });
   const headers = shareHeaders('text/html; charset=utf-8');
   for (const c of setCookies) headers.append('Set-Cookie', c);
   return new Response(headOnly ? null : html, { status: 200, headers });
@@ -1394,10 +1481,10 @@ function sharePasswordPage(token: string, link: ShareLinkRow, failed = false): s
 </html>`;
 }
 
-interface ShareLandingData { link: ShareLinkRow; caseStudies: CaseStudyRow[]; versionMap: Record<string, string>; }
+interface ShareLandingData { link: ShareLinkRow; caseStudies: CaseStudyRow[]; versionMap: Record<string, string>; companyLookup: CompanyLookup; }
 
 function shareLandingPage(d: ShareLandingData): string {
-  const { link, caseStudies, versionMap } = d;
+  const { link, caseStudies, versionMap, companyLookup } = d;
   const heading = link.custom_headline || (link.recipient_label ? `Selected work for ${link.recipient_label}` : 'Selected work');
   const messageBlock = link.custom_message
     ? `<div class="share-message">${link.custom_message}</div>`
@@ -1427,8 +1514,12 @@ ${caseDropItems(navItems, versionMap)}
     const href = isPublished ? `/work/${attrEscape(cs.id)}${versionSuffix}` : '#';
     const disabledAttr = isPublished ? '' : ' aria-disabled="true" style="opacity:0.55; pointer-events:none;"';
     const draftBadge = !isPublished ? '<span class="record-draft">Draft</span>' : '';
+    const rc = resolveCompany(cs, companyLookup);
+    const logoEl = rc
+      ? `<span class="record-logo" style="--brand:${attrEscape(rc.brand)}"><img src="${rc.logoUrl}" alt="${attrEscape(rc.name)}"></span>`
+      : '';
     return `    <a href="${href}"${isPublished ? ` data-slug="${attrEscape(cs.id)}"` : ''} class="record-row"${disabledAttr}>
-      <span class="record-company">${htmlEscapeAny(cs.company)}</span>
+      <span class="record-company">${logoEl}${htmlEscapeAny(cs.company)}</span>
       <span class="record-project">${htmlEscapeAny(cs.title)}${draftBadge}</span>
       <span class="record-role">${htmlEscapeAny(cs.role ?? '')}</span>
       <span class="record-outcome">${htmlEscapeAny(cs.outcome_metric ?? '')}</span>
@@ -1484,7 +1575,9 @@ ${caseDropItems(navItems, versionMap)}
     .record-row:hover{background:rgba(45,10,94,0.025);}
     .record-row .record-arrow{position:absolute;right:var(--pad);top:50%;translate:4px -50%;opacity:0;font-size:0.75rem;color:var(--purple);transition:opacity 0.2s ease, translate 0.25s cubic-bezier(0.16,1,0.3,1);pointer-events:none;}
     .record-row:hover .record-arrow{opacity:1;translate:0 -50%;}
-    .record-company{font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);}
+    .record-company{font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);display:flex;align-items:center;gap:0.5rem;}
+    .record-logo{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:4px;border-radius:6px;background:color-mix(in srgb, var(--brand,#2d0a5e) 12%, #ffffff);border:1px solid color-mix(in srgb, var(--brand,#2d0a5e) 22%, transparent);flex-shrink:0;}
+    .record-logo img{width:100%;height:100%;object-fit:contain;display:block;}
     .record-project{font-size:0.95rem;font-weight:700;color:var(--ink);letter-spacing:-0.01em;}
     .record-role{font-size:0.78rem;font-weight:400;color:var(--muted);}
     .record-outcome{font-size:0.78rem;font-weight:600;color:var(--ink);}

@@ -115,6 +115,20 @@ export default {
       if (verToken && verToken !== 'new' && verAction === 'delete' && method === 'POST') return deleteCaseStudyVersion(env, csId, verToken);
     }
 
+    // HTML pages — companies
+    if (path === '/companies' && method === 'GET') return listCompaniesPage(env, url);
+    if (path === '/companies/new' && method === 'GET')  return editCompanyPage(env, null, url);
+    if (path === '/companies/new' && method === 'POST') return saveCompany(request, env, null);
+
+    const coMatch = path.match(/^\/companies\/([a-z0-9-]+)(?:\/(delete))?$/);
+    if (coMatch) {
+      const id = coMatch[1];
+      const action = coMatch[2];
+      if (!action && method === 'GET')  return editCompanyPage(env, id, url);
+      if (!action && method === 'POST') return saveCompany(request, env, id);
+      if (action === 'delete' && method === 'POST') return deleteCompany(env, id);
+    }
+
     // HTML pages — site content
     if (path === '/content' && method === 'GET') return listContentPage(env, url);
     const contentMatch = path.match(/^\/content\/([a-z0-9_-]+)$/);
@@ -271,6 +285,7 @@ interface CaseStudyRow {
   id: string;
   title: string;
   company: string;
+  company_id: string | null;
   role: string | null;
   outcome_metric: string | null;
   hero_image_key: string | null;
@@ -287,7 +302,7 @@ interface CaseStudyRow {
 
 async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -298,11 +313,35 @@ async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 
 async function getCaseStudy(env: Env, id: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
-    `SELECT id, title, company, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id = ?`
   ).bind(id).first<CaseStudyRow>();
+}
+
+// ─── data access: companies ──────────────────────────────────────────────
+
+interface CompanyRow {
+  id: string;
+  name: string;
+  logo_image_key: string | null;
+  brand_color: string | null;
+  sort_order: number;
+}
+
+async function listCompanies(env: Env): Promise<CompanyRow[]> {
+  const { results } = await env.DB.prepare(
+    `SELECT id, name, logo_image_key, brand_color, sort_order
+       FROM companies ORDER BY sort_order ASC, name ASC`
+  ).all<CompanyRow>();
+  return results ?? [];
+}
+
+async function getCompany(env: Env, id: string): Promise<CompanyRow | null> {
+  return env.DB.prepare(
+    `SELECT id, name, logo_image_key, brand_color, sort_order FROM companies WHERE id = ?`
+  ).bind(id).first<CompanyRow>();
 }
 
 interface ContentRow { key: string; value: string; value_type: string; updated_at: number; }
@@ -388,7 +427,7 @@ const SHARED_CSS = `
 
 function shell(opts: {
   title: string;
-  activeNav?: 'dashboard' | 'case-studies' | 'content' | 'share-links';
+  activeNav?: 'dashboard' | 'case-studies' | 'companies' | 'content' | 'share-links';
   body: string;
   extraHead?: string;
   toast?: { kind: 'success' | 'error'; text: string };
@@ -416,6 +455,7 @@ ${opts.extraHead ?? ''}
     <nav>
       ${navLink('/dashboard', 'Dashboard', 'dashboard')}
       ${navLink('/case-studies', 'Case Studies', 'case-studies')}
+      ${navLink('/companies', 'Companies', 'companies')}
       ${navLink('/content', 'Site Content', 'content')}
       ${navLink('/share-links', 'Share Links', 'share-links')}
     </nav>
@@ -461,6 +501,10 @@ async function dashboardPage(env: Env): Promise<Response> {
        FROM case_studies`
   ).first<{ total: number; published: number }>();
   const cn = await env.DB.prepare(`SELECT count(*) as n FROM site_content`).first<{ n: number }>();
+  const co = await safeFirst<{ total: number; withLogo: number }>(env,
+    `SELECT count(*) as total,
+            sum(CASE WHEN logo_image_key IS NOT NULL AND logo_image_key != '' THEN 1 ELSE 0 END) as withLogo
+       FROM companies`);
   const sl = await safeFirst<{ total: number; active: number }>(env,
     `SELECT count(*) as total,
             sum(CASE WHEN expires_at IS NULL OR expires_at > unixepoch() THEN 1 ELSE 0 END) as active
@@ -475,6 +519,11 @@ async function dashboardPage(env: Env): Promise<Response> {
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7c6d90;">Case Studies</div>
         <div style="font-size: 1.6rem; font-weight: 700; color: #e0e0e8; margin: 0.4rem 0;">${cs?.total ?? 0}</div>
         <div style="color: #8a8a9a; font-size: 0.78rem;">${cs?.published ?? 0} published</div>
+      </a>
+      <a href="/companies" style="background: #15151f; border: 1px solid #20202c; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
+        <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7c6d90;">Companies</div>
+        <div style="font-size: 1.6rem; font-weight: 700; color: #e0e0e8; margin: 0.4rem 0;">${co?.total ?? 0}</div>
+        <div style="color: #8a8a9a; font-size: 0.78rem;">${co?.withLogo ?? 0} with a logo</div>
       </a>
       <a href="/content" style="background: #15151f; border: 1px solid #20202c; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7c6d90;">Site Content Keys</div>
@@ -588,6 +637,16 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
   const meta = parseMetaItems(row?.meta_items ?? null);
   const metaJson = JSON.stringify(meta);
 
+  // Companies for the logo dropdown. Empty if migration 0008 isn't applied yet.
+  const companies = await listCompanies(env);
+  const companyOptions = [`<option value="">— none —</option>`]
+    .concat(companies.map((c) =>
+      `<option value="${attrEscape(c.id)}"${row?.company_id === c.id ? ' selected' : ''}>${htmlEscape(c.name)}</option>`))
+    .join('');
+
+  const heroKey = row?.hero_image_key ?? '';
+  const heroPreview = heroKey ? (/^(https?:|\/)/.test(heroKey) ? heroKey : publicUploadUrl(heroKey)) : '';
+
   // Load versions (existing case studies only). Returns [] if migration 0006
   // hasn't been applied yet, so the versions section just shows empty.
   const versions: CaseStudyVersionRow[] = isNew ? [] : await listCaseStudyVersions(env, id!);
@@ -630,6 +689,15 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
 
       <div class="row2">
         <div class="field">
+          <label for="company_id">Company logo</label>
+          <select id="company_id" name="company_id">${companyOptions}</select>
+          <div class="hint">Picks the logo + brand color from <a href="/companies">Companies</a>, shown on the homepage card, case-study hero, and share cards. Leave as none to fall back to matching the eyebrow text.</div>
+        </div>
+        <div class="field"></div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
           <label for="role">Homepage role label</label>
           <input id="role" name="role" type="text" value="${attrEscape(row?.role ?? '')}">
           <div class="hint">Shown in the homepage work table, e.g. "Lead Product Designer".</div>
@@ -661,10 +729,53 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
       </div>
 
       <div class="field">
-        <label for="hero_image_key">Hero image (URL or R2 key)</label>
-        <input id="hero_image_key" name="hero_image_key" type="text" value="${attrEscape(row?.hero_image_key ?? '')}">
-        <div class="hint">Used for the admin thumbnail. The hero image still lives inside body_html below; this is metadata.</div>
+        <label for="hero_image_key">Hero image</label>
+        <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
+          <span id="heroPreview" style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:78px;background:#fff;border-radius:6px;overflow:hidden;border:1px solid #2a2a35;flex-shrink:0;">
+            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : '<span class="small" style="color:#6a6a78;">none</span>'}
+          </span>
+          <div style="flex:1; min-width:240px;">
+            <input type="file" id="heroFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">
+            <button type="button" class="btn secondary" id="heroUploadBtn">Upload hero image</button>
+            <input id="hero_image_key" name="hero_image_key" type="text" value="${attrEscape(row?.hero_image_key ?? '')}" placeholder="R2 key or URL" style="margin-top:0.5rem;">
+            <div id="heroStatus" class="hint" style="margin-top:0.4rem;">This is the image shown on the homepage work card for this case study. Uploading fills the field automatically.</div>
+          </div>
+        </div>
       </div>
+
+      <script>
+        (function(){
+          var btn = document.getElementById('heroUploadBtn');
+          var input = document.getElementById('heroFile');
+          var status = document.getElementById('heroStatus');
+          var keyField = document.getElementById('hero_image_key');
+          var preview = document.getElementById('heroPreview');
+          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:cover;">'; }
+          btn.addEventListener('click', function(){ input.click(); });
+          keyField.addEventListener('change', function(){
+            var v = keyField.value.trim();
+            if (!v) return;
+            setPreview(/^(https?:|\\/)/.test(v) ? v : 'https://barbarabroadnax.com/uploads/' + v);
+          });
+          input.addEventListener('change', async function(){
+            var f = input.files && input.files[0];
+            if (!f) return;
+            status.textContent = 'Uploading ' + f.name + '…';
+            try {
+              var fd = new FormData();
+              fd.append('file', f);
+              var r = await fetch('/api/uploads', { method: 'POST', body: fd, credentials: 'same-origin' });
+              if (!r.ok) { var j = await r.json().catch(function(){return {};}); throw new Error(j.error || ('upload failed: ' + r.status)); }
+              var j = await r.json();
+              keyField.value = j.key;
+              setPreview('https://barbarabroadnax.com/uploads/' + j.key);
+              status.textContent = 'Uploaded. Save to apply.';
+            } catch (ex) {
+              status.textContent = 'Upload failed: ' + (ex.message || ex);
+            } finally { input.value = ''; }
+          });
+        })();
+      </script>
 
       <div class="field">
         <label>Body HTML</label>
@@ -815,6 +926,7 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   const id = String(form.get('id') ?? '').trim();
   const title = String(form.get('title') ?? '').trim();
   const company = String(form.get('company') ?? '').trim();
+  const company_id = String(form.get('company_id') ?? '').trim() || null;
   const status = String(form.get('status') ?? 'draft');
   const role = String(form.get('role') ?? '');
   const outcome_metric = String(form.get('outcome_metric') ?? '');
@@ -837,10 +949,10 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
     try {
       await env.DB.prepare(
         `INSERT INTO case_studies
-           (id, title, company, role, outcome_metric, hero_image_key, body_html,
+           (id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
             status, sort_order, subtitle, about_html, meta_items, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
-      ).bind(id, title, company, role, outcome_metric, hero_image_key, body_html,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
+      ).bind(id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
               status, nextOrder, subtitle, about_html, meta_items_str).run();
     } catch (e: any) {
       return redirectWithToast(url, '/case-studies/new', 'error', `Create failed: ${e.message ?? e}`);
@@ -850,11 +962,11 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
 
   await env.DB.prepare(
     `UPDATE case_studies SET
-       title = ?, company = ?, role = ?, outcome_metric = ?, hero_image_key = ?,
+       title = ?, company = ?, company_id = ?, role = ?, outcome_metric = ?, hero_image_key = ?,
        body_html = ?, status = ?, subtitle = ?, about_html = ?, meta_items = ?,
        updated_at = unixepoch()
      WHERE id = ?`
-  ).bind(title, company, role, outcome_metric, hero_image_key,
+  ).bind(title, company, company_id, role, outcome_metric, hero_image_key,
           body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
   return redirectWithToast(url, `/case-studies/${idOrNull}`, 'success', 'Saved.');
 }
@@ -1299,6 +1411,213 @@ async function deleteCaseStudyVersion(env: Env, caseStudyId: string, versionId: 
   await env.DB.prepare(`DELETE FROM case_study_versions WHERE id = ? AND case_study_id = ?`)
     .bind(versionId, caseStudyId).run();
   return new Response(null, { status: 303, headers: { Location: `/case-studies/${caseStudyId}?toast=Version%20deleted&kind=success` } });
+}
+
+// ─── pages: companies ────────────────────────────────────────────────────
+
+// Logos live in PUBLIC_BUCKET and are served by the public site at /uploads/.
+// Admin previews point at the live domain since the admin worker doesn't proxy R2.
+function publicUploadUrl(key: string): string {
+  return `https://barbarabroadnax.com/uploads/${key}`;
+}
+
+function companySlug(s: string): string {
+  return s.toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40);
+}
+
+async function listCompaniesPage(env: Env, url: URL): Promise<Response> {
+  const rows = await listCompanies(env);
+  const body = `
+    <div class="toolbar">
+      <h2 style="flex: 1;">Companies</h2>
+      <a href="/companies/new" class="btn">+ New</a>
+    </div>
+    <p class="sub">Upload one logo and brand color per company. Used on homepage cards, case-study heroes, and share-link cards.</p>
+
+    <table class="list">
+      <thead>
+        <tr>
+          <th style="width: 4rem;">Logo</th>
+          <th>Name</th>
+          <th>Brand</th>
+          <th>Slug</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.length === 0
+          ? `<tr><td colspan="5" class="small" style="padding: 1.5rem; text-align: center; color: #7c6d90;">No companies yet. <a href="/companies/new">Add one</a>.</td></tr>`
+          : rows.map((r) => {
+          const logoCell = r.logo_image_key
+            ? `<img src="${attrEscape(publicUploadUrl(r.logo_image_key))}" alt="" style="width: 34px; height: 34px; object-fit: contain; background: #fff; border-radius: 6px; padding: 3px;">`
+            : `<span class="small" style="color: #6a6a78;">—</span>`;
+          const swatch = r.brand_color
+            ? `<span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:14px;height:14px;border-radius:3px;background:${attrEscape(r.brand_color)};display:inline-block;border:1px solid #2a2a35;"></span><span class="small">${htmlEscape(r.brand_color)}</span></span>`
+            : `<span class="small" style="color: #6a6a78;">—</span>`;
+          return `<tr>
+            <td>${logoCell}</td>
+            <td><a href="/companies/${attrEscape(r.id)}" style="font-weight: 600; color: #e0e0e8;">${htmlEscape(r.name)}</a></td>
+            <td>${swatch}</td>
+            <td class="small">${htmlEscape(r.id)}</td>
+            <td style="text-align: right;"><a href="/companies/${attrEscape(r.id)}" class="btn secondary">Edit</a></td>
+          </tr>`;
+        }).join('\n')}
+      </tbody>
+    </table>
+  `;
+  return new Response(shell({ title: 'Companies', activeNav: 'companies', body, toast: readToast(url) }), {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex, nofollow' },
+  });
+}
+
+async function editCompanyPage(env: Env, id: string | null, url: URL): Promise<Response> {
+  const row = id ? await getCompany(env, id) : null;
+  if (id && !row) return new Response('Not found', { status: 404 });
+  const isNew = !row;
+  const previewUrl = row?.logo_image_key ? publicUploadUrl(row.logo_image_key) : '';
+
+  const body = `
+    <div class="toolbar">
+      <a href="/companies" class="small" style="color: #8a8a9a;">← All companies</a>
+    </div>
+    <h2>${isNew ? 'New company' : htmlEscape(row!.name)}</h2>
+    <p class="sub">${isNew ? 'The name must match the Company field on the case studies it applies to.' : `Editing <code>${htmlEscape(row!.id)}</code>.`}</p>
+
+    <form method="POST" action="${isNew ? '/companies/new' : `/companies/${attrEscape(row!.id)}`}" class="form-grid">
+      <div class="row2">
+        <div class="field">
+          <label for="name">Company name</label>
+          <input id="name" name="name" type="text" required value="${attrEscape(row?.name ?? '')}" placeholder="IPRO">
+          <div class="hint">Shown as the eyebrow. Must match the case study's Company text.</div>
+        </div>
+        <div class="field">
+          <label for="slug">Slug</label>
+          <input id="slug" name="slug" type="text" value="${attrEscape(row?.id ?? '')}" ${isNew ? '' : 'readonly'} placeholder="ipro">
+          <div class="hint">${isNew ? 'Leave blank to auto-generate from the name.' : 'Fixed after creation.'}</div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="brand_color">Brand color</label>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input id="brand_color_picker" type="color" value="${attrEscape(row?.brand_color || '#05334A')}" style="width:42px;height:38px;padding:2px;background:#15151f;border:1px solid #2a2a35;border-radius:4px;">
+            <input id="brand_color" name="brand_color" type="text" value="${attrEscape(row?.brand_color ?? '')}" placeholder="#0B3D5C" style="flex:1;">
+          </div>
+          <div class="hint">Tints the logo chip background. Hex, e.g. #0B3D5C.</div>
+        </div>
+        <div class="field">
+          <label for="sort_order">Sort order</label>
+          <input id="sort_order" name="sort_order" type="number" value="${row?.sort_order ?? 0}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Logo</label>
+        <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+          <span id="logoPreview" style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;background:#fff;border-radius:8px;padding:6px;border:1px solid #2a2a35;">
+            ${previewUrl ? `<img src="${attrEscape(previewUrl)}" alt="" style="width:100%;height:100%;object-fit:contain;">` : '<span class="small" style="color:#6a6a78;">none</span>'}
+          </span>
+          <div>
+            <input type="file" id="logoFile" accept="image/png,image/svg+xml,image/jpeg,image/webp" style="display:none;">
+            <button type="button" class="btn secondary" id="logoUploadBtn">Upload logo</button>
+            <div id="logoStatus" class="hint" style="margin-top:0.4rem;">PNG or SVG with transparent background works best.</div>
+          </div>
+        </div>
+        <input type="hidden" id="logo_image_key" name="logo_image_key" value="${attrEscape(row?.logo_image_key ?? '')}">
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <button type="submit" class="btn">${isNew ? 'Create' : 'Save changes'}</button>
+        <a href="/companies" class="btn secondary">Cancel</a>
+        ${isNew ? '' : `<button type="submit" formaction="/companies/${attrEscape(row!.id)}/delete" formmethod="POST" class="btn secondary" style="margin-left:auto;color:#ff8585;border-color:#5a2a2a;" onclick="return confirm('Delete this company? Its case studies stay but lose the logo link.');">Delete</button>`}
+      </div>
+    </form>
+
+    <script>
+      (function(){
+        var picker = document.getElementById('brand_color_picker');
+        var hex = document.getElementById('brand_color');
+        if (picker && hex) {
+          picker.addEventListener('input', function(){ hex.value = picker.value; });
+          hex.addEventListener('input', function(){ if (/^#[0-9a-fA-F]{6}$/.test(hex.value)) picker.value = hex.value; });
+        }
+        var btn = document.getElementById('logoUploadBtn');
+        var input = document.getElementById('logoFile');
+        var status = document.getElementById('logoStatus');
+        var keyField = document.getElementById('logo_image_key');
+        var preview = document.getElementById('logoPreview');
+        btn.addEventListener('click', function(){ input.click(); });
+        input.addEventListener('change', async function(){
+          var f = input.files && input.files[0];
+          if (!f) return;
+          status.textContent = 'Uploading ' + f.name + '…';
+          try {
+            var fd = new FormData();
+            fd.append('file', f);
+            var r = await fetch('/api/uploads', { method: 'POST', body: fd, credentials: 'same-origin' });
+            if (!r.ok) { var j = await r.json().catch(function(){return {};}); throw new Error(j.error || ('upload failed: ' + r.status)); }
+            var j = await r.json();
+            keyField.value = j.key;
+            preview.innerHTML = '<img src="https://barbarabroadnax.com/uploads/' + j.key + '" alt="" style="width:100%;height:100%;object-fit:contain;">';
+            status.textContent = 'Uploaded. Save to apply.';
+          } catch (ex) {
+            status.textContent = 'Upload failed: ' + (ex.message || ex);
+          } finally { input.value = ''; }
+        });
+      })();
+    </script>
+  `;
+  return new Response(shell({ title: isNew ? 'New company' : `Edit ${row!.name}`, activeNav: 'companies', body, toast: readToast(url) }), {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex, nofollow' },
+  });
+}
+
+async function saveCompany(request: Request, env: Env, id: string | null): Promise<Response> {
+  const url = new URL(request.url);
+  const form = await request.formData();
+  const name = String(form.get('name') ?? '').trim();
+  const brandRaw = String(form.get('brand_color') ?? '').trim();
+  const logo_image_key = String(form.get('logo_image_key') ?? '').trim() || null;
+  const sort_order = parseInt(String(form.get('sort_order') ?? '0'), 10) || 0;
+
+  const failPath = id ? `/companies/${id}` : '/companies/new';
+  if (!name) return redirectWithToast(url, failPath, 'error', 'Company name is required.');
+
+  const brand_color = brandRaw && /^#[0-9a-fA-F]{6}$/.test(brandRaw) ? brandRaw : null;
+  if (brandRaw && !brand_color) return redirectWithToast(url, failPath, 'error', 'Brand color must be a 6-digit hex like #0B3D5C.');
+
+  if (id) {
+    await env.DB.prepare(
+      `UPDATE companies SET name = ?, logo_image_key = ?, brand_color = ?, sort_order = ?, updated_at = unixepoch()
+        WHERE id = ?`
+    ).bind(name, logo_image_key, brand_color, sort_order, id).run();
+    return redirectWithToast(url, `/companies/${id}`, 'success', 'Saved.');
+  }
+
+  const slugInput = String(form.get('slug') ?? '').trim();
+  const slug = companySlug(slugInput || name);
+  if (!slug) return redirectWithToast(url, failPath, 'error', 'Could not derive a slug. Enter one manually.');
+
+  const existing = await getCompany(env, slug);
+  if (existing) return redirectWithToast(url, failPath, 'error', `Slug "${slug}" is already taken.`);
+
+  await env.DB.prepare(
+    `INSERT INTO companies (id, name, logo_image_key, brand_color, sort_order, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, unixepoch(), unixepoch())`
+  ).bind(slug, name, logo_image_key, brand_color, sort_order).run();
+  return redirectWithToast(url, `/companies/${slug}`, 'success', 'Company created.');
+}
+
+async function deleteCompany(env: Env, id: string): Promise<Response> {
+  // Unlink case studies first so they fall back to name matching rather than
+  // pointing at a missing company id.
+  await env.DB.prepare(`UPDATE case_studies SET company_id = NULL WHERE company_id = ?`).bind(id).run();
+  await env.DB.prepare(`DELETE FROM companies WHERE id = ?`).bind(id).run();
+  return new Response(null, { status: 303, headers: { Location: '/companies?toast=Company%20deleted&kind=success' } });
 }
 
 // ─── pages: site content ─────────────────────────────────────────────────
