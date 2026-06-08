@@ -1,655 +1,1336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barbara Broadnax | Product & Design</title>
-  <meta name="description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Case studies on accessibility and design that performs.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barbara Broadnax — Senior Product Designer</title>
+<meta name="description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Eight years turning complex, regulated products into measurable outcomes.">
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Barbara Broadnax | Product & Design">
-  <meta property="og:description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Case studies on accessibility and design that performs.">
-  <meta property="og:site_name" content="Barbara Broadnax">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Barbara Broadnax — Senior Product Designer">
+<meta property="og:description" content="Eight years across legal tech, commercial aviation, and e-commerce. Design that performs.">
+<meta property="og:site_name" content="Barbara Broadnax">
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Barbara Broadnax | Product & Design">
-  <meta name="twitter:description" content="Senior Product Designer shipping work across legal tech, aviation, and e-commerce. Case studies on accessibility and design that performs.">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Barbara Broadnax — Senior Product Designer">
+<meta name="twitter:description" content="Eight years across legal tech, commercial aviation, and e-commerce. Design that performs.">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <script defer src="/_vercel/insights/script.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<script defer src="/_vercel/insights/script.js"></script>
 
-    :root {
-      --bg:     #FBF8F1;
-      --ink:    #05334A;
-      --accent: #FF5B59;
-      --muted:  #8B7F6A;
-      --rule:   rgba(5, 51, 74, 0.1);
-      --pad:    clamp(1.25rem, 5vw, 4rem);
-    }
+<style>
+/* ============================================================
+   Barbara Broadnax — Portfolio Home
+   Rebuilt June 2026.
+============================================================ */
 
-    html { font-size: 16px; scroll-behavior: smooth; }
+:root {
+  --ink:          #05334A;
+  --ink-2:        #3D4550;
+  --muted:        #8B7F6A;
+  --ink-dark:     #042736;
 
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
+  --bg:           #FFFFFF;
+  --bg-2:         #F4F4F4;
+  --bg-card:      #FFFFFF;
 
-    a { text-decoration: none; color: inherit; }
-    img { display: block; max-width: 100%; }
+  --accent:       #FF5B59;
+  --accent-deep:  #E2403E;
+  --accent-wash:  rgba(255,91,89,0.10);
+  --accent-line:  rgba(255,91,89,0.32);
 
-    /* ============================================================
-       SCROLL PROGRESS BAR
-    ============================================================ */
-    .scroll-progress {
-      position: fixed;
-      top: 56px;
-      left: 0;
-      height: 2px;
-      width: 0%;
-      background: var(--accent);
-      z-index: 101;
-      pointer-events: none;
-    }
+  --rule:         rgba(5,51,74,0.10);
+  --rule-2:       rgba(5,51,74,0.18);
+  --rule-dark:    rgba(255,255,255,0.12);
 
-    /* ============================================================
-       NAV
-    ============================================================ */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--bg);
-      border-bottom: 1px solid var(--rule);
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 var(--pad);
-      gap: 2rem;
-    }
+  --r-xs:2px; --r-sm:4px; --r-md:8px; --r-lg:14px; --r-xl:20px; --r-pill:999px;
 
-    nav > * {
-      opacity: 0;
-      transform: translateY(-6px);
-      animation: navIn 0.5s ease forwards;
-    }
-    nav > *:nth-child(1) { animation-delay: 0s; }
-    nav > *:nth-child(2) { animation-delay: 0.06s; }
-    nav > *:nth-child(3) { animation-delay: 0.12s; }
-    nav > *:nth-child(4) { animation-delay: 0.18s; }
+  --sh-sm: 0 1px 2px rgba(5,51,74,.06), 0 1px 1px rgba(5,51,74,.04);
+  --sh-md: 0 10px 30px rgba(5,51,74,.10), 0 2px 6px rgba(5,51,74,.05);
+  --sh-lg: 0 30px 70px rgba(5,51,74,.16), 0 4px 10px rgba(5,51,74,.07);
 
-    @keyframes navIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --d1: 120ms; --d2: 240ms; --d3: 420ms;
 
-    .site-name {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      line-height: 1;
-      flex-shrink: 0;
-      text-decoration: none;
-    }
+  --display: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --sans:    -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --mono:    ui-monospace, 'SF Mono', Menlo, 'Cascadia Code', monospace;
 
-    .site-name .name-first {
-      display: block;
-      font-size: 0.6rem;
-      font-weight: 800;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--ink);
-    }
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --max: 1200px;
+  --nav-h: 56px;
+  --bottom-nav-h: 56px;
+}
 
-    .site-name .name-last {
-      display: block;
-      font-size: 0.6rem;
-      font-weight: 800;
-      letter-spacing: 0.155em;
-      text-transform: uppercase;
-      color: var(--ink);
-    }
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
 
-    .nav-divider {
-      width: 1px;
-      height: 22px;
-      background: var(--rule);
-      flex-shrink: 0;
-    }
+.wrap { max-width: var(--max); margin: 0 auto; padding-inline: var(--gutter); }
 
-    .ticker {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      flex: 1;
-    }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--accent); margin: 0;
+}
 
-    .ticker-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink);
-      white-space: nowrap;
-      line-height: 1;
-    }
+/* ─────────────────────────────────────────────
+   PROGRESS BAR — desktop (below top nav)
+───────────────────────────────────────────── */
+.progress-bar {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; height: 2px; width: 0%;
+  background: var(--accent);
+  z-index: 200;
+  transition: width 60ms linear;
+  pointer-events: none;
+}
 
-    .ticker-track {
-      position: relative;
-      height: 1em;
-      overflow: hidden;
-      min-width: 210px;
-    }
+/* ─────────────────────────────────────────────
+   TOP NAV
+───────────────────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  height: var(--nav-h);
+  display: flex; align-items: center;
+  padding: 0 var(--gutter);
+  gap: 18px;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border-bottom: 1px solid var(--rule);
+}
 
-    .ticker-word {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-      white-space: nowrap;
-      opacity: 0;
-      transform: translateY(110%);
-      line-height: 1;
-    }
+.brand {
+  display: flex; flex-direction: column;
+  line-height: 1.04; flex-shrink: 0;
+}
+.brand b {
+  font-family: var(--display);
+  font-weight: 700; font-size: 13px;
+  letter-spacing: 0.22em;
+}
+.brand b + b { letter-spacing: 0.135em; }
 
-    .ticker-word.is-in  { animation: wordIn  0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .ticker-word.is-out { animation: wordOut 0.3s ease-in forwards; }
+.nav-divider {
+  width: 1px; height: 20px;
+  background: var(--rule-2); flex-shrink: 0;
+}
 
-    @keyframes wordIn  { from{opacity:0;transform:translateY(110%)} to{opacity:1;transform:translateY(0)} }
-    @keyframes wordOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-110%)} }
+.ticker {
+  display: flex; align-items: center; gap: 7px;
+  flex: 1; min-width: 0; overflow: hidden;
+}
+.ticker-label {
+  font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-2); white-space: nowrap; line-height: 1;
+  flex-shrink: 0;
+}
+.ticker-track {
+  position: relative; height: 1em; overflow: hidden;
+  min-width: 140px; max-width: 200px;
+}
+.ticker-word {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent); white-space: nowrap;
+  opacity: 0; transform: translateY(110%); line-height: 1;
+}
+.ticker-word.is-in  { animation: wordIn  0.4s var(--ease) forwards; }
+.ticker-word.is-out { animation: wordOut 0.3s ease-in forwards; }
+@keyframes wordIn  { from { opacity:0; transform:translateY(110%) } to { opacity:1; transform:translateY(0) } }
+@keyframes wordOut { from { opacity:1; transform:translateY(0) }    to { opacity:0; transform:translateY(-110%) } }
 
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-      flex-shrink: 0;
-    }
+.nav-links {
+  display: flex; gap: 18px;
+  margin-left: auto; align-items: center; flex-shrink: 0;
+}
+.nav-links .nav-resume,
+.nav-links .nav-cta { margin-left: 4px; }
 
-    .nav-links a {
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      transition: color 0.2s;
-    }
+.nav-links > a:not(.nav-resume):not(.nav-cta) {
+  font-size: 13px; font-weight: 500; color: var(--ink-2);
+  position: relative; padding: 6px 0;
+  transition: color var(--d1); white-space: nowrap;
+}
+.nav-links > a:not(.nav-resume):not(.nav-cta):hover { color: var(--ink); }
+.nav-links > a:not(.nav-resume):not(.nav-cta)::after {
+  content: '';
+  position: absolute; left: 0; right: 100%; bottom: 0;
+  height: 1.5px; background: var(--accent);
+  transition: right var(--d2) var(--ease);
+}
+.nav-links > a:not(.nav-resume):not(.nav-cta):hover::after,
+.nav-links > a.on::after { right: 0; }
+.nav-links > a.on { color: var(--ink); }
 
-    .nav-links a:hover { color: var(--accent); }
-    .nav-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+.nav-resume {
+  display: inline-flex; align-items: center;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--ink) !important;
+  background: transparent;
+  padding: 7px 16px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid rgba(5,51,74,0.25);
+  white-space: nowrap; line-height: 1;
+  transition: border-color var(--d2);
+}
+.nav-resume::after { display: none !important; }
+.nav-resume:hover { border-color: var(--ink); }
 
-    /* ============================================================
-       HERO
-    ============================================================ */
-    .hero {
-      display: flex;
-      align-items: flex-end;
-      gap: clamp(2rem, 5vw, 5rem);
-      padding: clamp(3rem, 8vw, 7rem) clamp(1.25rem, 3.5vw, 2.5rem) clamp(2.5rem, 6vw, 5rem);
-      border-bottom: 1px solid var(--rule);
-    }
+.nav-cta {
+  display: inline-flex; align-items: center;
+  font-size: 12.5px; font-weight: 600;
+  color: #fff !important;
+  background: var(--ink);
+  padding: 7px 16px;
+  border-radius: var(--r-sm);
+  white-space: nowrap; line-height: 1;
+  transition: background var(--d2);
+}
+.nav-cta::after { display: none !important; }
+.nav-cta:hover { background: var(--accent); }
 
-    .hero-initials-wrap { flex-shrink: 0; }
+/* ── Case Studies dropdown ── */
+.nav-drop { position: relative; }
+.nav-drop-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  color: var(--ink-2); background: transparent; border: 0;
+  padding: 6px 2px; cursor: pointer; white-space: nowrap;
+  transition: color var(--d1);
+}
+.nav-drop-toggle:hover,
+.nav-drop[aria-expanded="true"] .nav-drop-toggle { color: var(--ink); }
+.nav-drop-toggle .caret {
+  font-size: 24px; line-height: 1;
+  transition: transform var(--d2) var(--ease);
+}
+.nav-drop.open .nav-drop-toggle .caret { transform: rotate(180deg); }
 
-    .hero-initials {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(6rem, 16vw, 15rem);
-      font-weight: 700;
-      line-height: 0.88;
-      letter-spacing: 0.03em;
-      color: var(--ink);
-      display: block;
-    }
+.nav-drop-menu {
+  position: absolute; top: calc(100% + 10px); left: 0;
+  min-width: 280px; padding: 7px;
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-lg);
+  opacity: 0; transform: translateY(-6px) scale(0.985);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity var(--d2) var(--ease), transform var(--d2) var(--ease);
+  z-index: 120;
+}
+.nav-drop.open .nav-drop-menu {
+  opacity: 1; transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.nav-drop-menu a {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  padding: 9px 12px; border-radius: var(--r-sm);
+  transition: background var(--d1);
+}
+.nav-drop-menu a::after { display: none !important; }
+.nav-drop-menu a:hover,
+.nav-drop-menu a:focus-visible { background: var(--bg-2); outline: none; }
+.nav-drop-menu .dm-title {
+  font-size: 13.5px; font-weight: 500; color: var(--ink);
+  letter-spacing: -0.01em; white-space: nowrap;
+}
+.nav-drop-menu .dm-co {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); white-space: nowrap; flex-shrink: 0;
+}
 
-    .hero-bar {
-      height: 0.45rem;
-      width: 100%;
-      background: var(--accent);
-      margin-top: 0.9rem;
-    }
+/* Nav entrance */
+.nav > * {
+  opacity: 0; transform: translateY(-5px);
+  animation: navIn 0.45s var(--ease) forwards;
+}
+.nav > *:nth-child(1) { animation-delay: 0ms; }
+.nav > *:nth-child(2) { animation-delay: 50ms; }
+.nav > *:nth-child(3) { animation-delay: 100ms; }
+.nav > *:nth-child(4) { animation-delay: 150ms; }
+@keyframes navIn { to { opacity: 1; transform: translateY(0); } }
 
-    .hero-text {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      padding-bottom: 0.5rem;
-    }
+/* ─────────────────────────────────────────────
+   BOTTOM NAV — mobile only
+───────────────────────────────────────────── */
+.nav-bottom {
+  display: none;
+}
 
-    .hero-role {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+/* ─────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────── */
+.hero {
+  padding: clamp(3.5rem,8vw,6rem) 0 clamp(3rem,5vw,4.5rem);
+}
+.hero-head {
+  margin: 0 0 clamp(1.75rem,4vw,2.6rem);
+}
+.hero-main {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: clamp(2rem,5vw,4.5rem);
+  align-items: end;
+}
+.hero-aside { align-self: end; }
+.hero-status {
+  display: inline-flex; align-items: center; gap: 9px;
+  margin: 0;
+  padding: 7px 14px 7px 12px;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-pill);
+}
+.hero-status .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2.4s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,91,89,.45); }
+  70%  { box-shadow: 0 0 0 7px rgba(255,91,89,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,91,89,0); }
+}
+.hero-status span {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.05em; color: var(--accent-deep);
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-family: var(--display); font-weight: 700; color: var(--ink);
+  font-size: clamp(2.3rem,5vw,4rem);
+  line-height: 1.02; letter-spacing: -0.035em;
+  margin: 0; text-wrap: balance;
+}
+.hero h1 .accent { color: var(--accent); }
+.hero-lede {
+  font-size: clamp(1rem,1.4vw,1.14rem);
+  line-height: 1.62; color: var(--ink-2);
+  max-width: 44ch; margin: 0 0 28px;
+}
+.hero-meta { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.hero-meta div { display: flex; flex-direction: column; gap: 3px; }
+.hero-meta dt {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 0;
+}
+.hero-meta dd {
+  font-size: 14px; font-weight: 500; color: var(--ink); margin: 0;
+}
+.hero-portrait { display: none; }
 
-    .hero-name {
-      display: flex;
-      flex-direction: column;
-      font-size: clamp(1.1rem, 3vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-      text-transform: uppercase;
-      color: var(--ink);
-    }
+/* ─────────────────────────────────────────────
+   EXPERIENCE
+───────────────────────────────────────────── */
+.companies {
+  padding: clamp(2.5rem,5vw,4rem) 0;
+  border-top: 1px solid var(--rule);
+}
+.companies-head {
+  display: flex; align-items: baseline;
+  justify-content: space-between; gap: 1rem;
+  margin-bottom: 34px;
+}
+.companies-head p.note {
+  font-size: 13.5px; color: var(--muted);
+  margin: 0; max-width: 30ch; text-align: right;
+}
+.co-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 0;
+}
+.co {
+  padding: 28px 28px 28px 0;
+  border-top: 1px solid var(--rule);
+}
+.co + .co {
+  padding-left: 28px;
+  border-left: 1px solid var(--rule);
+}
+.co-name {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.5rem,2.4vw,2rem);
+  letter-spacing: -0.025em; margin: 0 0 4px;
+}
+.co-role {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent-deep); margin: 0 0 14px;
+}
+.co-industry {
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 12px;
+}
+.co-desc {
+  font-size: 13.5px; line-height: 1.6;
+  color: var(--ink-2); margin: 0;
+}
 
-    .hero-tagline {
-      font-size: clamp(0.85rem, 1.5vw, 1rem);
-      font-weight: 400;
-      line-height: 1.65;
-      color: var(--muted);
-      max-width: 42ch;
-      margin-top: 0.4rem;
-    }
+/* ─────────────────────────────────────────────
+   WORK
+───────────────────────────────────────────── */
+.work {
+  padding: clamp(3rem,6vw,5rem) 0 clamp(2rem,4vw,3rem);
+  border-top: 1px solid var(--rule);
+}
+.work-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between; gap: 1.5rem;
+  margin-bottom: 38px; flex-wrap: wrap;
+}
+.work-head h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.7rem,3vw,2.4rem);
+  letter-spacing: -0.03em; margin: 10px 0 0;
+}
+.work-head .count {
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+}
 
-    /* ============================================================
-       WORK SECTION
-    ============================================================ */
-    .work-section {
-      padding: clamp(2rem, 5vw, 4rem) var(--pad);
-    }
+/* Cinematic stacked rows */
+.work-grid {
+  display: flex; flex-direction: column;
+  gap: clamp(4.5rem, 10vw, 9rem);
+}
 
-    .work-eyebrow {
-      display: block;
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1.5rem;
-    }
+.cine {
+  display: grid;
+  grid-template-columns: 1.04fr 0.96fr;
+  align-items: center;
+  gap: clamp(1.75rem, 5vw, 5rem);
+  color: inherit;
+}
+/* Alternate sides: even rows flip image to the right */
+.cine[data-side="right"] .cine-media { order: 2; }
+.cine[data-side="right"] .cine-copy  { order: 1; }
 
-    .work-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-    }
+/* ── Media + reveal ── */
+.cine-media {
+  position: relative;
+  transform: translateY(var(--py, 0));
+  will-change: transform;
+}
+.cine-frame {
+  position: relative;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  box-shadow: var(--sh-md);
+  aspect-ratio: 16 / 10;
+}
+.cine-frame img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transform: scale(1.14);
+  transition: transform 1.3s var(--ease);
+  will-change: transform;
+}
+.cine.in .cine-frame img { transform: scale(1); }
+.cine:hover .cine-frame img { transform: scale(1.05); }
 
-    .work-card {
-      position: relative;
-      display: block;
-      overflow: hidden;
-      aspect-ratio: 4 / 3;
-      background: #e8e3d8;
-      text-decoration: none;
-      color: inherit;
-    }
+/* Bottom-up wipe overlay */
+.cine-frame::after {
+  content: ''; position: absolute; inset: -1px; z-index: 2;
+  background: var(--bg);
+  transform-origin: bottom; transform: scaleY(1);
+  transition: transform 0.95s var(--ease);
+}
+.cine.in .cine-frame::after { transform: scaleY(0); }
 
-    .work-card--featured {
-      grid-column: span 2;
-      aspect-ratio: 16 / 9;
-    }
+/* ── Company logo chip (placeholder lockup) overlapping bottom-right ── */
+.cine-logo {
+  position: absolute; z-index: 3;
+  right: clamp(-8px, -0.8vw, -14px);
+  bottom: clamp(-8px, -0.8vw, -14px);
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 15px 10px 11px;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(12px) saturate(1.3);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-md);
+  opacity: 0; transform: translateY(14px) scale(0.94);
+  transition: opacity 0.5s var(--ease), transform 0.6s var(--ease);
+  transition-delay: 0.5s;
+}
+.cine.in .cine-logo { opacity: 1; transform: translateY(0) scale(1); }
+.cine:hover .cine-logo { transform: translateY(-3px) scale(1); }
+.cine-logo .mark {
+  width: 30px; height: 30px; flex-shrink: 0;
+  border-radius: 7px; display: grid; place-items: center;
+  font-family: var(--display); font-weight: 700;
+  font-size: 14px; color: #fff;
+}
+.cine-logo[data-co="ipro"]   .mark { background: linear-gradient(135deg, #0A4862, #05334A); }
+.cine-logo[data-co="alaska"] .mark { background: linear-gradient(135deg, #0A6FB0, #01426A); }
+.cine-logo[data-co="inksoft"] .mark { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); }
+.cine-logo .wm {
+  font-family: var(--display); font-weight: 700;
+  font-size: 14px; letter-spacing: -0.01em; color: var(--ink);
+  white-space: nowrap;
+}
 
-    .work-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+/* ── Copy column + staggered reveal ── */
+.cine-copy { max-width: 30rem; }
+.cine-copy > * {
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+.cine.in .cine-copy > * { opacity: 1; transform: none; }
+.cine.in .cine-copy > *:nth-child(1) { transition-delay: 0.10s; }
+.cine.in .cine-copy > *:nth-child(2) { transition-delay: 0.16s; }
+.cine.in .cine-copy > *:nth-child(3) { transition-delay: 0.22s; }
+.cine.in .cine-copy > *:nth-child(4) { transition-delay: 0.28s; }
+.cine.in .cine-copy > *:nth-child(5) { transition-delay: 0.34s; }
+.cine.in .cine-copy > *:nth-child(6) { transition-delay: 0.40s; }
 
-    .work-card:hover img { transform: scale(1.04); }
+.cine-co {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 12px;
+}
+.cine-title {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.7rem, 2.8vw, 2.5rem); letter-spacing: -0.03em;
+  line-height: 1.05; margin: 0 0 16px;
+}
+.cine-sum {
+  font-size: clamp(0.98rem, 1.2vw, 1.1rem); line-height: 1.6;
+  color: var(--ink-2); margin: 0 0 20px; max-width: 42ch;
+}
+.cine-tags {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px;
+}
+.cine-tag {
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.04em; color: var(--ink-2);
+  background: var(--bg-2); border: 1px solid var(--rule);
+  padding: 4px 9px; border-radius: var(--r-sm);
+}
+.cine-outcome {
+  display: flex; align-items: baseline; gap: 10px; margin: 0 0 22px;
+}
+.cine-outcome .stat {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.4rem, 2vw, 1.9rem); letter-spacing: -0.02em;
+  color: var(--accent-deep);
+}
+.cine-outcome .lbl { font-size: 14px; color: var(--ink-2); }
+.cine-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 600; color: var(--ink);
+  transition: color var(--d2); white-space: nowrap;
+}
+.cine-link .arr { transition: transform var(--d2) var(--ease); }
+.cine:hover .cine-link { color: var(--accent-deep); }
+.cine:hover .cine-link .arr { transform: translate(3px,-3px); }
 
-    .card-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(5,51,74,0.82) 0%, rgba(5,51,74,0.1) 55%, transparent 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 1.25rem 1.25rem 1.1rem;
-      gap: 0.25rem;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
+/* ─────────────────────────────────────────────
+   SIDE PROJECTS
+───────────────────────────────────────────── */
+.side {
+  margin-top: clamp(3rem,6vw,5rem);
+  background: var(--ink); color: var(--bg);
+  padding: clamp(3rem,6vw,4.5rem) 0;
+}
+.side-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap; margin-bottom: 30px;
+}
+.side-head .l h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.5rem,2.6vw,2rem);
+  letter-spacing: -0.025em; margin: 12px 0 0; color: var(--bg);
+}
+.side-head .l .eyebrow { color: var(--accent); }
+.side-head .r {
+  font-size: 14px; line-height: 1.6;
+  color: rgba(251,248,241,.7); max-width: 38ch; margin: 0;
+}
+.side-grid {
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 14px;
+}
+.spc {
+  display: flex; align-items: center; gap: 18px; padding: 20px 22px;
+  background: var(--ink-dark);
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--r-md);
+  transition: border-color var(--d2), transform var(--d2) var(--ease);
+}
+.spc:hover { border-color: var(--accent-line); transform: translateY(-2px); }
+.spc-mark {
+  width: 46px; height: 46px; flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, #0A4862, var(--ink-dark));
+  border: 1px solid var(--rule-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--bg);
+}
+.spc .m { flex: 1; min-width: 0; }
+.spc-live {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 5px;
+}
+.spc-live .d {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 7px var(--accent);
+}
+.spc-name {
+  font-family: var(--display); font-weight: 600;
+  font-size: 1.05rem; letter-spacing: -0.015em;
+  margin: 0 0 2px; color: var(--bg);
+}
+.spc-desc {
+  font-size: 12.5px; line-height: 1.45;
+  color: rgba(251,248,241,.6); margin: 0;
+}
+.spc .arr {
+  color: rgba(251,248,241,.4); font-size: 16px;
+  transition: transform var(--d2) var(--ease), color var(--d2);
+}
+.spc:hover .arr { color: var(--accent); transform: translate(3px,-3px); }
 
-    .work-card:hover .card-overlay,
-    .work-card:focus-visible .card-overlay { opacity: 1; }
+/* ─────────────────────────────────────────────
+   CONTACT / FOOTER
+───────────────────────────────────────────── */
+.contact { padding: clamp(3.5rem,7vw,6rem) 0; }
+.contact-in {
+  display: grid; grid-template-columns: 1.4fr 1fr;
+  gap: clamp(2rem,5vw,4rem); align-items: end;
+}
+.contact h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(2rem,4.5vw,3.4rem);
+  letter-spacing: -0.035em; line-height: 1.02;
+  margin: 18px 0 0; text-wrap: balance;
+}
+.contact h2 a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--d2);
+}
+.contact h2 a:hover { border-color: var(--accent); }
+.contact-links { display: flex; flex-direction: column; gap: 2px; }
+.contact-links a {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 2px; border-top: 1px solid var(--rule);
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  transition: padding-left var(--d2) var(--ease), color var(--d2);
+}
+.contact-links a:last-child { border-bottom: 1px solid var(--rule); }
+.contact-links a:hover { padding-left: 8px; color: var(--accent-deep); }
+.contact-links a .arr {
+  color: var(--muted);
+  transition: transform var(--d2) var(--ease), color var(--d2);
+}
+.contact-links a:hover .arr { transform: translate(3px,-3px); color: var(--accent); }
 
-    .card-company {
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(251, 248, 241, 0.65);
-    }
+.foot {
+  border-top: 1px solid var(--rule);
+  margin-top: 32px;
+  padding: 24px 0 40px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.foot p {
+  font-family: var(--mono); font-size: 11.5px;
+  color: var(--muted); margin: 0; letter-spacing: 0.03em;
+}
+.foot .foot-links { display: flex; gap: 20px; }
+.foot .foot-links a {
+  font-size: 12.5px; color: var(--muted); transition: color var(--d1);
+}
+.foot .foot-links a:hover { color: var(--accent); }
 
-    .card-title {
-      font-size: clamp(0.85rem, 1.6vw, 1.05rem);
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: #FBF8F1;
-      line-height: 1.2;
-    }
+/* ─────────────────────────────────────────────
+   ENTRANCE REVEALS
+───────────────────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity var(--d3) var(--ease), transform var(--d3) var(--ease);
+}
+.reveal.in { opacity: 1; transform: none; }
 
-    .card-metric {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-top: 0.15rem;
-    }
+/* ─────────────────────────────────────────────
+   RESPONSIVE — tablet: hide ticker at 960px
+───────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .ticker { display: none; }
+  .nav-divider { display: none; }
+}
 
-    .card-arrow {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: 1.1rem;
-      color: #FBF8F1;
-      opacity: 0;
-      transform: translate(-4px, 4px);
-      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+/* ─────────────────────────────────────────────
+   RESPONSIVE — grid collapses
+───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-main { grid-template-columns: 1fr; gap: clamp(1.5rem,5vw,2rem); align-items: start; }
+  .hero h1 { margin: 0 0 4px; }
+  .co-grid { grid-template-columns: 1fr; }
+  .co + .co { padding-left: 0; border-left: none; }
+  .work-grid { gap: clamp(3.5rem, 9vw, 6rem); }
+  .cine,
+  .cine[data-side="right"] {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .cine[data-side="right"] .cine-media,
+  .cine[data-side="right"] .cine-copy { order: 0; }
+  .cine-copy { max-width: none; }
+  .side-grid { grid-template-columns: 1fr; }
+  .contact-in { grid-template-columns: 1fr; align-items: start; }
+}
 
-    .work-card:hover .card-arrow,
-    .work-card:focus-visible .card-arrow {
-      opacity: 1;
-      transform: translate(0, 0);
-    }
+/* ─────────────────────────────────────────────
+   RESPONSIVE — mobile: bottom nav
+───────────────────────────────────────────── */
+@media (max-width: 768px) {
 
-    .work-card:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
+  /* Top nav: logo only */
+  .nav {
+    height: 48px;
+    justify-content: center;
+  }
+  .nav .nav-divider,
+  .nav .ticker,
+  .nav .nav-links { display: none; }
+  .brand { align-items: center; }
 
-    /* ============================================================
-       FOOTER
-    ============================================================ */
-    footer {
-      border-top: 1px solid var(--rule);
-      padding: 2rem var(--pad);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-    }
+  /* Desktop progress bar hides */
+  .progress-bar { display: none; }
 
-    footer p { font-size: 0.72rem; color: var(--muted); }
+  /* Cinematic rows: tighten logo chip on small screens */
+  .cine-logo {
+    right: 8px; bottom: 8px;
+    padding: 8px 12px 8px 9px;
+  }
+  .cine-logo .mark { width: 26px; height: 26px; font-size: 13px; }
+  .cine-logo .wm { font-size: 13px; }
 
-    .footer-links {
-      display: flex;
-      gap: 1.5rem;
-      list-style: none;
-    }
+  /* Bottom nav */
+  .nav-bottom {
+    display: block;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(14px) saturate(1.1);
+    border-top: 1px solid var(--rule);
+  }
 
-    .footer-links a {
-      font-size: 0.72rem;
-      color: var(--accent);
-      transition: color 0.2s;
-    }
+  /* Progress bar lives at top of bottom nav */
+  .nav-bottom .progress-bar {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: var(--accent);
+    pointer-events: none;
+    transition: width 60ms linear;
+  }
 
-    .footer-links a:hover { color: var(--ink); }
+  .nav-bottom-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  }
 
-    .footer-email-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.72rem;
-      color: var(--accent);
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      transition: color 0.2s;
-      line-height: 1;
-    }
-    .footer-email-btn:hover { color: var(--ink); }
-    .footer-email-btn.copied { color: #16a34a; }
+  .nav-bottom-links a:not(.nav-resume):not(.nav-cta) {
+    font-size: 12px; font-weight: 500; color: var(--ink-2);
+    white-space: nowrap;
+    transition: color var(--d1);
+  }
+  .nav-bottom-links a:not(.nav-resume):not(.nav-cta).on { color: var(--ink); font-weight: 600; }
+  .nav-bottom-links a:not(.nav-resume):not(.nav-cta):hover { color: var(--ink); }
 
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-    @media (max-width: 860px) {
-      .work-grid { grid-template-columns: repeat(2, 1fr); }
-      .work-card--featured { grid-column: span 2; }
-    }
+  .nav-bottom-links .nav-resume {
+    display: inline-flex; align-items: center;
+    font-size: 11.5px; font-weight: 600;
+    color: var(--ink) !important;
+    background: transparent;
+    padding: 6px 11px;
+    border-radius: var(--r-sm);
+    border: 1.5px solid rgba(5,51,74,0.25);
+    white-space: nowrap; line-height: 1;
+    transition: border-color var(--d2);
+  }
+  .nav-bottom-links .nav-resume:hover { border-color: var(--ink); }
 
-    @media (max-width: 560px) {
-      .nav-links { display: none; }
-      .work-grid { grid-template-columns: 1fr; }
-      .work-card--featured { grid-column: span 1; aspect-ratio: 4 / 3; }
-      .hero { flex-direction: column; align-items: flex-start; }
-      .hero-initials { font-size: clamp(4.5rem, 20vw, 6.5rem); }
-      .card-overlay { opacity: 1; }
-      .card-arrow { opacity: 1; transform: none; }
-    }
+  .nav-bottom-links .nav-cta {
+    display: inline-flex; align-items: center;
+    font-size: 11.5px; font-weight: 600;
+    color: #fff !important;
+    background: var(--ink);
+    padding: 6px 11px;
+    border-radius: var(--r-sm);
+    white-space: nowrap; line-height: 1;
+    transition: background var(--d2);
+  }
+  .nav-bottom-links .nav-cta:hover { background: var(--accent); }
 
-    /* ============================================================
-       REDUCED MOTION
-    ============================================================ */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
-      .scroll-progress { display: none; }
-    }
-  </style>
+  /* Pad main content above bottom nav */
+  main {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+
+  .companies-head p.note { display: none; }
+}
+
+/* ─────────────────────────────────────────────
+   REDUCED MOTION
+───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .hero-status .dot { animation: none; }
+  .nav > * { animation: none; opacity: 1; transform: none; }
+
+  /* Cinematic rows: show everything, no motion */
+  .cine-media { transform: none !important; }
+  .cine-frame img { transform: none !important; }
+  .cine-frame::after { transform: scaleY(0) !important; }
+  .cine-logo,
+  .cine-copy > * { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+</style>
 </head>
 <body>
 
-  <!-- SCROLL PROGRESS -->
-  <div class="scroll-progress" id="scrollProgress"></div>
+<!-- PROGRESS BAR — desktop -->
+<div class="progress-bar" id="progress-desktop"></div>
 
-  <!-- NAV -->
-  <nav>
-    <a href="index.html" class="site-name" aria-label="Barbara Broadnax, home">
-      <span class="name-first">Barbara</span>
-      <span class="name-last">Broadnax</span>
-    </a>
-    <div class="nav-divider" aria-hidden="true"></div>
-    <div class="ticker">
-      <span class="ticker-label">I design</span>
-      <div class="ticker-track" id="ticker" aria-live="polite"></div>
+<!-- TOP NAV -->
+<header class="nav">
+  <a href="#top" class="brand" aria-label="Barbara Broadnax, home">
+    <b>BARBARA</b>
+    <b>BROADNAX</b>
+  </a>
+  <div class="nav-divider" aria-hidden="true"></div>
+  <div class="ticker">
+    <span class="ticker-label">I design</span>
+    <div class="ticker-track" id="ticker-track" aria-live="polite"></div>
+  </div>
+  <nav class="nav-links" aria-label="Site navigation">
+    <div class="nav-drop" id="caseDrop">
+      <button type="button" class="nav-drop-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="caseDropMenu">
+        Case Studies <span class="caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="nav-drop-menu" id="caseDropMenu" role="menu" aria-label="Case studies">
+        <a href="/work/ipro-ner" role="menuitem"><span class="dm-title">Named Entity Recognition</span><span class="dm-co">IPRO</span></a>
+        <a href="/work/inksoft-design-studio" role="menuitem"><span class="dm-title">Design Studio: Signs &amp; Banners</span><span class="dm-co">InkSoft</span></a>
+        <a href="/work/alaska-view-reservation" role="menuitem"><span class="dm-title">View Reservation</span><span class="dm-co">Alaska Airlines</span></a>
+        <a href="/work/ipro-search-redact" role="menuitem"><span class="dm-title">Search &amp; Redact</span><span class="dm-co">IPRO</span></a>
+        <a href="/work/ipro-eda" role="menuitem"><span class="dm-title">Early Data Assessment</span><span class="dm-co">IPRO</span></a>
+        <a href="/work/alaska-same-day-change" role="menuitem"><span class="dm-title">Same Day Change</span><span class="dm-co">Alaska Airlines</span></a>
+        <a href="/work/inksoft-ssl" role="menuitem"><span class="dm-title">Easy SSL Install</span><span class="dm-co">InkSoft</span></a>
+      </div>
     </div>
-    <ul class="nav-links">
-      <li><a href="#work">Work</a></li>
-      <li><a href="resume.html">Resume</a></li>
-      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
+    <a href="resume.html" class="nav-resume">Resume</a>
+    <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener" class="nav-resume">LinkedIn</a>
+    <a href="#contact" class="nav-cta">Get in touch</a>
   </nav>
+</header>
+
+<!-- BOTTOM NAV — mobile only -->
+<nav class="nav-bottom" aria-label="Site navigation">
+  <div class="progress-bar" id="progress-mobile"></div>
+  <div class="nav-bottom-links">
+    <a href="#work" class="nav-resume">Case Studies</a>
+    <a href="resume.html" class="nav-resume">Resume</a>
+    <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener" class="nav-resume">LinkedIn</a>
+    <a href="#contact" class="nav-cta">Get in touch</a>
+  </div>
+</nav>
+
+<main id="top">
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-initials-wrap">
-      <span class="hero-initials">BB</span>
-      <div class="hero-bar"></div>
-    </div>
-    <div class="hero-text">
-      <p class="hero-role">Senior Product Designer</p>
-      <div class="hero-name">
-        <span>Barbara</span>
-        <span>Broadnax</span>
+    <div class="wrap">
+      <div class="hero-head reveal">
+        <div class="hero-status">
+          <span class="dot"></span>
+          <span>Open to senior &amp; lead roles</span>
+        </div>
       </div>
-      <p class="hero-tagline">Three industries. Seven shipped products. One through-line: design that performs.</p>
+      <div class="hero-main">
+        <h1 class="reveal">Senior product designer turning complex, regulated products into <span class="accent">measurable outcomes.</span></h1>
+        <div class="hero-aside reveal">
+          <p class="hero-lede">I design end-to-end experiences built for real people in real situations. Whether it's data management flows or tools that open up new revenue opportunities, I bring a versatile skill set to whatever the problem is. I work closely with product and engineering, lean on research to move quickly, and never lose sight of the bigger picture.</p>
+          <dl class="hero-meta">
+            <div><dt>Based</dt><dd>Phoenix, AZ · Remote</dd></div>
+            <div><dt>Now</dt><dd>Alaska Airlines</dd></div>
+            <div><dt>Focus</dt><dd>Product · AI · Accessibility</dd></div>
+          </dl>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- WORK GRID -->
-  <section class="work-section" id="work">
-    <span class="work-eyebrow">Selected work</span>
-    <div class="work-grid">
-
-      <!-- 0: NER — featured -->
-      <a href="/work/ipro-ner" class="work-card work-card--featured">
-        <img src="images/NER - Desktop.png" alt="" loading="eager">
-        <div class="card-overlay">
-          <span class="card-company">IPRO</span>
-          <h2 class="card-title">Named Entity Recognition</h2>
-          <span class="card-metric">4.1 / 5 in concept testing</span>
+  <!-- EXPERIENCE -->
+  <section class="companies" id="companies">
+    <div class="wrap">
+      <div class="companies-head reveal">
+        <p class="eyebrow">Experience</p>
+        <p class="note">Three industries, each with its own constraints, regulations, and high-stakes users.</p>
+      </div>
+      <div class="co-grid">
+        <div class="co reveal">
+          <h3 class="co-name">IPRO</h3>
+          <p class="co-role">Product Designer</p>
+          <p class="co-industry">Legal technology</p>
+          <p class="co-desc">Enterprise e-discovery software that helps legal teams review and produce millions of documents in litigation and investigations.</p>
         </div>
-        <span class="card-arrow" aria-hidden="true">&#8599;</span>
-      </a>
-
-      <!-- 1: Design Studio -->
-      <a href="/work/inksoft-design-studio" class="work-card">
-        <img src="images/Signs and Banners.png" alt="" loading="eager">
-        <div class="card-overlay">
-          <span class="card-company">InkSoft</span>
-          <h2 class="card-title">Design Studio</h2>
-          <span class="card-metric">New revenue module, shipped on time</span>
+        <div class="co reveal">
+          <h3 class="co-name">Alaska Airlines</h3>
+          <p class="co-role">Lead Product Designer</p>
+          <p class="co-industry">Commercial aviation</p>
+          <p class="co-desc">A major U.S. carrier serving tens of millions of travelers a year across booking, check-in, and post-purchase, on legacy infrastructure under DOT regulation.</p>
         </div>
-        <span class="card-arrow" aria-hidden="true">&#8599;</span>
-      </a>
-
-      <!-- 2: View Reservation -->
-      <a href="/work/alaska-view-reservation" class="work-card">
-        <img src="images/VPNR - v1 - desktop.png" alt="" loading="lazy">
-        <div class="card-overlay">
-          <span class="card-company">Alaska Airlines</span>
-          <h2 class="card-title">View Reservation</h2>
-          <span class="card-metric">120% lift in car rental bookings</span>
+        <div class="co reveal">
+          <h3 class="co-name">InkSoft</h3>
+          <p class="co-role">UX Designer</p>
+          <p class="co-industry">E-commerce</p>
+          <p class="co-desc">A storefront and design platform for custom print-shop owners to build stores, create artwork, and manage orders. Built for small-business operators.</p>
         </div>
-        <span class="card-arrow" aria-hidden="true">&#8599;</span>
-      </a>
-
-      <!-- 3: Search & Redact -->
-      <a href="/work/ipro-search-redact" class="work-card">
-        <img src="images/Search & Redact - V2 - Desktop.png" alt="" loading="lazy">
-        <div class="card-overlay">
-          <span class="card-company">IPRO</span>
-          <h2 class="card-title">Search &amp; Redact</h2>
-        </div>
-        <span class="card-arrow" aria-hidden="true">&#8599;</span>
-      </a>
-
-      <!-- 4: Early Data Assessment -->
-      <a href="/work/ipro-eda" class="work-card">
-        <img src="images/eda-full-workflow.png" alt="" loading="lazy">
-        <div class="card-overlay">
-          <span class="card-company">IPRO</span>
-          <h2 class="card-title">Early Data Assessment</h2>
-          <span class="card-metric">Net-new pre-discovery product</span>
-        </div>
-        <span class="card-arrow" aria-hidden="true">&#8599;</span>
-      </a>
-
-      <!-- 5: Same Day Change — featured -->
-      <a href="/work/alaska-same-day-change" class="work-card work-card--featured">
-        <img src="images/SDC - Desktop.png" alt="" loading="lazy">
-        <div class="card-overlay">
-          <span class="card-company">Alaska Airlines</span>
-          <h2 class="card-title">Same Day Change</h2>
-          <span class="card-metric">$612K revenue in 6 months</span>
-        </div>
-        <span class="card-arrow" aria-hidden="true">&#8599;</span>
-      </a>
-
-      <!-- 6: Easy SSL Install -->
-      <a href="/work/inksoft-ssl" class="work-card">
-        <img src="images/SSL - 1 - Desktop.png" alt="" loading="lazy">
-        <div class="card-overlay">
-          <span class="card-company">InkSoft</span>
-          <h2 class="card-title">Easy SSL Install</h2>
-          <span class="card-metric">34% to near-full SSL adoption</span>
-        </div>
-        <span class="card-arrow" aria-hidden="true">&#8599;</span>
-      </a>
-
+      </div>
     </div>
   </section>
 
-  <footer>
-    <p>&copy; 2026 Barbara Broadnax</p>
-    <ul class="footer-links">
-      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
-      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
-    </ul>
-  </footer>
+  <!-- WORK -->
+  <section class="work" id="work">
+    <div class="wrap">
+      <div class="work-head reveal">
+        <div>
+          <p class="eyebrow">Selected work</p>
+        </div>
+        <span class="count">07 case studies</span>
+      </div>
 
-  <script>
-    /* ================================================================
-       EMAIL COPY
-    ================================================================ */
-    function copyEmail(btn) {
-      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
-        var orig = btn.innerHTML;
-        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-        btn.classList.add('copied');
-        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      <div class="work-grid">
+
+        <!-- 1. Named Entity Recognition -->
+        <a href="/work/ipro-ner" class="cine" data-side="left">
+          <div class="cine-media">
+            <div class="cine-frame">
+              <img src="images/NER - Desktop.png" alt="Named Entity Recognition interface showing entity highlighting across document text" loading="eager">
+            </div>
+            <div class="cine-logo" data-co="ipro"><span class="mark">i</span><span class="wm">IPRO</span></div>
+          </div>
+          <div class="cine-copy">
+            <p class="cine-co">IPRO · Product Designer · AI</p>
+            <h3 class="cine-title">Named Entity Recognition</h3>
+            <p class="cine-sum">Designed an AI layer that surfaces people, places, and organizations across millions of legal documents.</p>
+            <div class="cine-tags">
+              <span class="cine-tag">AI Integration</span>
+              <span class="cine-tag">Legal Tech</span>
+              <span class="cine-tag">Enterprise</span>
+            </div>
+            <div class="cine-outcome">
+              <span class="stat">4.13/5</span>
+              <span class="lbl">in expert concept testing</span>
+            </div>
+            <span class="cine-link">View case study <span class="arr">↗</span></span>
+          </div>
+        </a>
+
+        <!-- 2. Design Studio: Signs & Banners -->
+        <a href="/work/inksoft-design-studio" class="cine" data-side="right">
+          <div class="cine-media">
+            <div class="cine-frame">
+              <img src="images/Signs and Banners.png" alt="Design Studio editor with a custom sign layout" loading="lazy">
+            </div>
+            <div class="cine-logo" data-co="inksoft"><span class="mark">I</span><span class="wm">InkSoft</span></div>
+          </div>
+          <div class="cine-copy">
+            <p class="cine-co">InkSoft · UX Designer</p>
+            <h3 class="cine-title">Design Studio: Signs &amp; Banners</h3>
+            <p class="cine-sum">Built a net-new design tool that let print shops sell custom signs and banners online.</p>
+            <div class="cine-tags">
+              <span class="cine-tag">0 → 1</span>
+              <span class="cine-tag">E-commerce</span>
+              <span class="cine-tag">Tooling</span>
+            </div>
+            <div class="cine-outcome">
+              <span class="stat">New</span>
+              <span class="lbl">revenue module, shipped on time</span>
+            </div>
+            <span class="cine-link">View case study <span class="arr">↗</span></span>
+          </div>
+        </a>
+
+        <!-- 3. View Reservation -->
+        <a href="/work/alaska-view-reservation" class="cine" data-side="left">
+          <div class="cine-media">
+            <div class="cine-frame">
+              <img src="images/VPNR - v1 - desktop.png" alt="View Reservation desktop page showing booking summary and ancillary offers" loading="lazy">
+            </div>
+            <div class="cine-logo" data-co="alaska"><span class="mark">A</span><span class="wm">Alaska Airlines</span></div>
+          </div>
+          <div class="cine-copy">
+            <p class="cine-co">Alaska Airlines · Lead Product Designer</p>
+            <h3 class="cine-title">View Reservation</h3>
+            <p class="cine-sum">Redesigned the post-purchase reservation page to surface relevant add-ons at the right moment.</p>
+            <div class="cine-tags">
+              <span class="cine-tag">Post-purchase</span>
+              <span class="cine-tag">Revenue</span>
+              <span class="cine-tag">Native + Web</span>
+            </div>
+            <div class="cine-outcome">
+              <span class="stat">120%</span>
+              <span class="lbl">lift in car-rental bookings</span>
+            </div>
+            <span class="cine-link">View case study <span class="arr">↗</span></span>
+          </div>
+        </a>
+
+        <!-- 4. Search & Redact -->
+        <a href="/work/ipro-search-redact" class="cine" data-side="right">
+          <div class="cine-media">
+            <div class="cine-frame">
+              <img src="images/Search &amp; Redact - V2 - Desktop.png" alt="Search and Redact interface with category panel and document preview" loading="lazy">
+            </div>
+            <div class="cine-logo" data-co="ipro"><span class="mark">i</span><span class="wm">IPRO</span></div>
+          </div>
+          <div class="cine-copy">
+            <p class="cine-co">IPRO · Product Designer</p>
+            <h3 class="cine-title">Search &amp; Redact</h3>
+            <p class="cine-sum">Created an AI-assisted workflow that finds and redacts sensitive content across large document sets.</p>
+            <div class="cine-tags">
+              <span class="cine-tag">AI Integration</span>
+              <span class="cine-tag">Legal Tech</span>
+              <span class="cine-tag">Enterprise</span>
+            </div>
+            <div class="cine-outcome">
+              <span class="stat">New</span>
+              <span class="lbl">AI-powered redaction workflow</span>
+            </div>
+            <span class="cine-link">View case study <span class="arr">↗</span></span>
+          </div>
+        </a>
+
+        <!-- 5. Early Data Assessment -->
+        <a href="/work/ipro-eda" class="cine" data-side="left">
+          <div class="cine-media">
+            <div class="cine-frame">
+              <img src="images/eda-full-workflow.png" alt="Early Data Assessment multi-step workflow" loading="lazy">
+            </div>
+            <div class="cine-logo" data-co="ipro"><span class="mark">i</span><span class="wm">IPRO</span></div>
+          </div>
+          <div class="cine-copy">
+            <p class="cine-co">IPRO · Product Designer</p>
+            <h3 class="cine-title">Early Data Assessment</h3>
+            <p class="cine-sum">Shipped a pre-discovery product area that helps teams assess data before formal review begins.</p>
+            <div class="cine-tags">
+              <span class="cine-tag">0 → 1</span>
+              <span class="cine-tag">Workflow</span>
+              <span class="cine-tag">Enterprise</span>
+            </div>
+            <div class="cine-outcome">
+              <span class="stat">Net-new</span>
+              <span class="lbl">pre-discovery product area</span>
+            </div>
+            <span class="cine-link">View case study <span class="arr">↗</span></span>
+          </div>
+        </a>
+
+        <!-- 6. Same Day Change -->
+        <a href="/work/alaska-same-day-change" class="cine" data-side="right">
+          <div class="cine-media">
+            <div class="cine-frame">
+              <img src="images/SDC - Desktop.png" alt="Same Day Change booking flow showing flight selection" loading="lazy">
+            </div>
+            <div class="cine-logo" data-co="alaska"><span class="mark">A</span><span class="wm">Alaska Airlines</span></div>
+          </div>
+          <div class="cine-copy">
+            <p class="cine-co">Alaska Airlines · Lead Product Designer · 2023</p>
+            <h3 class="cine-title">Same Day Change</h3>
+            <p class="cine-sum">Redesigned same-day flight changes across native and web into one fast, revenue-driving flow.</p>
+            <div class="cine-tags">
+              <span class="cine-tag">Booking flow</span>
+              <span class="cine-tag">Revenue</span>
+              <span class="cine-tag">Native + Web</span>
+            </div>
+            <div class="cine-outcome">
+              <span class="stat">$612K</span>
+              <span class="lbl">in new revenue within the first 6 months</span>
+            </div>
+            <span class="cine-link">View case study <span class="arr">↗</span></span>
+          </div>
+        </a>
+
+        <!-- 7. Easy SSL Install -->
+        <a href="/work/inksoft-ssl" class="cine" data-side="left">
+          <div class="cine-media">
+            <div class="cine-frame">
+              <img src="images/SSL - 1 - Desktop.png" alt="Easy SSL Install step-by-step configuration wizard" loading="lazy">
+            </div>
+            <div class="cine-logo" data-co="inksoft"><span class="mark">I</span><span class="wm">InkSoft</span></div>
+          </div>
+          <div class="cine-copy">
+            <p class="cine-co">InkSoft · UX Designer</p>
+            <h3 class="cine-title">Easy SSL Install</h3>
+            <p class="cine-sum">Turned a manual security setup into a self-serve flow store owners could finish on their own.</p>
+            <div class="cine-tags">
+              <span class="cine-tag">Self-serve</span>
+              <span class="cine-tag">Security</span>
+              <span class="cine-tag">E-commerce</span>
+            </div>
+            <div class="cine-outcome">
+              <span class="stat">34% →</span>
+              <span class="lbl">near-full SSL adoption</span>
+            </div>
+            <span class="cine-link">View case study <span class="arr">↗</span></span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILDING -->
+  <section class="side" id="building">
+    <div class="wrap">
+      <div class="side-head">
+        <div class="l reveal">
+          <p class="eyebrow">Now building</p>
+          <h2>On my own terms.</h2>
+        </div>
+        <p class="r reveal">Side projects keep me honest. No sprint planning, no stakeholders. Just decisions I make for tools I believe in.</p>
+      </div>
+      <div class="side-grid">
+        <a href="https://mtrcd.com" target="_blank" rel="noopener" class="spc reveal">
+          <div class="spc-mark">M</div>
+          <div class="m">
+            <span class="spc-live"><span class="d"></span>Live</span>
+            <h3 class="spc-name">MTRCD — WCAG Guide</h3>
+            <p class="spc-desc">An accessibility reference built as a product design exercise, not a prompt exercise.</p>
+          </div>
+          <span class="arr">↗</span>
+        </a>
+        <a href="https://thelezlist.com" target="_blank" rel="noopener" class="spc reveal">
+          <div class="spc-mark">L</div>
+          <div class="m">
+            <span class="spc-live"><span class="d"></span>Live</span>
+            <h3 class="spc-name">The Lez List</h3>
+            <p class="spc-desc">Connecting Black lesbians and queer women to events and experiences, by us, for us.</p>
+          </div>
+          <span class="arr">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="wrap contact-in">
+      <div class="reveal">
+        <p class="eyebrow">Let's talk</p>
+        <h2>Hiring for a senior or lead design role? <a href="mailto:broadnaxux@gmail.com">Let's talk.</a></h2>
+      </div>
+      <div class="contact-links reveal">
+        <a href="mailto:broadnaxux@gmail.com">broadnaxux@gmail.com <span class="arr">↗</span></a>
+        <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
+        <a href="resume.html">Download resume <span class="arr">↓</span></a>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="foot">
+        <p>© 2026 Barbara Broadnax · Phoenix, AZ</p>
+        <div class="foot-links">
+          <a href="#work">Work</a>
+          <a href="#contact">Contact</a>
+          <a href="resume.html">Resume</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Accurate scroll progress ──
+  const progD = document.getElementById('progress-desktop');
+  const progM = document.getElementById('progress-mobile');
+
+  function updateProgress() {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? (scrolled / total * 100).toFixed(2) + '%' : '0%';
+    progD.style.width = pct;
+    progM.style.width = pct;
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress, { passive: true });
+  updateProgress();
+
+  // ── Ticker ──
+  const phrases = [
+    'cross-functional teams',
+    'revenue outcomes',
+    'products at scale',
+    'AI-powered tools',
+    'design strategy',
+    'for complexity',
+  ];
+  const track = document.getElementById('ticker-track');
+  let current = 0;
+
+  phrases.forEach((p, i) => {
+    const span = document.createElement('span');
+    span.className = 'ticker-word';
+    span.textContent = p;
+    span.id = 'tw-' + i;
+    track.appendChild(span);
+  });
+
+  function showWord(i) {
+    const el = document.getElementById('tw-' + i);
+    el.classList.add('is-in');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('is-in');
+      el.style.opacity = 1;
+      el.style.transform = 'translateY(0)';
+    }, { once: true });
+  }
+
+  function hideWord(i) {
+    const el = document.getElementById('tw-' + i);
+    el.style.opacity = '';
+    el.style.transform = '';
+    el.classList.add('is-out');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('is-out');
+      el.style.opacity = 0;
+    }, { once: true });
+  }
+
+  showWord(0);
+  setInterval(() => {
+    hideWord(current);
+    current = (current + 1) % phrases.length;
+    setTimeout(() => showWord(current), 320);
+  }, 2600);
+
+  // ── Staggered entrance reveals ──
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const sibs = Array.from(el.parentElement.querySelectorAll(':scope > .reveal'));
+        const idx = Math.max(0, sibs.indexOf(el));
+        el.style.transitionDelay = (idx * 70) + 'ms';
+        el.classList.add('in');
+        io.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ── Cinematic case rows: reveal on scroll ──
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cines = Array.from(document.querySelectorAll('.cine'));
+
+  const cio = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        cio.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.18, rootMargin: '0px 0px -10% 0px' });
+  cines.forEach(c => cio.observe(c));
+
+  // ── Gentle parallax on the image frames ──
+  if (!reduceMotion) {
+    const frames = Array.from(document.querySelectorAll('.cine-media'));
+    let ticking = false;
+    function parallax() {
+      const vh = window.innerHeight;
+      frames.forEach(f => {
+        const r = f.getBoundingClientRect();
+        if (r.bottom < -80 || r.top > vh + 80) return;
+        const off = ((r.top + r.height / 2) - vh / 2) / vh; // -0.5..0.5
+        f.style.setProperty('--py', (off * -20).toFixed(1) + 'px');
       });
+      ticking = false;
     }
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(parallax); ticking = true; }
+    }, { passive: true });
+    window.addEventListener('resize', parallax, { passive: true });
+    parallax();
+  }
 
-    /* ================================================================
-       SCROLL PROGRESS BAR
-    ================================================================ */
-    const progressBar = document.getElementById('scrollProgress');
+  // ── Case Studies dropdown ──
+  const drop = document.getElementById('caseDrop');
+  if (drop) {
+    const toggle = drop.querySelector('.nav-drop-toggle');
+    const menu = drop.querySelector('.nav-drop-menu');
+    const items = Array.from(menu.querySelectorAll('a'));
 
-    function updateProgress() {
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      if (h <= 0) return;
-      progressBar.style.width = ((window.scrollY / h) * 100) + '%';
+    function openDrop() {
+      drop.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
     }
+    function closeDrop() {
+      drop.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+    function isOpen() { return drop.classList.contains('open'); }
 
-    window.addEventListener('scroll', updateProgress, { passive: true });
-
-    /* ================================================================
-       TICKER
-    ================================================================ */
-    const phrases = [
-      'cross-functional teams',
-      'revenue outcomes',
-      'products at scale',
-      'AI-powered tools',
-      'design strategy',
-      'for complexity',
-    ];
-
-    const track = document.getElementById('ticker');
-    let current = 0;
-
-    phrases.forEach((p, i) => {
-      const span = document.createElement('span');
-      span.className = 'ticker-word';
-      span.textContent = p;
-      span.id = 'tw-' + i;
-      track.appendChild(span);
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isOpen() ? closeDrop() : openDrop();
     });
 
-    function showWord(i) {
-      const el = document.getElementById('tw-' + i);
-      el.classList.add('is-in');
-      el.addEventListener('animationend', () => {
-        el.classList.remove('is-in');
-        el.style.opacity = 1;
-        el.style.transform = 'translateY(0)';
-      }, { once: true });
-    }
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (isOpen() && !drop.contains(e.target)) closeDrop();
+    });
 
-    function hideWord(i) {
-      const el = document.getElementById('tw-' + i);
-      el.style.opacity = '';
-      el.style.transform = '';
-      el.classList.add('is-out');
-      el.addEventListener('animationend', () => {
-        el.classList.remove('is-out');
-        el.style.opacity = 0;
-      }, { once: true });
-    }
-
-    showWord(0);
-    setInterval(() => {
-      hideWord(current);
-      current = (current + 1) % phrases.length;
-      setTimeout(() => showWord(current), 320);
-    }, 2600);
-  </script>
+    // Keyboard: Escape closes, arrows move between items
+    drop.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { closeDrop(); toggle.focus(); return; }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (!isOpen()) openDrop();
+        e.preventDefault();
+        const focused = items.indexOf(document.activeElement);
+        const dir = e.key === 'ArrowDown' ? 1 : -1;
+        const nextIdx = (focused + dir + items.length) % items.length;
+        items[nextIdx].focus();
+      }
+    });
+  }
+</script>
 
 </body>
 </html>

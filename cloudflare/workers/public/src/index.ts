@@ -207,20 +207,8 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
 
   const tickerPhrases = getJSON<string[]>(content, 'ticker_phrases', []);
   const tickerLabel   = getText(content, 'ticker_label', 'I design');
-  const thesis1       = getText(content, 'thesis_line_1');
-  const thesis2       = getText(content, 'thesis_line_2');
-  const asterisk      = getText(content, 'asterisk_tooltip');
-  const coEyebrow     = getText(content, 'co_eyebrow', 'The companies');
-  const companyRows   = getJSON<Array<{ index?: string; name: string; industry: string; description: string }>>(content, 'company_context', []);
-  const recordHeader  = getJSON<string[]>(content, 'record_header', ['Company', 'Project', 'Role', 'Outcome']);
-  const inter1        = getText(content, 'interstitial_paragraph_1');
-  const inter2        = getText(content, 'interstitial_paragraph_2');
-  const interAfter    = parseInt(getText(content, 'interstitial_after_position', '3'), 10) || 3;
-  const spEyebrow     = getText(content, 'side_projects_eyebrow', 'Now building');
-  const spHeadline    = getText(content, 'side_projects_headline');
-  const spLead        = getText(content, 'side_projects_lead');
-  const spQuote       = getText(content, 'side_projects_quote');
-  const spCite        = getText(content, 'side_projects_quote_cite');
+  const heroRole      = getText(content, 'hero_role', 'Senior Product Designer');
+  const heroTagline   = getText(content, 'hero_tagline', DEFAULT_HERO_TAGLINE);
   const footerEmail   = getText(content, 'footer_email', 'broadnaxux@gmail.com');
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
 
@@ -229,12 +217,9 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
 
   const html = homepageTemplate({
     tickerPhrases, tickerLabel,
-    thesis1, thesis2, asterisk,
-    coEyebrow, companyRows,
-    recordHeader,
+    heroRole, heroTagline,
     workCardsHtml,
     navItems,
-    spEyebrow, spHeadline, spLead, spQuote, spCite,
     footerEmail, footerLinkedIn,
   });
 
@@ -525,25 +510,20 @@ function footerHtml(email: string, linkedin: string): string {
 interface HomeData {
   tickerPhrases: string[];
   tickerLabel: string;
-  thesis1: string;
-  thesis2: string;
-  asterisk: string;
-  coEyebrow: string;
-  companyRows: Array<{ index?: string; name: string; industry: string; description: string }>;
-  recordHeader: string[];
+  heroRole: string;
+  heroTagline: string;
   workCardsHtml: string;
   navItems: NavCaseItem[];
-  spEyebrow: string;
-  spHeadline: string;
-  spLead: string;
-  spQuote: string;
-  spCite: string;
   footerEmail: string;
   footerLinkedIn: string;
 }
 
+// Default hero tagline. Used when site_content has no `hero_tagline` row, so
+// the homepage still reads well on a fresh DB. Editable in admin once seeded.
+const DEFAULT_HERO_TAGLINE = "I design end-to-end experiences built for real people in real situations. Whether it's data management flows or tools that open up new revenue opportunities, I bring a versatile skill set to whatever the problem is. I work closely with product and engineering, lean on research to move quickly, and never lose sight of the bigger picture.";
+
 function homepageTemplate(d: HomeData): string {
-  const tagline = "I design end-to-end experiences built for real people in real situations. Whether it's data management flows or tools that open up new revenue opportunities, I bring a versatile skill set to whatever the problem is. I work closely with product and engineering, lean on research to move quickly, and never lose sight of the bigger picture.";
+  const tagline = d.heroTagline || DEFAULT_HERO_TAGLINE;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -805,7 +785,7 @@ ${navHtml(d.tickerLabel, d.navItems)}
       <div class="hero-bar"></div>
     </div>
     <div class="hero-text">
-      <p class="hero-role">Senior Product Designer</p>
+      <p class="hero-role">${htmlEscape(d.heroRole)}</p>
       <div class="hero-name">
         <span>Barbara</span>
         <span>Broadnax</span>

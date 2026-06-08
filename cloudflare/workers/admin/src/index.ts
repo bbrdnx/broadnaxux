@@ -1306,22 +1306,10 @@ async function deleteCaseStudyVersion(env: Env, caseStudyId: string, versionId: 
 const CONTENT_KEY_LABELS: Record<string, { label: string; help: string }> = {
   ticker_label: { label: 'Ticker label', help: 'Static text before the rotating ticker, e.g. "I design".' },
   ticker_phrases: { label: 'Ticker phrases (JSON array)', help: 'Rotating phrases. JSON array of strings.' },
-  thesis_line_1: { label: 'Thesis — line 1', help: 'First big thesis sentence on the homepage.' },
-  thesis_line_2: { label: 'Thesis — line 2', help: 'Second thesis sentence. Italics applied automatically.' },
-  asterisk_tooltip: { label: 'Asterisk tooltip', help: 'Footnote shown when the asterisk in line 1 is clicked.' },
-  co_eyebrow: { label: 'Companies — eyebrow', help: 'Small uppercase label above the company-context block.' },
-  company_context: { label: 'Company context (JSON array)', help: 'JSON array of {index, name, industry, description}.' },
-  record_header: { label: 'Work record — column headers (JSON array)', help: 'JSON array of 4 strings: Company, Project, Role, Outcome.' },
-  interstitial_paragraph_1: { label: 'Interstitial — paragraph 1 (HTML)', help: 'Block of prose between case studies. Inline HTML (e.g. <strong>) allowed.' },
-  interstitial_paragraph_2: { label: 'Interstitial — paragraph 2 (HTML)', help: 'Optional second paragraph after the first.' },
-  interstitial_after_position: { label: 'Interstitial position', help: 'Insert the interstitial after the Nth published case study (default 3).' },
-  side_projects_eyebrow: { label: 'Side projects — eyebrow', help: 'Eyebrow above the dark side-projects section.' },
-  side_projects_headline: { label: 'Side projects — headline', help: 'Big headline.' },
-  side_projects_lead: { label: 'Side projects — lead paragraph', help: 'Paragraph under the headline.' },
-  side_projects_quote: { label: 'Side projects — quote', help: 'Italic quote at the bottom of the section.' },
-  side_projects_quote_cite: { label: 'Side projects — quote attribution', help: 'Person to cite under the quote.' },
-  footer_email: { label: 'Footer — email', help: 'Email shown in the footer (and used for mailto: links).' },
-  footer_linkedin: { label: 'Footer — LinkedIn URL', help: 'LinkedIn profile URL.' },
+  hero_role: { label: 'Hero role', help: 'The role line above your name in the homepage hero, e.g. "Senior Product Designer".' },
+  hero_tagline: { label: 'Hero tagline', help: 'The intro paragraph under your name in the homepage hero.' },
+  footer_email: { label: 'Footer email', help: 'Email shown in the footer (and used for mailto: links).' },
+  footer_linkedin: { label: 'Footer LinkedIn URL', help: 'LinkedIn profile URL.' },
 };
 
 function describeContentKey(key: string): { label: string; help: string } {

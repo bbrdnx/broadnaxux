@@ -18,56 +18,50 @@
 <meta name="twitter:description" content="Eight years across legal tech, commercial aviation, and e-commerce. Design that performs.">
 
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<!-- NOTE: Vercel analytics removed from preview; will be in final index.html -->
+<script defer src="/_vercel/insights/script.js"></script>
 
 <style>
 /* ============================================================
    Barbara Broadnax — Portfolio Home
-   Rebuilt June 2026. Deep Space Blue ink · warm paper canvas.
+   Rebuilt June 2026.
 ============================================================ */
 
 :root {
-  /* Ink */
   --ink:          #05334A;
   --ink-2:        #3D4550;
   --muted:        #8B7F6A;
   --ink-dark:     #042736;
 
-  /* Canvas */
   --bg:           #FFFFFF;
   --bg-2:         #F4F4F4;
   --bg-card:      #FFFFFF;
 
-  /* Signature accent */
   --accent:       #FF5B59;
   --accent-deep:  #E2403E;
   --accent-wash:  rgba(255,91,89,0.10);
   --accent-line:  rgba(255,91,89,0.32);
 
-  /* Lines */
   --rule:         rgba(5,51,74,0.10);
   --rule-2:       rgba(5,51,74,0.18);
   --rule-dark:    rgba(255,255,255,0.12);
 
-  /* Radii */
   --r-xs:2px; --r-sm:4px; --r-md:8px; --r-lg:14px; --r-xl:20px; --r-pill:999px;
 
-  /* Shadows */
   --sh-sm: 0 1px 2px rgba(5,51,74,.06), 0 1px 1px rgba(5,51,74,.04);
   --sh-md: 0 10px 30px rgba(5,51,74,.10), 0 2px 6px rgba(5,51,74,.05);
   --sh-lg: 0 30px 70px rgba(5,51,74,.16), 0 4px 10px rgba(5,51,74,.07);
 
-  /* Motion */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --d1: 120ms; --d2: 240ms; --d3: 420ms;
 
-  /* Type — SF Pro on Apple, system sans elsewhere */
   --display: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   --sans:    -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   --mono:    ui-monospace, 'SF Mono', Menlo, 'Cascadia Code', monospace;
 
   --gutter: clamp(1.25rem, 5vw, 4rem);
   --max: 1200px;
+  --nav-h: 56px;
+  --bottom-nav-h: 56px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -87,57 +81,92 @@ img { display: block; max-width: 100%; }
 
 .eyebrow {
   font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--accent);
-  margin: 0;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--accent); margin: 0;
 }
 
-/* ── Scroll progress ── */
-.progress {
-  position: fixed; left: 0; top: 0;
-  height: 2px; width: 0%;
+/* ─────────────────────────────────────────────
+   PROGRESS BAR — desktop (below top nav)
+───────────────────────────────────────────── */
+.progress-bar {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; height: 2px; width: 0%;
   background: var(--accent);
-  z-index: 120;
+  z-index: 200;
   transition: width 60ms linear;
   pointer-events: none;
 }
 
-/* ── Nav ── */
+/* ─────────────────────────────────────────────
+   TOP NAV
+───────────────────────────────────────────── */
 .nav {
   position: sticky; top: 0; z-index: 100;
-  display: flex; align-items: center; gap: 24px;
-  padding: 14px var(--gutter);
-  background: rgba(255,255,255,0.92);
+  height: var(--nav-h);
+  display: flex; align-items: center;
+  padding: 0 var(--gutter);
+  gap: 18px;
+  background: rgba(255,255,255,0.94);
   backdrop-filter: blur(14px) saturate(1.1);
   border-bottom: 1px solid var(--rule);
 }
+
 .brand {
-  display: flex; flex-direction: column; line-height: 1.04;
+  display: flex; flex-direction: column;
+  line-height: 1.04; flex-shrink: 0;
 }
 .brand b {
   font-family: var(--display);
-  font-weight: 700; font-size: 14px;
+  font-weight: 700; font-size: 13px;
   letter-spacing: 0.22em;
 }
 .brand b + b { letter-spacing: 0.135em; }
-.brand-tag {
-  font-family: var(--mono);
-  font-size: 9.5px; font-weight: 500;
-  letter-spacing: 0.14em; color: var(--muted);
-  margin-top: 5px; text-transform: uppercase;
+
+.nav-divider {
+  width: 1px; height: 20px;
+  background: var(--rule-2); flex-shrink: 0;
 }
+
+.ticker {
+  display: flex; align-items: center; gap: 7px;
+  flex: 1; min-width: 0; overflow: hidden;
+}
+.ticker-label {
+  font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-2); white-space: nowrap; line-height: 1;
+  flex-shrink: 0;
+}
+.ticker-track {
+  position: relative; height: 1em; overflow: hidden;
+  min-width: 140px; max-width: 200px;
+}
+.ticker-word {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent); white-space: nowrap;
+  opacity: 0; transform: translateY(110%); line-height: 1;
+}
+.ticker-word.is-in  { animation: wordIn  0.4s var(--ease) forwards; }
+.ticker-word.is-out { animation: wordOut 0.3s ease-in forwards; }
+@keyframes wordIn  { from { opacity:0; transform:translateY(110%) } to { opacity:1; transform:translateY(0) } }
+@keyframes wordOut { from { opacity:1; transform:translateY(0) }    to { opacity:0; transform:translateY(-110%) } }
+
 .nav-links {
-  display: flex; gap: 20px; margin-left: auto; align-items: center;
+  display: flex; gap: 18px;
+  margin-left: auto; align-items: center; flex-shrink: 0;
 }
 .nav-links .nav-resume,
 .nav-links .nav-cta { margin-left: 4px; }
+
 .nav-links a:not(.nav-resume):not(.nav-cta) {
-  font-size: 13.5px; font-weight: 500; color: var(--ink-2);
+  font-size: 13px; font-weight: 500; color: var(--ink-2);
   position: relative; padding: 6px 0;
-  transition: color var(--d1);
+  transition: color var(--d1); white-space: nowrap;
 }
 .nav-links a:not(.nav-resume):not(.nav-cta):hover { color: var(--ink); }
 .nav-links a:not(.nav-resume):not(.nav-cta)::after {
@@ -149,36 +178,55 @@ img { display: block; max-width: 100%; }
 .nav-links a:not(.nav-resume):not(.nav-cta):hover::after,
 .nav-links a.on::after { right: 0; }
 .nav-links a.on { color: var(--ink); }
+
 .nav-resume {
   display: inline-flex; align-items: center;
-  font-size: 13px; font-weight: 600;
+  font-size: 12.5px; font-weight: 600;
   color: var(--ink) !important;
   background: transparent;
-  padding: 8px 20px;
+  padding: 7px 16px;
   border-radius: var(--r-sm);
   border: 1.5px solid rgba(5,51,74,0.25);
-  white-space: nowrap;
-  line-height: 1;
+  white-space: nowrap; line-height: 1;
   transition: border-color var(--d2);
 }
-.nav-resume::after { display: none; }
+.nav-resume::after { display: none !important; }
 .nav-resume:hover { border-color: var(--ink); }
 
 .nav-cta {
   display: inline-flex; align-items: center;
-  font-size: 13px; font-weight: 600;
+  font-size: 12.5px; font-weight: 600;
   color: #fff !important;
   background: var(--ink);
-  padding: 8px 20px;
+  padding: 7px 16px;
   border-radius: var(--r-sm);
-  white-space: nowrap;
-  line-height: 1;
+  white-space: nowrap; line-height: 1;
   transition: background var(--d2);
 }
-.nav-cta::after { display: none; }
+.nav-cta::after { display: none !important; }
 .nav-cta:hover { background: var(--accent); }
 
-/* ── Hero ── */
+/* Nav entrance */
+.nav > * {
+  opacity: 0; transform: translateY(-5px);
+  animation: navIn 0.45s var(--ease) forwards;
+}
+.nav > *:nth-child(1) { animation-delay: 0ms; }
+.nav > *:nth-child(2) { animation-delay: 50ms; }
+.nav > *:nth-child(3) { animation-delay: 100ms; }
+.nav > *:nth-child(4) { animation-delay: 150ms; }
+@keyframes navIn { to { opacity: 1; transform: translateY(0); } }
+
+/* ─────────────────────────────────────────────
+   BOTTOM NAV — mobile only
+───────────────────────────────────────────── */
+.nav-bottom {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────── */
 .hero {
   padding: clamp(3.5rem,8vw,6.5rem) 0 clamp(3rem,5vw,4.5rem);
 }
@@ -217,7 +265,6 @@ img { display: block; max-width: 100%; }
   margin: 0 0 26px; text-wrap: balance;
 }
 .hero h1 .accent { color: var(--accent); }
-.hero h1 em { font-style: italic; font-weight: 500; color: var(--ink-2); }
 .hero-lede {
   font-size: clamp(1rem,1.4vw,1.18rem);
   line-height: 1.6; color: var(--ink-2);
@@ -235,7 +282,9 @@ img { display: block; max-width: 100%; }
 }
 .hero-portrait { display: none; }
 
-/* ── Companies ── */
+/* ─────────────────────────────────────────────
+   EXPERIENCE
+───────────────────────────────────────────── */
 .companies {
   padding: clamp(2.5rem,5vw,4rem) 0;
   border-top: 1px solid var(--rule);
@@ -280,7 +329,9 @@ img { display: block; max-width: 100%; }
   color: var(--ink-2); margin: 0;
 }
 
-/* ── Work ── */
+/* ─────────────────────────────────────────────
+   WORK
+───────────────────────────────────────────── */
 .work {
   padding: clamp(3rem,6vw,5rem) 0 clamp(2rem,4vw,3rem);
   border-top: 1px solid var(--rule);
@@ -299,7 +350,6 @@ img { display: block; max-width: 100%; }
   font-family: var(--mono); font-size: 12px; color: var(--muted);
 }
 
-/* 3-col grid: feature spans 2, rows: NER+DS / VR+SR+EDA / SDC+SSL */
 .work-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -346,7 +396,6 @@ img { display: block; max-width: 100%; }
   padding: 5px 9px; border-radius: var(--r-pill);
   border: 1px solid var(--rule);
 }
-
 .case-body {
   display: flex; flex-direction: column;
   padding: 22px 24px 24px;
@@ -397,14 +446,15 @@ img { display: block; max-width: 100%; }
 .case-link {
   display: inline-flex; align-items: center; gap: 7px;
   font-size: 13px; font-weight: 600; color: var(--ink);
-  transition: color var(--d2);
-  white-space: nowrap;
+  transition: color var(--d2); white-space: nowrap;
 }
 .case-link .arr { transition: transform var(--d2) var(--ease); }
 .case:hover .case-link { color: var(--accent-deep); }
 .case:hover .case-link .arr { transform: translate(3px,-3px); }
 
-/* ── Side projects ── */
+/* ─────────────────────────────────────────────
+   SIDE PROJECTS
+───────────────────────────────────────────── */
 .side {
   margin-top: clamp(3rem,6vw,5rem);
   background: var(--ink); color: var(--bg);
@@ -470,7 +520,9 @@ img { display: block; max-width: 100%; }
 }
 .spc:hover .arr { color: var(--accent); transform: translate(3px,-3px); }
 
-/* ── Contact / footer ── */
+/* ─────────────────────────────────────────────
+   CONTACT / FOOTER
+───────────────────────────────────────────── */
 .contact { padding: clamp(3.5rem,7vw,6rem) 0; }
 .contact-in {
   display: grid; grid-template-columns: 1.4fr 1fr;
@@ -519,21 +571,27 @@ img { display: block; max-width: 100%; }
 }
 .foot .foot-links a:hover { color: var(--accent); }
 
-/* ── Entrance reveals ── */
+/* ─────────────────────────────────────────────
+   ENTRANCE REVEALS
+───────────────────────────────────────────── */
 .reveal {
   opacity: 0; transform: translateY(16px);
   transition: opacity var(--d3) var(--ease), transform var(--d3) var(--ease);
 }
 .reveal.in { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1 !important; transform: none !important; }
-  .hero-status .dot { animation: none; }
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE — tablet: hide ticker at 960px
+───────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .ticker { display: none; }
+  .nav-divider { display: none; }
 }
 
-/* ── Responsive ── */
+/* ─────────────────────────────────────────────
+   RESPONSIVE — grid collapses
+───────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-  .hero-portrait { max-width: 360px; }
   .co-grid { grid-template-columns: 1fr; }
   .co + .co { padding-left: 0; border-left: none; }
   .work-grid { grid-template-columns: repeat(2,1fr); }
@@ -542,34 +600,149 @@ img { display: block; max-width: 100%; }
   .side-grid { grid-template-columns: 1fr; }
   .contact-in { grid-template-columns: 1fr; align-items: start; }
 }
-@media (max-width: 600px) {
-  .nav-links { gap: 16px; }
-  .nav-links a.hide-sm { display: none; }
-  .companies-head p.note { display: none; }
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE — mobile: bottom nav
+───────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Top nav: logo only */
+  .nav {
+    height: 48px;
+    justify-content: center;
+  }
+  .nav .nav-divider,
+  .nav .ticker,
+  .nav .nav-links { display: none; }
+  .brand { align-items: center; }
+
+  /* Desktop progress bar hides */
+  .progress-bar { display: none; }
+
+  /* Single-column work grid */
   .work-grid { grid-template-columns: 1fr; }
-  .case.feature { grid-column: 1; }
+  .case.feature { grid-column: 1; flex-direction: column; }
+  .case.feature .case-figure { min-height: 220px; flex: none; }
+
+  /* Bottom nav */
+  .nav-bottom {
+    display: block;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(14px) saturate(1.1);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Progress bar lives at top of bottom nav */
+  .nav-bottom .progress-bar {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: var(--accent);
+    pointer-events: none;
+    transition: width 60ms linear;
+  }
+
+  .nav-bottom-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .nav-bottom-links a:not(.nav-resume):not(.nav-cta) {
+    font-size: 12px; font-weight: 500; color: var(--ink-2);
+    white-space: nowrap;
+    transition: color var(--d1);
+  }
+  .nav-bottom-links a:not(.nav-resume):not(.nav-cta).on { color: var(--ink); font-weight: 600; }
+  .nav-bottom-links a:not(.nav-resume):not(.nav-cta):hover { color: var(--ink); }
+
+  .nav-bottom-links .nav-resume {
+    display: inline-flex; align-items: center;
+    font-size: 11.5px; font-weight: 600;
+    color: var(--ink) !important;
+    background: transparent;
+    padding: 6px 11px;
+    border-radius: var(--r-sm);
+    border: 1.5px solid rgba(5,51,74,0.25);
+    white-space: nowrap; line-height: 1;
+    transition: border-color var(--d2);
+  }
+  .nav-bottom-links .nav-resume:hover { border-color: var(--ink); }
+
+  .nav-bottom-links .nav-cta {
+    display: inline-flex; align-items: center;
+    font-size: 11.5px; font-weight: 600;
+    color: #fff !important;
+    background: var(--ink);
+    padding: 6px 11px;
+    border-radius: var(--r-sm);
+    white-space: nowrap; line-height: 1;
+    transition: background var(--d2);
+  }
+  .nav-bottom-links .nav-cta:hover { background: var(--accent); }
+
+  /* Pad main content above bottom nav */
+  main {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+
+  .companies-head p.note { display: none; }
+}
+
+/* ─────────────────────────────────────────────
+   REDUCED MOTION
+───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .hero-status .dot { animation: none; }
+  .nav > * { animation: none; opacity: 1; transform: none; }
 }
 </style>
 </head>
 <body>
 
-<div class="progress" id="progress"></div>
+<!-- PROGRESS BAR — desktop -->
+<div class="progress-bar" id="progress-desktop"></div>
 
-<!-- NAV -->
+<!-- TOP NAV -->
 <header class="nav">
   <a href="#top" class="brand" aria-label="Barbara Broadnax, home">
     <b>BARBARA</b>
     <b>BROADNAX</b>
-    <span class="brand-tag">Design · AI · Strategy</span>
   </a>
+  <div class="nav-divider" aria-hidden="true"></div>
+  <div class="ticker">
+    <span class="ticker-label">I design</span>
+    <div class="ticker-track" id="ticker-track" aria-live="polite"></div>
+  </div>
   <nav class="nav-links" aria-label="Site navigation">
     <a href="#work" class="on">Work</a>
-    <a href="#companies" class="hide-sm">Companies</a>
-    <a href="#building" class="hide-sm">Building</a>
+    <a href="#companies">Companies</a>
+    <a href="#building">Building</a>
     <a href="resume.html" class="nav-resume">Resume</a>
     <a href="#contact" class="nav-cta">Get in touch</a>
   </nav>
 </header>
+
+<!-- BOTTOM NAV — mobile only -->
+<nav class="nav-bottom" aria-label="Site navigation">
+  <div class="progress-bar" id="progress-mobile"></div>
+  <div class="nav-bottom-links">
+    <a href="#work" class="on">Work</a>
+    <a href="#companies">Companies</a>
+    <a href="#building">Building</a>
+    <a href="resume.html" class="nav-resume">Resume</a>
+    <a href="#contact" class="nav-cta">Get in touch</a>
+  </div>
+</nav>
 
 <main id="top">
 
@@ -589,17 +762,10 @@ img { display: block; max-width: 100%; }
           <div><dt>Focus</dt><dd>Product · AI · Accessibility</dd></div>
         </dl>
       </div>
-      <div class="hero-portrait reveal">
-        <!-- Replace .portrait-placeholder with <img src="..." alt="Barbara Broadnax"> when headshot is ready -->
-        <div class="portrait-placeholder" aria-hidden="true">
-          <span class="portrait-initials">BB</span>
-        </div>
-        <span class="frame-tag">Barbara Broadnax</span>
-      </div>
     </div>
   </section>
 
-  <!-- COMPANIES -->
+  <!-- EXPERIENCE -->
   <section class="companies" id="companies">
     <div class="wrap">
       <div class="companies-head reveal">
@@ -635,14 +801,13 @@ img { display: block; max-width: 100%; }
       <div class="work-head reveal">
         <div>
           <p class="eyebrow">Selected work</p>
-          <h2 style="display:none">Seven projects, seven outcomes.</h2>
         </div>
         <span class="count">07 case studies</span>
       </div>
 
       <div class="work-grid">
 
-        <!-- 1. Named Entity Recognition — FEATURED (spans 2 of 3 cols) -->
+        <!-- 1. Named Entity Recognition — FEATURED -->
         <a href="/work/ipro-ner" class="case feature reveal">
           <div class="case-figure">
             <img src="images/NER - Desktop.png" alt="Named Entity Recognition interface showing entity highlighting across document text" loading="eager">
@@ -667,7 +832,7 @@ img { display: block; max-width: 100%; }
           </div>
         </a>
 
-        <!-- 2. Design Studio: Signs & Banners -->
+        <!-- 2. Design Studio -->
         <a href="/work/inksoft-design-studio" class="case reveal">
           <div class="case-figure">
             <img src="images/Signs and Banners.png" alt="Design Studio editor with a custom sign layout" loading="eager">
@@ -747,7 +912,7 @@ img { display: block; max-width: 100%; }
           </div>
         </a>
 
-        <!-- 6. Same Day Change — FEATURED (spans 2 of 3 cols) -->
+        <!-- 6. Same Day Change — FEATURED -->
         <a href="/work/alaska-same-day-change" class="case feature reveal">
           <div class="case-figure">
             <img src="images/SDC - Desktop.png" alt="Same Day Change booking flow showing flight selection" loading="lazy">
@@ -807,7 +972,7 @@ img { display: block; max-width: 100%; }
         <p class="r reveal">Side projects keep me honest. No sprint planning, no stakeholders. Just decisions I make for tools I believe in.</p>
       </div>
       <div class="side-grid">
-        <a href="#" class="spc reveal">
+        <a href="https://mtrcd.com" target="_blank" rel="noopener" class="spc reveal">
           <div class="spc-mark">M</div>
           <div class="m">
             <span class="spc-live"><span class="d"></span>Live</span>
@@ -816,7 +981,7 @@ img { display: block; max-width: 100%; }
           </div>
           <span class="arr">↗</span>
         </a>
-        <a href="#" class="spc reveal">
+        <a href="https://thelezlist.com" target="_blank" rel="noopener" class="spc reveal">
           <div class="spc-mark">L</div>
           <div class="m">
             <span class="spc-live"><span class="d"></span>Live</span>
@@ -857,16 +1022,73 @@ img { display: block; max-width: 100%; }
 </main>
 
 <script>
-  // Scroll progress
-  const prog = document.getElementById('progress');
-  const onScroll = () => {
-    const h = document.documentElement;
-    prog.style.width = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) * 100) + '%';
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  // ── Accurate scroll progress ──
+  // Uses window.scrollY for cross-browser reliability.
+  // Two targets: desktop bar (below top nav) + mobile bar (top of bottom nav).
+  const progD = document.getElementById('progress-desktop');
+  const progM = document.getElementById('progress-mobile');
 
-  // Staggered entrance reveals
+  function updateProgress() {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? (scrolled / total * 100).toFixed(2) + '%' : '0%';
+    progD.style.width = pct;
+    progM.style.width = pct;
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress, { passive: true });
+  updateProgress();
+
+  // ── Ticker ──
+  const phrases = [
+    'cross-functional teams',
+    'revenue outcomes',
+    'products at scale',
+    'AI-powered tools',
+    'design strategy',
+    'for complexity',
+  ];
+  const track = document.getElementById('ticker-track');
+  let current = 0;
+
+  phrases.forEach((p, i) => {
+    const span = document.createElement('span');
+    span.className = 'ticker-word';
+    span.textContent = p;
+    span.id = 'tw-' + i;
+    track.appendChild(span);
+  });
+
+  function showWord(i) {
+    const el = document.getElementById('tw-' + i);
+    el.classList.add('is-in');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('is-in');
+      el.style.opacity = 1;
+      el.style.transform = 'translateY(0)';
+    }, { once: true });
+  }
+
+  function hideWord(i) {
+    const el = document.getElementById('tw-' + i);
+    el.style.opacity = '';
+    el.style.transform = '';
+    el.classList.add('is-out');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('is-out');
+      el.style.opacity = 0;
+    }, { once: true });
+  }
+
+  showWord(0);
+  setInterval(() => {
+    hideWord(current);
+    current = (current + 1) % phrases.length;
+    setTimeout(() => showWord(current), 320);
+  }, 2600);
+
+  // ── Staggered entrance reveals ──
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -881,15 +1103,20 @@ img { display: block; max-width: 100%; }
   }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // Active nav link on scroll
+  // ── Active nav spy ──
   const sections = ['work', 'companies', 'building', 'contact']
     .map(id => document.getElementById(id)).filter(Boolean);
-  const links = Array.from(document.querySelectorAll('.nav-links a'));
+  const topLinks  = Array.from(document.querySelectorAll('.nav-links a'));
+  const botLinks  = Array.from(document.querySelectorAll('.nav-bottom-links a'));
+  const allLinks  = [...topLinks, ...botLinks];
+
   const spy = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        links.forEach(l => l.classList.toggle('on',
-          l.getAttribute('href') === '#' + e.target.id && !l.classList.contains('nav-cta')
+        allLinks.forEach(l => l.classList.toggle('on',
+          l.getAttribute('href') === '#' + e.target.id &&
+          !l.classList.contains('nav-cta') &&
+          !l.classList.contains('nav-resume')
         ));
       }
     });
