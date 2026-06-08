@@ -151,6 +151,10 @@ interface CaseStudyRow {
   meta_role: string | null;
   meta_team: string | null;
   meta_rating: string | null;
+  kind: string | null;          // 'work' (default) | 'side'
+  external_url: string | null;  // live project link (side projects)
+  card_only: number | null;     // 1 = "Now building" card links out, no internal page
+  live_label: string | null;    // status badge text on the side card (e.g. "Live")
 }
 
 interface MetaItem { label: string; value: string; }
@@ -210,7 +214,8 @@ async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
             hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
-            meta_role, meta_team, meta_rating
+            meta_role, meta_team, meta_rating,
+            kind, external_url, card_only, live_label
        FROM case_studies
       WHERE status = 'published'
    ORDER BY sort_order ASC, created_at ASC`
@@ -223,7 +228,8 @@ async function loadCaseStudyBySlug(env: Env, slug: string): Promise<CaseStudyRow
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
             hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
-            meta_role, meta_team, meta_rating
+            meta_role, meta_team, meta_rating,
+            kind, external_url, card_only, live_label
        FROM case_studies
       WHERE id = ? AND status = 'published'`
   ).bind(slug).first<CaseStudyRow>();
@@ -295,15 +301,32 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
   const heroTagline   = getText(content, 'hero_tagline', DEFAULT_HERO_TAGLINE);
   const footerEmail   = getText(content, 'footer_email', 'broadnaxux@gmail.com');
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
+  const buildingEyebrow = getText(content, 'building_eyebrow', 'Now building');
+  const buildingHeading = getText(content, 'building_heading', 'On my own terms.');
+  const buildingIntro   = getText(content, 'building_intro', 'Side projects keep me honest. No sprint planning, no stakeholders. Just decisions I make for tools I believe in.');
 
-  const workRowsHtml = caseStudies.map((cs, i) => cineRow(cs, i, resolveCompany(cs, companyLookup))).join('\n');
-  const navItems = caseStudies.map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
+  // Split published studies: work studies fill the cinematic grid, side
+  // projects ("Now building") get their own section. Each list is re-indexed
+  // so cineRow's alternating layout / eager-loading still works.
+  const workStudies = caseStudies.filter((cs) => cs.kind !== 'side');
+  const sideStudies = caseStudies.filter((cs) => cs.kind === 'side');
+
+  const workRowsHtml = workStudies.map((cs, i) => cineRow(cs, i, resolveCompany(cs, companyLookup))).join('\n');
+  const sideRowsHtml = sideStudies.map((cs) => sideCard(cs, resolveCompany(cs, companyLookup))).join('\n');
+  // Dropdown / nav lists the browsable case studies (work + any side project
+  // that has its own internal page).
+  const navItems = caseStudies
+    .filter((cs) => cs.kind !== 'side' || !cs.card_only)
+    .map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
 
   const html = homepageTemplate({
     tickerPhrases, tickerLabel,
     heroRole, heroTagline,
     workRowsHtml,
-    workCount: caseStudies.length,
+    workCount: workStudies.length,
+    sideRowsHtml,
+    sideCount: sideStudies.length,
+    buildingEyebrow, buildingHeading, buildingIntro,
     navItems,
     footerEmail, footerLinkedIn,
   });
@@ -338,7 +361,9 @@ async function serveStaticWithHeader(env: Env, request: Request, headOnly: boole
       loadPublishedCaseStudies(env),
       loadSiteContent(env),
     ]);
-    navItems = caseStudies.map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
+    navItems = caseStudies
+      .filter((cs) => cs.kind !== 'side' || !cs.card_only)
+      .map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
     tickerLabel = getText(content, 'ticker_label', DEFAULT_TICKER_LABEL);
     const phrases = getJSON<string[]>(content, 'ticker_phrases', []);
     if (phrases.length) tickerPhrases = phrases;
@@ -557,6 +582,52 @@ function cineRow(cs: CaseStudyRow, index: number, company: ResolvedCompany | nul
         </a>`;
 }
 
+// Renders one "Now building" card for a side-project case study.
+//   * card_only        → the whole card links straight to external_url (no page)
+//   * internal page     → the card links to /work/:slug; if a live URL is set, a
+//                         small "Live ↗" pill overlays the top-right and jumps
+//                         straight to the live site (a real sibling anchor, so
+//                         no invalid nested <a>).
+// The mark tile uses the company logo when present, else the title's initial.
+function sideCard(cs: CaseStudyRow, company: ResolvedCompany | null = null): string {
+  const cardOnly = !!cs.card_only;
+  const external = (cs.external_url ?? '').trim();
+  const hasExternal = !!external;
+  const desc = cs.subtitle ?? cs.outcome_metric ?? '';
+  const label = (cs.live_label ?? '').trim();
+
+  const initial = (cs.title.match(/[A-Za-z0-9]/)?.[0] ?? '·').toUpperCase();
+  const markInner = company
+    ? `<img src="${attrEscape(company.logoUrl)}" alt="${attrEscape(cs.company)}" style="width:100%;height:100%;object-fit:contain;">`
+    : htmlEscape(initial);
+
+  const showPill = !cardOnly && hasExternal;
+  const staticBadge = (!showPill && label)
+    ? `<span class="spc-live"><span class="d"></span>${htmlEscape(label)}</span>`
+    : '';
+  const pill = showPill
+    ? `<a class="spc-live-link" href="${attrEscape(external)}" target="_blank" rel="noopener" aria-label="Visit live site"><span class="d"></span>${htmlEscape(label || 'Live')} <span class="lk-arr">↗</span></a>`
+    : '';
+
+  const primaryHref = cardOnly ? (external || '#') : `/work/${attrEscape(cs.id)}`;
+  const primaryAttrs = cardOnly && hasExternal ? ' target="_blank" rel="noopener"' : '';
+  const arrowChar = showPill ? '' : (cardOnly ? '↗' : '→');
+  const arrowEl = arrowChar ? `<span class="arr">${arrowChar}</span>` : '';
+
+  return `        <div class="spc-wrap reveal">
+          <a href="${primaryHref}"${primaryAttrs} class="spc">
+            <div class="spc-mark">${markInner}</div>
+            <div class="m">
+              ${staticBadge}
+              <h3 class="spc-name">${htmlEscape(cs.title)}</h3>
+              <p class="spc-desc">${htmlEscape(desc)}</p>
+            </div>
+            ${arrowEl}
+          </a>
+          ${pill}
+        </div>`;
+}
+
 function interstitialBlock(p1: string, p2: string): string {
   // p1 / p2 are stored as HTML so <strong> tags survive. Don't escape.
   return `    <div class="interstitial">
@@ -628,7 +699,9 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
   const footerEmail   = getText(content, 'footer_email', 'broadnaxux@gmail.com');
   const footerLinkedIn= getText(content, 'footer_linkedin', 'https://www.linkedin.com/in/barbarabroadnax');
 
-  const navItems = all.map((x) => ({ id: x.id, title: x.title, company: x.company }));
+  const navItems = all
+    .filter((x) => x.kind !== 'side' || !x.card_only)
+    .map((x) => ({ id: x.id, title: x.title, company: x.company }));
   const company = resolveCompany(cs, buildCompanyLookup(companies));
 
   // Hero images come from the canonical row (versions don't override imagery).
@@ -654,6 +727,7 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
     about_html,
     meta,
     body_html,
+    liveUrl: (cs.external_url ?? '').trim(),
     prev, next,
     navItems,
     tickerPhrases, tickerLabel,
@@ -1004,6 +1078,11 @@ interface HomeData {
   heroTagline: string;
   workRowsHtml: string;
   workCount: number;
+  sideRowsHtml: string;
+  sideCount: number;
+  buildingEyebrow: string;
+  buildingHeading: string;
+  buildingIntro: string;
   navItems: NavCaseItem[];
   footerEmail: string;
   footerLinkedIn: string;
@@ -1509,6 +1588,26 @@ img { display: block; max-width: 100%; }
   transition: transform var(--d2) var(--ease), color var(--d2);
 }
 .spc:hover .arr { color: var(--accent); transform: translate(3px,-3px); }
+/* Side card wrapper so the optional "Live ↗" pill can overlay the card link
+   (a sibling anchor, never nested inside the card's own <a>). */
+.spc-wrap { position: relative; }
+.spc-wrap > .spc { height: 100%; }
+.spc-live-link {
+  position: absolute; top: 14px; right: 16px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--accent-line); background: var(--ink-dark);
+  transition: color var(--d2), background var(--d2), border-color var(--d2);
+}
+.spc-live-link .d {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 7px var(--accent);
+}
+.spc-live-link .lk-arr { font-size: 12px; }
+.spc-live-link:hover { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.spc-live-link:hover .d { background: var(--bg); box-shadow: none; }
 
 /* Footer styles now live in siteFooterStyles() (sf-* namespace) — the universal
    footer shared across every page. See the "universal site footer" functions. */
@@ -1658,38 +1757,21 @@ ${d.workRowsHtml}
     </div>
   </section>
 
-  <section class="side" id="building">
+${d.sideCount > 0 ? `  <section class="side" id="building">
     <div class="wrap">
       <div class="side-head">
         <div class="l reveal">
-          <p class="eyebrow">Now building</p>
-          <h2>On my own terms.</h2>
+          <p class="eyebrow">${htmlEscape(d.buildingEyebrow)}</p>
+          <h2>${htmlEscape(d.buildingHeading)}</h2>
         </div>
-        <p class="r reveal">Side projects keep me honest. No sprint planning, no stakeholders. Just decisions I make for tools I believe in.</p>
+        <p class="r reveal">${htmlEscape(d.buildingIntro)}</p>
       </div>
       <div class="side-grid">
-        <a href="https://mtrcd.com" target="_blank" rel="noopener" class="spc reveal">
-          <div class="spc-mark">M</div>
-          <div class="m">
-            <span class="spc-live"><span class="d"></span>Live</span>
-            <h3 class="spc-name">MTRCD — WCAG Guide</h3>
-            <p class="spc-desc">An accessibility reference built as a product design exercise, not a prompt exercise.</p>
-          </div>
-          <span class="arr">↗</span>
-        </a>
-        <a href="https://thelezlist.com" target="_blank" rel="noopener" class="spc reveal">
-          <div class="spc-mark">L</div>
-          <div class="m">
-            <span class="spc-live"><span class="d"></span>Live</span>
-            <h3 class="spc-name">The Lez List</h3>
-            <p class="spc-desc">Connecting Black lesbians and queer women to events and experiences, by us, for us.</p>
-          </div>
-          <span class="arr">↗</span>
-        </a>
+${d.sideRowsHtml}
       </div>
     </div>
   </section>
-
+` : ''}
   <span id="contact" aria-hidden="true"></span>
 ${siteFooterMarkup({ email, linkedin, workHref: '#work', contactHref: '/contact.html', resumeHref: '/resume.html' })}
 
@@ -1811,6 +1893,7 @@ interface CaseData {
   about_html: string;
   meta: MetaItem[];
   body_html: string;
+  liveUrl: string;   // optional "Visit live site" link (side projects)
   prev: CaseStudyRow | null;
   next: CaseStudyRow | null;
   navItems: NavCaseItem[];
@@ -1833,6 +1916,10 @@ function caseStudyTemplate(d: CaseData): string {
 
   const subtitleBlock = d.subtitle
     ? `      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">${htmlEscape(d.subtitle)}</p>\n`
+    : '';
+
+  const liveBlock = d.liveUrl
+    ? `      <p class="animate-in delay-2"><a class="case-live-link" href="${attrEscape(d.liveUrl)}" target="_blank" rel="noopener">Visit live site <span aria-hidden="true">↗</span></a></p>\n`
     : '';
 
   const navBlock = (d.prev || d.next) ? `  <div class="container">
@@ -1893,6 +1980,8 @@ function caseStudyTemplate(d: CaseData): string {
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css">
   <style>${siteHeaderStyles()}${siteFooterStyles()}
+    .case-live-link{display:inline-flex;align-items:center;gap:0.4rem;font-weight:600;font-size:0.95rem;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:0.5rem 1rem;transition:background .2s,color .2s;}
+    .case-live-link:hover{background:var(--accent);color:var(--bg);}
     .case-company{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
     .case-company .label{margin:0;}
     .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:102px;height:102px;}
@@ -1923,7 +2012,7 @@ ${siteHeaderMarkup({ tickerLabel: d.tickerLabel, tickerPhrases: d.tickerPhrases,
         ? `<span class="case-company-logo" style="--brand:${attrEscape(d.companyBrand)}"><img src="${attrEscape(d.companyLogoUrl)}" alt="${attrEscape(d.company)}"></span>`
         : ''}<p class="label">${htmlEscape(d.company)}</p></div>
       <h1 class="animate-in delay-1">${htmlEscape(d.title)}</h1>
-${subtitleBlock}${aboutBlock}      <div class="case-meta animate-in delay-3">
+${subtitleBlock}${liveBlock}${aboutBlock}      <div class="case-meta animate-in delay-3">
 ${metaHtml}
       </div>
 ${heroMediaHtml}    </div>
@@ -2128,7 +2217,8 @@ async function loadCaseStudiesByIds(env: Env, ids: string[]): Promise<CaseStudyR
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
             hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
-            meta_role, meta_team, meta_rating
+            meta_role, meta_team, meta_rating,
+            kind, external_url, card_only, live_label
        FROM case_studies WHERE id IN (${placeholders})`
   ).bind(...safe).all<CaseStudyRow>();
   const byId = new Map((results ?? []).map((r) => [r.id, r]));

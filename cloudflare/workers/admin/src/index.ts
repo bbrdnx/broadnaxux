@@ -305,6 +305,10 @@ interface CaseStudyRow {
   meta_role: string | null;
   meta_team: string | null;
   meta_rating: string | null;
+  kind: string | null;          // 'work' (default) | 'side'
+  external_url: string | null;  // live project link (side projects)
+  card_only: number | null;     // 1 = "Now building" card links out, no internal page
+  live_label: string | null;    // status badge text on the side card (e.g. "Live")
 }
 
 async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
@@ -312,7 +316,8 @@ async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
             hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
-            meta_role, meta_team, meta_rating
+            meta_role, meta_team, meta_rating,
+            kind, external_url, card_only, live_label
        FROM case_studies
    ORDER BY sort_order ASC, created_at ASC`
   ).all<CaseStudyRow>();
@@ -324,7 +329,8 @@ async function getCaseStudy(env: Env, id: string): Promise<CaseStudyRow | null> 
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
             hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
-            meta_role, meta_team, meta_rating
+            meta_role, meta_team, meta_rating,
+            kind, external_url, card_only, live_label
        FROM case_studies WHERE id = ?`
   ).bind(id).first<CaseStudyRow>();
 }
@@ -604,6 +610,11 @@ function caseStudyListRow(r: CaseStudyRow, idx: number, total: number): string {
   if (r.status === 'published') actions.push(`<form method="POST" action="/case-studies/${attrEscape(r.id)}/hide"><button class="btn secondary">Hide</button></form>`);
   if (r.status === 'hidden')    actions.push(`<form method="POST" action="/case-studies/${attrEscape(r.id)}/draft"><button class="btn secondary">Make draft</button></form>`);
   const titleSafeForJs = htmlEscape(r.title).replace(/'/g, "&#39;");
+  const isSide = r.kind === 'side';
+  const kindTag = isSide ? ` <span class="badge draft" style="margin-left:0.35rem;">side</span>` : '';
+  const urlLine = isSide && r.card_only
+    ? htmlEscape(r.external_url || '(external link)')
+    : `/work/${htmlEscape(r.id)}`;
   return `        <tr>
           <td>
             <div style="display: flex; gap: 0.25rem; align-items: center;">
@@ -619,8 +630,8 @@ function caseStudyListRow(r: CaseStudyRow, idx: number, total: number): string {
             </div>
           </td>
           <td>
-            <a href="/case-studies/${attrEscape(r.id)}" style="font-weight: 600; color: #E6EBE8;">${htmlEscape(r.title)}</a>
-            <div class="small">/work/${htmlEscape(r.id)}</div>
+            <a href="/case-studies/${attrEscape(r.id)}" style="font-weight: 600; color: #E6EBE8;">${htmlEscape(r.title)}</a>${kindTag}
+            <div class="small">${urlLine}</div>
           </td>
           <td>${htmlEscape(r.company)}</td>
           <td><span class="badge ${statusClass}">${htmlEscape(r.status)}</span></td>
@@ -672,6 +683,12 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
   const heroPosX2 = clampPct(row?.hero_pos_x_2);
   const heroPosY2 = clampPct(row?.hero_pos_y_2);
 
+  // Side-project ("Now building") fields.
+  const kind = row?.kind === 'side' ? 'side' : 'work';
+  const externalUrl = row?.external_url ?? '';
+  const liveLabel = row?.live_label ?? '';
+  const cardOnly = !!row?.card_only;
+
   // Load versions (existing case studies only). Returns [] if migration 0006
   // hasn't been applied yet, so the versions section just shows empty.
   const versions: CaseStudyVersionRow[] = isNew ? [] : await listCaseStudyVersions(env, id!);
@@ -682,7 +699,9 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
       <a href="/case-studies" class="small" style="color: #8B9698;">← All case studies</a>
     </div>
     <h2>${isNew ? 'New case study' : htmlEscape(row!.title)}</h2>
-    <p class="sub">${isNew ? 'Slug is the URL piece (lowercase, hyphens). Pick wisely, it goes into /work/:slug.' : `Editing <code>${htmlEscape(row!.id)}</code>. Public URL: <a href="https://barbarabroadnax.com/work/${attrEscape(row!.id)}" target="_blank" rel="noopener">/work/${htmlEscape(row!.id)}</a>`}</p>
+    <p class="sub">${isNew ? 'Slug is the URL piece (lowercase, hyphens). Pick wisely, it goes into /work/:slug.' : (cardOnly && externalUrl
+      ? `Editing <code>${htmlEscape(row!.id)}</code>. Card-only side project — links straight to <a href="${attrEscape(externalUrl)}" target="_blank" rel="noopener">${htmlEscape(externalUrl)}</a> (no internal page).`
+      : `Editing <code>${htmlEscape(row!.id)}</code>. Public URL: <a href="https://barbarabroadnax.com/work/${attrEscape(row!.id)}" target="_blank" rel="noopener">/work/${htmlEscape(row!.id)}</a>`)}</p>
 
     <form method="POST" action="${isNew ? '/case-studies/new' : '/case-studies/' + attrEscape(row!.id)}" id="csForm" class="form-grid">
       <div class="row2">
@@ -700,6 +719,46 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
           </select>
         </div>
       </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="kind">Type</label>
+          <select id="kind" name="kind">
+            <option value="work" ${kind === 'work' ? 'selected' : ''}>Work case study</option>
+            <option value="side" ${kind === 'side' ? 'selected' : ''}>Side project (Now building)</option>
+          </select>
+          <div class="hint">Work studies appear in the main work grid. Side projects appear in the homepage "Now building" section with the same editing controls.</div>
+        </div>
+        <div class="field"></div>
+      </div>
+
+      <div id="sideFields" class="field" style="display:${kind === 'side' ? 'block' : 'none'}; border:1px solid #244549; border-radius:8px; padding:1rem 1.1rem; background:#122A2E;">
+        <div style="font-weight:600; color:#E6EBE8; margin-bottom:0.75rem;">Now building card</div>
+        <div class="row2">
+          <div class="field">
+            <label for="external_url">Live site URL</label>
+            <input id="external_url" name="external_url" type="url" value="${attrEscape(externalUrl)}" placeholder="https://example.com">
+            <div class="hint">The live project link. Shows as "Visit live site" on the case-study page and as the card's "Live ↗" link.</div>
+          </div>
+          <div class="field">
+            <label for="live_label">Card status badge</label>
+            <input id="live_label" name="live_label" type="text" value="${attrEscape(liveLabel)}" placeholder="Live">
+            <div class="hint">Small badge on the card, e.g. "Live", "Beta", "Coming soon". Blank = no badge.</div>
+          </div>
+        </div>
+        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; margin-top:0.4rem;">
+          <input id="card_only" name="card_only" type="checkbox" value="1" ${cardOnly ? 'checked' : ''} style="width:auto;">
+          <span>Card links straight to the live site (no internal case-study page)</span>
+        </label>
+        <div class="hint">Checked: the card opens the live site directly and the project has no /work page (Body HTML can be left empty). Unchecked: the card opens a full case-study page that includes a "Live ↗" link.</div>
+      </div>
+      <script>
+        (function(){
+          var k = document.getElementById('kind');
+          var s = document.getElementById('sideFields');
+          if (k && s) k.addEventListener('change', function(){ s.style.display = k.value === 'side' ? 'block' : 'none'; });
+        })();
+      </script>
 
       <div class="row2">
         <div class="field">
@@ -1120,6 +1179,10 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   const hero_pos_x_2 = clampPos(form.get('hero_pos_x_2'));
   const hero_pos_y_2 = clampPos(form.get('hero_pos_y_2'));
   const body_html = String(form.get('body_html') ?? '');
+  const kind = String(form.get('kind') ?? 'work') === 'side' ? 'side' : 'work';
+  const external_url = String(form.get('external_url') ?? '').trim() || null;
+  const card_only = form.get('card_only') ? 1 : 0;
+  const live_label = String(form.get('live_label') ?? '').trim() || null;
   let meta_items_str = String(form.get('meta_items') ?? '[]');
   try { JSON.parse(meta_items_str); } catch { meta_items_str = '[]'; }
 
@@ -1127,7 +1190,8 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   if (!id || !/^[a-z0-9][a-z0-9-]*$/.test(id)) return redirectWithToast(url, failPath, 'error', 'Slug must be lowercase letters, digits, hyphens.');
   if (!title)    return redirectWithToast(url, failPath, 'error', 'Title is required.');
   if (!company)  return redirectWithToast(url, failPath, 'error', 'Company is required.');
-  if (!body_html) return redirectWithToast(url, failPath, 'error', 'Body HTML cannot be empty.');
+  // Side projects can be card-only (link straight out), so the body may be empty.
+  if (!body_html && kind !== 'side') return redirectWithToast(url, failPath, 'error', 'Body HTML cannot be empty.');
 
   if (idOrNull === null) {
     const max = await env.DB.prepare(`SELECT COALESCE(MAX(sort_order), 0) AS m FROM case_studies`).first<{ m: number }>();
@@ -1137,11 +1201,13 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
         `INSERT INTO case_studies
            (id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
             hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
-            status, sort_order, subtitle, about_html, meta_items, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
+            status, sort_order, subtitle, about_html, meta_items,
+            kind, external_url, card_only, live_label, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
       ).bind(id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
               hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
-              status, nextOrder, subtitle, about_html, meta_items_str).run();
+              status, nextOrder, subtitle, about_html, meta_items_str,
+              kind, external_url, card_only, live_label).run();
     } catch (e: any) {
       return redirectWithToast(url, '/case-studies/new', 'error', `Create failed: ${e.message ?? e}`);
     }
@@ -1155,12 +1221,14 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
        hero_image_key_2 = ?, hero_fit_2 = ?, hero_pos_x_2 = ?, hero_pos_y_2 = ?,
        body_html = ?, status = ?, subtitle = ?,
        about_html = ?, meta_items = ?,
+       kind = ?, external_url = ?, card_only = ?, live_label = ?,
        updated_at = unixepoch()
      WHERE id = ?`
   ).bind(title, company, company_id, role, outcome_metric, hero_image_key,
           hero_fit, hero_pos_x, hero_pos_y,
           hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2,
-          body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
+          body_html, status, subtitle, about_html, meta_items_str,
+          kind, external_url, card_only, live_label, idOrNull).run();
   return redirectWithToast(url, `/case-studies/${idOrNull}`, 'success', 'Saved.');
 }
 
@@ -1822,6 +1890,9 @@ const CONTENT_KEY_LABELS: Record<string, { label: string; help: string }> = {
   hero_tagline: { label: 'Hero tagline', help: 'The intro paragraph under your name in the homepage hero.' },
   footer_email: { label: 'Footer email', help: 'Email shown in the footer (and used for mailto: links).' },
   footer_linkedin: { label: 'Footer LinkedIn URL', help: 'LinkedIn profile URL.' },
+  building_eyebrow: { label: 'Now building — eyebrow', help: 'Small label above the heading in the homepage "Now building" section, e.g. "Now building".' },
+  building_heading: { label: 'Now building — heading', help: 'The heading for the homepage "Now building" section, e.g. "On my own terms.".' },
+  building_intro: { label: 'Now building — intro', help: 'The intro paragraph beside the heading in the "Now building" section.' },
 };
 
 function describeContentKey(key: string): { label: string; help: string } {

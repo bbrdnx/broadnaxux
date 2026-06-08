@@ -93,13 +93,31 @@ Each case study can carry up to two hero images, stored on `case_studies`:
 Admin (case-study editor) exposes both as direct uploaders with thumbnail previews, a fit dropdown, and X/Y position sliders, plus a **Remove** button on each (Remove just clears the key field; save to apply). Either, both, or neither image can be set.
 
 Rendering rules (both the homepage cinematic rows and the case-study page hero), implemented identically in `cineRow` and `caseStudyTemplate`:
-- **Both set**: the desktop image fills the 16:10 frame; the mobile image floats over the frame as a phone-shaped panel (`.cine-phone` / `.case-hero-phone`, aspect 9/19) with its own faster parallax (`--py2`), Dropbox-style. On the homepage the panel sits on the **inner** edge (the side nearest the copy, driven by `data-side`), and the company logo chip relocates to the **top outer** corner so the two never collide; on mobile the panel keeps its inner-side placement. On the case-study page the panel sits bottom-right (no logo chip there).
+- **Both set**: the desktop image fills the 16:10 frame; the mobile image floats over the frame as a phone-shaped panel (`.cine-phone` / `.case-hero-phone`, aspect 9/19) with its own counter-parallax (`--py2`), Dropbox-style. On the homepage the panel sits on the **inner** edge (the side nearest the copy, driven by `data-side`), and the company logo chip relocates to the **top outer** corner so the two never collide; on mobile the panel keeps its inner-side placement. On the case-study page the panel sits bottom-right (no logo chip there).
 - **Only one set**: that image fills the frame using its own fit/position. No overlay, no parallax.
 - **Neither**: no image, exactly as before.
 
-Parallax: the base frame moves via `--py` (homepage script sets it on `.cine-media`; case-study script on `.case-hero-media`), and the phone panel gets a larger `--py2` so it drifts up a touch faster. All motion is disabled under `prefers-reduced-motion`. The case-study page got its own small parallax IIFE (it had none before).
+Parallax (counter-directional, June 2026): the base frame moves via `--py` (homepage script sets `off * -20` on `.cine-media`; case-study script `off * -16` on `.case-hero-media`). The phone panel travels the **opposite** way to the frame: scroll down and the frame drifts down a touch while the phone drifts up. The phone is a child of the translated media block, so the script sets a positive `--py2` large enough to reverse the inherited movement (homepage `off * 48`, net `off * 28`; case-study `off * 44`, net `off * 28`). The phone and the has-phone logo only transition `opacity`, not `transform`, so their scroll-driven motion tracks instantly instead of lagging.
+
+Logo slide-in: when a phone overlay is present (`.cine-media.has-phone .cine-logo`), the logo chip also gets a horizontal parallax (`--lx`, `sideSign * off * 40`) so it slides in from the outer (page-margin) edge: from the left on a left-side row, from the right on a right-side row. `sideSign` is `-1` for `data-side="left"`, `+1` for `data-side="right"`.
+
+All motion is disabled under `prefers-reduced-motion` (the reduced-motion block zeroes the frame, phone, logo, and `.case-hero-*` transforms). The case-study page got its own small parallax IIFE (it had none before).
 
 The new hero block on the case-study page lives inside `.case-hero`, immediately after `.case-meta`. Versions (`?v=`) do NOT override hero imagery, only subtitle/about/body/meta, so the canonical row's images always render.
+
+## Now building (side projects) — admin-managed (June 2026)
+The homepage "Now building" section is fully D1-driven. It was hardcoded (MTRCD + The Lez List) until June 2026; migration `0012_side_projects.sql` made it editable.
+
+A side project is just a `case_studies` row with `kind = 'side'`, so it inherits the entire case-study editor (hero images, body, meta, company logo, versions, etc.). The case-study editor has a **Type** selector (Work case study / Side project) plus a "Now building card" fieldset, shown when Type = Side project, with three extra columns on `case_studies`:
+- `external_url` — the live project link. Rendered as a "Visit live site ↗" pill in the case-study hero (`liveBlock` in `caseStudyTemplate`) and as the card's link/badge on the homepage.
+- `card_only` (0/1) — when 1, the homepage card links **straight to** `external_url` and the project has **no internal `/work/:slug` page** (Body HTML may be empty; `saveCaseStudy` skips the body-required check for `kind='side'`). When 0, the card links to the internal case-study page and a small "Live ↗" pill (`.spc-live-link`, a sibling anchor so it's never nested inside the card's own `<a>`) overlays the top-right corner linking to `external_url`.
+- `live_label` — the card's status badge text (e.g. "Live", "Beta"); blank hides the badge.
+
+Rendering: `renderHomepage` partitions published studies into work (`kind != 'side'`) and side (`kind = 'side'`), re-indexing each list so `cineRow`'s alternating layout / eager-loading still works. Work studies render via `cineRow` into `.work-grid`; side studies render via `sideCard` into `.side-grid`. The whole `.side` section is omitted when there are no side projects. The card's mark tile uses the company logo if one is linked, else the title's initial. Section heading/intro come from `site_content.building_*` (with `CONTENT_KEY_LABELS` entries in admin so they show friendly labels under Site Content).
+
+Nav dropdown: side projects appear in the "Case Studies" dropdown only when they have an internal page (i.e. not `card_only`). Card-only side projects are excluded from `navItems` in `renderHomepage`, `renderCaseStudy`, and `serveStaticWithHeader`.
+
+To change the section copy, edit Site Content (`building_eyebrow` / `building_heading` / `building_intro`). To add/edit a side project, use the case-study editor with Type = Side project.
 
 ## Architecture (Worker is the source of truth)
 The live site is rendered by the Cloudflare Worker at `cloudflare/workers/public/src/index.ts`, which builds the homepage, case-study pages, and share-link pages from D1, and serves `barbarabroadnax.com` / `www.barbarabroadnax.com`. The Worker's `homepageTemplate` now renders the cinematic homepage from D1 (ported June 2026); it and the static `index.html` carry the same design, but the Worker version is what ships. The static `index.html` (`vercel.json` rewrites `/` to `/index.html`) is a Vercel-era leftover kept only for local design review.
@@ -116,13 +134,13 @@ The homepage is a mix of D1-driven and hardcoded content.
 D1-driven (admin-editable):
 - Ticker: `site_content.ticker_label` + `ticker_phrases`.
 - Hero lede paragraph: `site_content.hero_tagline` (falls back to `DEFAULT_HERO_TAGLINE`).
-- The cinematic work rows: generated from published `case_studies` (image, logo, title, company, role, order). See the Work Section note above.
+- The cinematic work rows: generated from published `case_studies` where `kind != 'side'` (image, logo, title, company, role, order). See the Work Section note above.
+- The "Now building" section: heading/intro copy from `site_content.building_eyebrow` / `building_heading` / `building_intro`, and the cards from published `case_studies` where `kind = 'side'`. See the Now building section note below.
 - Footer / contact: `footer_email`, `footer_linkedin` (feed the shared `siteFooterMarkup` footer; see Footer).
 
 Hardcoded in `homepageTemplate` (NOT admin-editable):
 - The hero `<h1>` headline and the hero meta (Based / Now / Focus). `site_content.hero_role` exists but the cinematic hero does not render it.
 - The Experience section (the three company blurbs).
-- The "Now building" side projects (MTRCD, The Lez List).
 - Per-card editorial copy via `HOME_CARD_COPY` (see Work Section note).
 - The footer CTA copy ("Hiring for a senior or lead design role? Let's talk.") lives in `siteFooterMarkup` (see Footer); only the email and LinkedIn target are D1-driven.
 
