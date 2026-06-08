@@ -969,7 +969,7 @@ function caseStudyTemplate(d: CaseData): string {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css">
-  <style>${navDropdownStyles({ accent: '#2d0a5e', ink: '#150d26', muted: '#7c6d90', rule: 'rgba(21,13,38,0.1)', bg: '#ffffff' })}
+  <style>${navDropdownStyles({ accent: '#FF5B59', ink: '#05334A', muted: '#8B7F6A', rule: 'rgba(5,51,74,0.1)', bg: '#FFFFFF' })}
     .case-company{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
     .case-company .label{margin:0;}
     .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:5px;border-radius:8px;background:color-mix(in srgb, var(--brand,#05334A) 12%, #ffffff);border:1px solid color-mix(in srgb, var(--brand,#05334A) 22%, transparent);}
@@ -1013,14 +1013,14 @@ function notFound(): Response {
   <meta charset="UTF-8">
   <title>Not found · Barbara Broadnax</title>
   <style>
-    body { font-family: 'Inter', -apple-system, sans-serif; background: #ffffff; color: #150d26; min-height: 100vh; display: grid; place-items: center; margin: 0; padding: 2rem; text-align: center; }
-    a { color: #2d0a5e; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #FBF8F1; color: #05334A; min-height: 100vh; display: grid; place-items: center; margin: 0; padding: 2rem; text-align: center; }
+    a { color: #FF5B59; }
   </style>
 </head>
 <body>
   <div>
     <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">Not found</h1>
-    <p style="color: #7c6d90;">That page doesn't exist. <a href="/">Go home</a>.</p>
+    <p style="color: #8B7F6A;">That page doesn't exist. <a href="/">Go home</a>.</p>
   </div>
 </body>
 </html>`;
@@ -1417,9 +1417,9 @@ function shareNotFound(): Response {
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><title>Link not found · Barbara Broadnax</title>
 <meta name="robots" content="noindex,nofollow">
-<style>body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#150d26;min-height:100vh;display:grid;place-items:center;margin:0;padding:2rem;text-align:center;}a{color:#2d0a5e;}</style></head>
+<style>body{font-family:'Inter',-apple-system,sans-serif;background:#FBF8F1;color:#05334A;min-height:100vh;display:grid;place-items:center;margin:0;padding:2rem;text-align:center;}a{color:#FF5B59;}</style></head>
 <body><div><h1 style="font-size:1.4rem;font-weight:700;margin-bottom:0.6rem;">This link doesn't exist</h1>
-<p style="color:#7c6d90;">The URL may be wrong or the link may have been deleted.<br><a href="/">Visit barbarabroadnax.com</a>.</p></div></body></html>`;
+<p style="color:#8B7F6A;">The URL may be wrong or the link may have been deleted.<br><a href="/">Visit barbarabroadnax.com</a>.</p></div></body></html>`;
   return new Response(html, { status: 404, headers: shareHeaders('text/html; charset=utf-8') });
 }
 
@@ -1427,9 +1427,13 @@ function shareExpiredPage(): Response {
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><title>Link expired · Barbara Broadnax</title>
 <meta name="robots" content="noindex,nofollow">
-<style>body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#150d26;min-height:100vh;display:grid;place-items:center;margin:0;padding:2rem;text-align:center;}a{color:#2d0a5e;}</style></head>
+<style>body{font-family:'Inter',-apple-system,sans-serif;background:#FBF8F1;color:#05334A;min-height:100vh;display:grid;place-items:center;margin:0;padding:2rem;text-align:center;}a{color:#FF5B59;}
+.email-copy{background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;color:#FF5B59;padding:0;display:inline-flex;align-items:center;gap:0.35rem;transition:color 0.2s;}
+.email-copy:hover{color:#05334A;}.email-copy.copied{color:#16a34a;}</style></head>
 <body><div><h1 style="font-size:1.4rem;font-weight:700;margin-bottom:0.6rem;">This link has expired</h1>
-<p style="color:#7c6d90;">Reach out and I'll send you a fresh one.<br><a href="mailto:broadnaxux@gmail.com">broadnaxux@gmail.com</a></p></div></body></html>`;
+<p style="color:#8B7F6A;">Reach out and I'll send you a fresh one.<br><button class="email-copy" onclick="copyEmail(this)" aria-label="Copy email address">broadnaxux@gmail.com<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button></p></div>
+<script>function copyEmail(btn){navigator.clipboard.writeText('broadnaxux@gmail.com').then(function(){var o=btn.innerHTML;btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';btn.classList.add('copied');setTimeout(function(){btn.innerHTML=o;btn.classList.remove('copied');},2000);});}</script>
+</body></html>`;
   return new Response(html, { status: 410, headers: shareHeaders('text/html; charset=utf-8') });
 }
 
@@ -1454,15 +1458,15 @@ function sharePasswordPage(token: string, link: ShareLinkRow, failed = false): s
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#150d26;min-height:100vh;display:grid;place-items:center;-webkit-font-smoothing:antialiased;}
-    .card{background:#fff;border:1px solid rgba(21,13,38,0.1);padding:2.5rem;border-radius:8px;width:min(420px, 92vw);box-shadow:0 12px 48px rgba(21,13,38,0.04);}
-    .eyebrow{font-size:0.6rem;font-weight:800;letter-spacing:0.18em;color:#7c6d90;text-transform:uppercase;margin-bottom:1rem;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#FBF8F1;color:#05334A;min-height:100vh;display:grid;place-items:center;-webkit-font-smoothing:antialiased;}
+    .card{background:#fff;border:1px solid rgba(5,51,74,0.1);padding:2.5rem;border-radius:8px;width:min(420px, 92vw);box-shadow:0 12px 48px rgba(5,51,74,0.04);}
+    .eyebrow{font-size:0.6rem;font-weight:800;letter-spacing:0.18em;color:#8B7F6A;text-transform:uppercase;margin-bottom:1rem;}
     h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.6rem;line-height:1.25;}
-    p.sub{color:#7c6d90;font-size:0.92rem;line-height:1.55;margin-bottom:1.5rem;}
-    label{display:block;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7c6d90;margin-bottom:0.5rem;}
-    input{width:100%;padding:0.75rem 0.85rem;border:1px solid rgba(21,13,38,0.15);border-radius:4px;background:#fff;color:#150d26;font-family:inherit;font-size:0.95rem;}
-    input:focus{outline:none;border-color:#2d0a5e;box-shadow:0 0 0 3px rgba(45,10,94,0.1);}
-    button{margin-top:1rem;width:100%;padding:0.85rem;background:#2d0a5e;color:#fff;border:0;border-radius:4px;font-family:inherit;font-weight:600;font-size:0.92rem;cursor:pointer;letter-spacing:0.02em;}
+    p.sub{color:#8B7F6A;font-size:0.92rem;line-height:1.55;margin-bottom:1.5rem;}
+    label{display:block;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8B7F6A;margin-bottom:0.5rem;}
+    input{width:100%;padding:0.75rem 0.85rem;border:1px solid rgba(5,51,74,0.15);border-radius:4px;background:#fff;color:#05334A;font-family:inherit;font-size:0.95rem;}
+    input:focus{outline:none;border-color:#FF5B59;box-shadow:0 0 0 3px rgba(255,91,89,0.15);}
+    button{margin-top:1rem;width:100%;padding:0.85rem;background:#FF5B59;color:#fff;border:0;border-radius:4px;font-family:inherit;font-weight:600;font-size:0.92rem;cursor:pointer;letter-spacing:0.02em;}
     button:hover{filter:brightness(1.1);}
     .err{margin-top:0.85rem;font-size:0.82rem;color:#a02020;min-height:1em;}
   </style>
@@ -1539,8 +1543,8 @@ ${caseDropItems(navItems, versionMap)}
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
-      --white:#ffffff; --ink:#150d26; --purple:#2d0a5e;
-      --muted:#7c6d90; --rule:rgba(21,13,38,0.1);
+      --white:#FBF8F1; --ink:#05334A; --purple:#FF5B59;
+      --muted:#8B7F6A; --rule:rgba(5,51,74,0.1);
       --pad:clamp(1.25rem, 5vw, 4rem);
     }
     html{font-size:16px;scroll-behavior:smooth;}
@@ -1572,11 +1576,11 @@ ${caseDropItems(navItems, versionMap)}
     .record-header span{font-size:0.6rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);}
 
     .record-row{display:grid;grid-template-columns:20% 1fr 22% 24%;align-items:center;margin:0 calc(-1 * var(--pad));padding:1.5rem var(--pad);position:relative;cursor:pointer;color:inherit;text-decoration:none;transition:background 0.25s ease;border-bottom:1px solid var(--rule);}
-    .record-row:hover{background:rgba(45,10,94,0.025);}
+    .record-row:hover{background:rgba(255,91,89,0.05);}
     .record-row .record-arrow{position:absolute;right:var(--pad);top:50%;translate:4px -50%;opacity:0;font-size:0.75rem;color:var(--purple);transition:opacity 0.2s ease, translate 0.25s cubic-bezier(0.16,1,0.3,1);pointer-events:none;}
     .record-row:hover .record-arrow{opacity:1;translate:0 -50%;}
     .record-company{font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);display:flex;align-items:center;gap:0.5rem;}
-    .record-logo{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:4px;border-radius:6px;background:color-mix(in srgb, var(--brand,#2d0a5e) 12%, #ffffff);border:1px solid color-mix(in srgb, var(--brand,#2d0a5e) 22%, transparent);flex-shrink:0;}
+    .record-logo{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:4px;border-radius:6px;background:color-mix(in srgb, var(--brand,#05334A) 12%, #ffffff);border:1px solid color-mix(in srgb, var(--brand,#05334A) 22%, transparent);flex-shrink:0;}
     .record-logo img{width:100%;height:100%;object-fit:contain;display:block;}
     .record-project{font-size:0.95rem;font-weight:700;color:var(--ink);letter-spacing:-0.01em;}
     .record-role{font-size:0.78rem;font-weight:400;color:var(--muted);}
@@ -1585,9 +1589,12 @@ ${caseDropItems(navItems, versionMap)}
 
     footer{border-top:1px solid var(--rule);padding:2rem var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:4rem;}
     footer p{font-size:0.72rem;color:var(--muted);}
-    .footer-links{display:flex;gap:1.5rem;list-style:none;}
+    .footer-links{display:flex;gap:1.5rem;list-style:none;align-items:center;}
     .footer-links a{font-size:0.72rem;color:var(--purple);}
     .footer-links a:hover{color:var(--ink);}
+    .footer-email-btn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.72rem;color:var(--purple);padding:0;display:inline-flex;align-items:center;gap:0.35rem;transition:color 0.2s;line-height:1;}
+    .footer-email-btn:hover{color:var(--ink);}
+    .footer-email-btn.copied{color:#16a34a;}
 
     @media (max-width: 860px) {
       .record-header{display:none;}
@@ -1599,7 +1606,7 @@ ${caseDropItems(navItems, versionMap)}
     }
     .nav-right{display:flex;align-items:center;gap:1.5rem;}
     @media (max-width:560px){.nav-right .nav-eyebrow{display:none;}}
-${navDropdownStyles({ accent: '#2d0a5e', ink: '#150d26', muted: '#7c6d90', rule: 'rgba(21,13,38,0.1)', bg: '#ffffff' })}
+${navDropdownStyles({ accent: '#FF5B59', ink: '#05334A', muted: '#8B7F6A', rule: 'rgba(5,51,74,0.1)', bg: '#FFFFFF' })}
   </style>
 </head>
 <body>
@@ -1634,12 +1641,21 @@ ${cards}
   <footer>
     <p>&copy; 2026 Barbara Broadnax</p>
     <ul class="footer-links">
-      <li><a href="mailto:broadnaxux@gmail.com">Email</a></li>
+      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
       <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
     </ul>
   </footer>
 
   <script>
+    // Copy email to clipboard (matches the rest of the site).
+    function copyEmail(btn) {
+      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
     // Card-click tracking via sendBeacon. Doesn't block navigation.
     document.querySelectorAll('.record-row[data-slug]').forEach(function (el) {
       el.addEventListener('click', function () {

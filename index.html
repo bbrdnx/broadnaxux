@@ -655,6 +655,24 @@ img { display: block; max-width: 100%; }
   transition: transform var(--d2) var(--ease), color var(--d2);
 }
 .contact-links a:hover .arr { transform: translate(3px,-3px); color: var(--accent); }
+/* Email copy buttons (reuse link styling, copy to clipboard instead of mailto) */
+.contact h2 .email-copy {
+  font: inherit; background: none; cursor: pointer; padding: 0;
+  color: var(--accent); border: 0; border-bottom: 2px solid transparent;
+  transition: border-color var(--d2);
+}
+.contact h2 .email-copy:hover { border-bottom-color: var(--accent); }
+.contact-links .email-copy {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+  font: inherit; background: none; border: 0; cursor: pointer; text-align: left;
+  padding: 15px 2px; border-top: 1px solid var(--rule);
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  transition: padding-left var(--d2) var(--ease), color var(--d2);
+}
+.contact-links .email-copy:hover { padding-left: 8px; color: var(--accent-deep); }
+.contact-links .email-copy .arr { color: var(--muted); transition: transform var(--d2) var(--ease), color var(--d2); }
+.contact-links .email-copy:hover .arr { transform: translate(3px,-3px); color: var(--accent); }
+.contact-links .email-copy.copied, .contact h2 .email-copy.copied { color: #16a34a; }
 
 .foot {
   border-top: 1px solid var(--rule);
@@ -1160,10 +1178,10 @@ img { display: block; max-width: 100%; }
     <div class="wrap contact-in">
       <div class="reveal">
         <p class="eyebrow">Let's talk</p>
-        <h2>Hiring for a senior or lead design role? <a href="mailto:broadnaxux@gmail.com">Let's talk.</a></h2>
+        <h2>Hiring for a senior or lead design role? <button type="button" class="email-copy" onclick="copyEmail(this)" aria-label="Copy email address">Let's talk.</button></h2>
       </div>
       <div class="contact-links reveal">
-        <a href="mailto:broadnaxux@gmail.com">broadnaxux@gmail.com <span class="arr">↗</span></a>
+        <button type="button" class="email-copy" onclick="copyEmail(this)" aria-label="Copy email address"><span class="ec-label">broadnaxux@gmail.com</span> <span class="arr">⧉</span></button>
         <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
         <a href="resume.html">Download resume <span class="arr">↓</span></a>
       </div>
@@ -1183,6 +1201,18 @@ img { display: block; max-width: 100%; }
 </main>
 
 <script>
+  // ── Copy email to clipboard (instead of opening a mail client) ──
+  function copyEmail(btn) {
+    navigator.clipboard.writeText('broadnaxux@gmail.com').then(function () {
+      var labelEl = btn.querySelector('.ec-label');
+      var target = labelEl || btn;
+      var orig = target.textContent;
+      target.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(function () { target.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
   // ── Accurate scroll progress ──
   const progD = document.getElementById('progress-desktop');
   const progM = document.getElementById('progress-mobile');

@@ -5,24 +5,26 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --white:   #ffffff;
-  --ink:     #150d26;
-  --purple:  #2d0a5e;
-  --muted:   #7c6d90;
-  --rule:    rgba(21, 13, 38, 0.1);
+  /* Warm palette — matches the homepage (cream / navy / red) */
+  --white:   #FBF8F1;
+  --ink:     #05334A;
+  --purple:  #FF5B59;   /* name kept for back-compat; now the red accent */
+  --muted:   #8B7F6A;
+  --rule:    rgba(5, 51, 74, 0.1);
   --pad:     clamp(1.25rem, 5vw, 4rem);
   --max-width: 1100px;
   --radius:  8px;
   --radius-lg: 14px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   /* Legacy aliases so existing case study markup still works */
-  --bg:        #ffffff;
-  --text:      #150d26;
-  --text-muted:#7c6d90;
-  --accent:    #2d0a5e;
-  --border:    rgba(21, 13, 38, 0.1);
-  --bg-card:   #f8f7fb;
-  --bg-elevated:#f0edf7;
+  --bg:        #FBF8F1;
+  --text:      #05334A;
+  --text-muted:#8B7F6A;
+  --accent:    #FF5B59;
+  --accent-hover: #E84644;
+  --border:    rgba(5, 51, 74, 0.1);
+  --bg-card:   #F4EFE6;
+  --bg-elevated:#ECE5DA;
 }
 
 html { font-size: 16px; scroll-behavior: smooth; }
@@ -408,9 +410,9 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
 }
 
 .prototype-link:hover {
-  border-color: rgba(45, 10, 94, 0.3);
+  border-color: rgba(255, 91, 89, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(45, 10, 94, 0.08);
+  box-shadow: 0 8px 24px rgba(255, 91, 89, 0.08);
 }
 
 .prototype-link .proto-icon {
@@ -501,9 +503,9 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
 }
 
 .case-nav a:hover {
-  border-color: rgba(45, 10, 94, 0.3);
+  border-color: rgba(255, 91, 89, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(45, 10, 94, 0.08);
+  box-shadow: 0 8px 24px rgba(255, 91, 89, 0.08);
 }
 
 .case-nav a .label { font-size: 0.65rem; }
