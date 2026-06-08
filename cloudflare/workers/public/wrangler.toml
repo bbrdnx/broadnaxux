@@ -8,6 +8,12 @@ compatibility_flags = ["nodejs_compat"]
 [assets]
 directory = "./public"
 binding = "ASSETS"
+# Run the Worker before the static-asset layer so "/" is rendered by the Worker's
+# D1-driven homepage (and legacy *.html → /work/:slug redirects fire). Without
+# this, Cloudflare would serve public/index.html for "/" and the Worker homepage
+# would never run. Genuine static files (styles.css, images, resume.html) still
+# resolve via the Worker's env.ASSETS.fetch() fallback.
+run_worker_first = true
 
 [[d1_databases]]
 binding = "DB"
