@@ -39,6 +39,11 @@ const LEGACY_HTML_REDIRECTS = new Set([
 // Slug character class: lowercase letters, digits, hyphens.
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 
+// Static HTML pages whose markup is served as-is BUT that should receive the
+// shared site header, injected by the Worker at their <div id="site-header">
+// placeholder. List a path here and the page gets the canonical header for free.
+const STATIC_HEADER_PAGES = new Set(['/resume.html', '/contact.html']);
+
 // ─── entrypoint ──────────────────────────────────────────────────────────
 
 export default {
@@ -96,6 +101,14 @@ export default {
     // /index.html → /
     if (method === 'GET' && path === '/index.html') {
       return Response.redirect(new URL('/', url).toString(), 301);
+    }
+
+    // Static pages that should carry the shared site header. The Worker fetches
+    // the bundled HTML, then injects the one shared header (siteHeaderBundle)
+    // at the page's <div id="site-header"> placeholder. Add a path here to give
+    // any future static page the same header automatically.
+    if ((method === 'GET' || method === 'HEAD') && STATIC_HEADER_PAGES.has(path)) {
+      return serveStaticWithHeader(env, request, method === 'HEAD');
     }
 
     // Everything else: static assets (images, styles.css, resume.html, etc.)
@@ -285,6 +298,54 @@ async function renderHomepage(env: Env, headOnly: boolean): Promise<Response> {
       'Cache-Control': 'public, max-age=60, stale-while-revalidate=600',
     },
   });
+}
+
+// Serve a bundled static HTML page, injecting the shared site header at its
+// <div id="site-header"> placeholder via HTMLRewriter. Nav data (case-study
+// dropdown + ticker) comes from D1, so these pages stay in sync with the rest
+// of the site automatically. Falls back to the raw asset if anything is off.
+async function serveStaticWithHeader(env: Env, request: Request, headOnly: boolean): Promise<Response> {
+  const assetRes = await env.ASSETS.fetch(request);
+  const contentType = assetRes.headers.get('content-type') ?? '';
+  // Only transform HTML 200s with a body; everything else passes through.
+  if (headOnly || !assetRes.ok || !contentType.includes('text/html')) return assetRes;
+
+  let navItems: NavCaseItem[] = [];
+  let tickerLabel = DEFAULT_TICKER_LABEL;
+  let tickerPhrases = DEFAULT_TICKER_PHRASES;
+  try {
+    const [caseStudies, content] = await Promise.all([
+      loadPublishedCaseStudies(env),
+      loadSiteContent(env),
+    ]);
+    navItems = caseStudies.map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
+    tickerLabel = getText(content, 'ticker_label', DEFAULT_TICKER_LABEL);
+    const phrases = getJSON<string[]>(content, 'ticker_phrases', []);
+    if (phrases.length) tickerPhrases = phrases;
+  } catch {
+    // If D1 is unavailable, still inject a header (empty dropdown, default ticker).
+  }
+
+  const bundle = siteHeaderBundle({
+    brandHref: '/',
+    tickerLabel,
+    tickerPhrases,
+    navItems,
+    contactHref: '/contact.html',
+    caseStudiesHref: '/#work',
+  });
+
+  const rewritten = new HTMLRewriter()
+    .on('#site-header', {
+      element(el) { el.replace(bundle, { html: true }); },
+    })
+    .transform(assetRes);
+
+  // Preserve asset headers but ensure HTML content-type + a short edge cache.
+  const headers = new Headers(rewritten.headers);
+  headers.set('Content-Type', 'text/html; charset=utf-8');
+  headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=600');
+  return new Response(rewritten.body, { status: 200, headers });
 }
 
 function workRecordRow(cs: CaseStudyRow): string {
@@ -536,122 +597,162 @@ function metaItemsFromVersion(versionMetaJson: string, fallback: CaseStudyRow): 
 
 // ─── shared partials ─────────────────────────────────────────────────────
 
-function tickerScript(phrases: string[]): string {
-  // Same animation as the hand-coded HTML, just with phrases injected.
-  const json = JSON.stringify(phrases);
-  return `
-    /* Copy email */
-    function copyEmail(btn) {
-      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
-        var orig = btn.innerHTML;
-        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-        btn.classList.add('copied');
-        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
-      });
-    }
-
-    /* Ticker */
-    const phrases = ${json};
-    const track = document.getElementById('ticker');
-    let current = 0;
-    phrases.forEach((p, i) => {
-      const span = document.createElement('span');
-      span.className = 'ticker-word';
-      span.textContent = p;
-      span.id = 'tw-' + i;
-      track.appendChild(span);
-    });
-    function showWord(i) {
-      const el = document.getElementById('tw-' + i);
-      el.classList.add('is-in');
-      el.addEventListener('animationend', () => { el.classList.remove('is-in'); el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, { once: true });
-    }
-    function hideWord(i) {
-      const el = document.getElementById('tw-' + i);
-      el.style.opacity = ''; el.style.transform = '';
-      el.classList.add('is-out');
-      el.addEventListener('animationend', () => { el.classList.remove('is-out'); el.style.opacity = 0; }, { once: true });
-    }
-    if (track && phrases.length) {
-      showWord(0);
-      setInterval(() => { hideWord(current); current = (current + 1) % phrases.length; setTimeout(() => showWord(current), 320); }, 2600);
-    }
-`;
-}
-
 interface NavCaseItem { id: string; title: string; company: string; }
 
-// Renders the Case Studies dropdown menu items. `versionMap` (optional) maps a
-// case-study id to a version id, appended as ?v=<id> so share-link recipients
-// land on the exact version being sent to them.
-function caseDropItems(items: NavCaseItem[], versionMap: Record<string, string> = {}): string {
-  return items.map((cs) => {
-    const v = versionMap[cs.id];
-    const suffix = v ? `?v=${encodeURIComponent(v)}` : '';
-    return `          <a href="/work/${attrEscape(cs.id)}${suffix}" role="menuitem"><span class="dm-title">${htmlEscape(cs.title)}</span><span class="dm-co">${htmlEscape(cs.company)}</span></a>`;
-  }).join('\n');
+// ═══════════════════════════════════════════════════════════════════════════
+//  SHARED SITE HEADER — single source of truth for the public nav.
+//
+//  Used by EVERY public page: homepage, case-study, share-landing, and the
+//  static resume/contact pages (injected by the Worker via HTMLRewriter).
+//  To change the header anywhere, edit ONLY the four functions below.
+//
+//  Everything is namespaced under `sn-*` classes and ships its own literal
+//  CSS (siteHeaderStyles), so it renders identically regardless of whatever
+//  other styles a page carries. Do not depend on page-level CSS variables.
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface SiteHeaderOpts {
+  /** Where the stacked BARBARA / BROADNAX brand mark links. */
+  brandHref?: string;
+  /** Small uppercase label shown before the rotating ticker words. */
+  tickerLabel: string;
+  /** Rotating ticker phrases (animated by siteHeaderScript). */
+  tickerPhrases: string[];
+  /** Case studies for the dropdown menu. */
+  navItems: NavCaseItem[];
+  /** Optional per-recipient version map (share landing) → ?v=<id> per study. */
+  versionMap?: Record<string, string>;
+  resumeHref?: string;
+  linkedinHref?: string;
+  contactHref?: string;
+  /** Where the mobile bottom-bar "Case Studies" link points. */
+  caseStudiesHref?: string;
 }
 
-function navHtml(tickerLabel: string, caseStudies: NavCaseItem[] = []): string {
-  return `  <nav>
-    <a href="/" class="site-name" aria-label="Barbara Broadnax, home">
-      <span class="name-first">Barbara</span>
-      <span class="name-last">Broadnax</span>
-    </a>
-    <div class="nav-divider" aria-hidden="true"></div>
-    <div class="ticker">
-      <span class="ticker-label">${htmlEscape(tickerLabel)}</span>
-      <div class="ticker-track" id="ticker" aria-live="polite"></div>
-    </div>
-    <div class="nav-links">
-      <div class="nav-drop" id="caseDrop">
-        <button type="button" class="nav-drop-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="caseDropMenu">Case Studies <span class="caret" aria-hidden="true">&#9662;</span></button>
-        <div class="nav-drop-menu" id="caseDropMenu" role="menu" aria-label="Case studies">
-${caseDropItems(caseStudies)}
-        </div>
-      </div>
-      <a href="/resume.html" class="nav-resume">Resume</a>
-      <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener" class="nav-resume">LinkedIn</a>
-      <a href="/contact.html" class="nav-cta">Get in touch</a>
-    </div>
-  </nav>`;
+const SH_LINKEDIN = 'https://www.linkedin.com/in/barbarabroadnax';
+
+// Dropdown menu rows. Version-aware: when a versionMap entry exists for a
+// study, its link carries ?v=<id> so share recipients see their curated cut.
+function siteHeaderDropItems(items: NavCaseItem[], versionMap: Record<string, string> = {}): string {
+  return items
+    .map((n) => {
+      const v = versionMap[n.id];
+      const suffix = v ? `?v=${encodeURIComponent(v)}` : '';
+      return `<a href="/work/${attrEscape(n.id)}${suffix}" role="menuitem"><span class="sn-dm-title">${htmlEscape(n.title)}</span><span class="sn-dm-co">${htmlEscape(n.company)}</span></a>`;
+    })
+    .join('');
 }
 
-// Self-contained dropdown styles, parameterised so each page (homepage,
-// case-study page, share landing) can pass its own palette tokens.
-function navDropdownStyles(o: { accent: string; ink: string; muted: string; rule: string; bg: string }): string {
-  const ink2 = '#3D4550';
+// The header markup: sticky top bar (desktop) + fixed bottom bar (mobile).
+function siteHeaderMarkup(o: SiteHeaderOpts): string {
+  const brandHref     = o.brandHref     ?? '/';
+  const resumeHref    = o.resumeHref    ?? '/resume.html';
+  const linkedinHref  = o.linkedinHref  ?? SH_LINKEDIN;
+  const contactHref   = o.contactHref   ?? '/contact.html';
+  const caseStudiesHref = o.caseStudiesHref ?? '/#work';
+  const drop = siteHeaderDropItems(o.navItems, o.versionMap);
   return `
-    .nav-links{gap:18px;}
-    .nav-drop{position:relative;list-style:none;display:inline-flex;align-items:center;}
-    .nav-drop-toggle{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:13px;font-weight:500;line-height:1;letter-spacing:normal;text-transform:none;color:${ink2};background:transparent;border:0;padding:7px 2px;cursor:pointer;white-space:nowrap;transition:color 0.2s;}
-    .nav-drop-toggle:hover,.nav-drop[aria-expanded="true"] .nav-drop-toggle{color:${o.ink};}
-    .nav-drop-toggle:focus-visible{outline:2px solid ${o.accent};outline-offset:3px;border-radius:2px;}
-    .nav-drop-toggle .caret{display:inline-flex;align-items:center;font-size:14px;line-height:1;transition:transform 0.2s;}
-    .nav-drop.open .nav-drop-toggle .caret{transform:rotate(180deg);}
-    .nav-links a.nav-resume{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;letter-spacing:normal;text-transform:none;color:${o.ink} !important;background:transparent;padding:7px 16px;border-radius:8px;border:1.5px solid rgba(5,51,74,0.25);white-space:nowrap;line-height:1;transition:border-color 0.2s;}
-    .nav-links a.nav-resume:hover{border-color:${o.ink};color:${o.ink} !important;}
-    .nav-links a.nav-cta{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;letter-spacing:normal;text-transform:none;color:#fff !important;background:${o.ink};padding:7px 16px;border-radius:8px;white-space:nowrap;line-height:1;transition:background 0.2s;}
-    .nav-links a.nav-cta:hover{background:${o.accent};color:#fff !important;}
-    .nav-drop-menu{position:absolute;top:calc(100% + 12px);left:0;min-width:280px;padding:7px;background:${o.bg};border:1px solid ${o.rule};border-radius:8px;box-shadow:0 18px 50px rgba(5,51,74,0.16);opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity 0.2s,transform 0.2s;z-index:200;}
-    .nav-drop.open .nav-drop-menu{opacity:1;transform:translateY(0);pointer-events:auto;}
-    .nav-drop-menu a{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 12px;border-radius:4px;transition:background 0.15s;}
-    .nav-drop-menu a:hover,.nav-drop-menu a:focus-visible{background:rgba(5,51,74,0.06);outline:none;}
-    .nav-drop-menu .dm-title{font-size:13.5px;font-weight:500;color:${o.ink};white-space:nowrap;text-transform:none;letter-spacing:-0.01em;}
-    .nav-drop-menu .dm-co{font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${o.muted};white-space:nowrap;flex-shrink:0;}
-    @media (max-width:560px){.nav-drop-menu{left:auto;right:0;}}
+  <header class="sn" role="banner">
+    <a href="${attrEscape(brandHref)}" class="sn-brand" aria-label="Barbara Broadnax, home">
+      <b>BARBARA</b><b>BROADNAX</b>
+    </a>
+    <div class="sn-divider" aria-hidden="true"></div>
+    <div class="sn-ticker">
+      <span class="sn-ticker-label">${htmlEscape(o.tickerLabel)}</span>
+      <div class="sn-ticker-track" id="snTicker" aria-live="polite"></div>
+    </div>
+    <div class="sn-links" role="navigation" aria-label="Site">
+      <div class="sn-drop" id="snDrop">
+        <button type="button" class="sn-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="snMenu">Case Studies <span class="sn-caret" aria-hidden="true">&#9662;</span></button>
+        <div class="sn-menu" id="snMenu" role="menu" aria-label="Case studies">${drop}</div>
+      </div>
+      <a href="${attrEscape(resumeHref)}" class="sn-btn sn-btn-out">Resume</a>
+      <a href="${attrEscape(linkedinHref)}" target="_blank" rel="noopener" class="sn-btn sn-btn-out">LinkedIn</a>
+      <a href="${attrEscape(contactHref)}" class="sn-btn sn-btn-cta">Get in touch</a>
+    </div>
+  </header>
+  <div class="sn-bottom" role="navigation" aria-label="Site">
+    <div class="sn-bottom-links">
+      <a href="${attrEscape(caseStudiesHref)}" class="sn-bottom-link">Case Studies</a>
+      <a href="${attrEscape(resumeHref)}" class="sn-btn sn-btn-out">Resume</a>
+      <a href="${attrEscape(linkedinHref)}" target="_blank" rel="noopener" class="sn-btn sn-btn-out">LinkedIn</a>
+      <a href="${attrEscape(contactHref)}" class="sn-btn sn-btn-cta">Get in touch</a>
+    </div>
+  </div>`;
+}
+
+// Self-contained CSS. Literal values (ported from the homepage nav tokens) so
+// the header looks the same on every page no matter what else is loaded.
+function siteHeaderStyles(): string {
+  return `
+    .sn{position:sticky;top:0;z-index:100;height:56px;display:flex;align-items:center;padding:0 clamp(1.25rem,5vw,4rem);gap:18px;background:rgba(255,255,255,0.94);backdrop-filter:blur(14px) saturate(1.1);-webkit-backdrop-filter:blur(14px) saturate(1.1);border-bottom:1px solid rgba(5,51,74,0.10);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;}
+    .sn a{text-decoration:none;color:inherit;}
+    .sn-brand{display:flex;flex-direction:column;line-height:1.04;flex-shrink:0;}
+    .sn-brand b{font-weight:700;font-size:13px;letter-spacing:0.22em;color:#05334A;}
+    .sn-brand b + b{letter-spacing:0.135em;}
+    .sn-divider{width:1px;height:20px;background:rgba(5,51,74,0.18);flex-shrink:0;}
+    .sn-ticker{display:flex;align-items:center;gap:7px;flex:1;min-width:0;overflow:hidden;}
+    .sn-ticker-label{font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#3D4550;white-space:nowrap;line-height:1;flex-shrink:0;}
+    .sn-ticker-track{position:relative;height:1em;overflow:hidden;min-width:140px;max-width:200px;}
+    .sn-ticker-word{position:absolute;inset:0;display:flex;align-items:center;font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#FF5B59;white-space:nowrap;opacity:0;transform:translateY(110%);line-height:1;}
+    .sn-ticker-word.is-in{animation:snWordIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;}
+    .sn-ticker-word.is-out{animation:snWordOut 0.3s ease-in forwards;}
+    @keyframes snWordIn{from{opacity:0;transform:translateY(110%)}to{opacity:1;transform:translateY(0)}}
+    @keyframes snWordOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-110%)}}
+    .sn-links{display:flex;gap:18px;margin-left:auto;align-items:center;flex-shrink:0;}
+    .sn-drop{position:relative;display:inline-flex;align-items:center;}
+    .sn-toggle{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:13px;font-weight:500;line-height:1;color:#3D4550;background:transparent;border:0;padding:7px 2px;cursor:pointer;white-space:nowrap;transition:color 0.12s;}
+    .sn-toggle:hover,.sn-drop.open .sn-toggle{color:#05334A;}
+    .sn-toggle:focus-visible{outline:2px solid #FF5B59;outline-offset:3px;border-radius:2px;}
+    .sn-caret{display:inline-flex;align-items:center;font-size:14px;line-height:1;transition:transform 0.24s cubic-bezier(0.16,1,0.3,1);}
+    .sn-drop.open .sn-caret{transform:rotate(180deg);}
+    .sn-menu{position:absolute;top:calc(100% + 10px);left:0;min-width:280px;padding:7px;background:rgba(255,255,255,0.98);backdrop-filter:blur(14px) saturate(1.1);-webkit-backdrop-filter:blur(14px) saturate(1.1);border:1px solid rgba(5,51,74,0.10);border-radius:8px;box-shadow:0 30px 70px rgba(5,51,74,.16),0 4px 10px rgba(5,51,74,.07);opacity:0;transform:translateY(-6px) scale(0.985);transform-origin:top left;pointer-events:none;transition:opacity 0.24s cubic-bezier(0.16,1,0.3,1),transform 0.24s cubic-bezier(0.16,1,0.3,1);z-index:120;}
+    .sn-drop.open .sn-menu{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+    .sn-menu a{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 12px;border-radius:4px;transition:background 0.12s;}
+    .sn-menu a:hover,.sn-menu a:focus-visible{background:#F4F4F4;outline:none;}
+    .sn-dm-title{font-size:13.5px;font-weight:500;color:#05334A;letter-spacing:-0.01em;white-space:nowrap;}
+    .sn-dm-co{font-family:ui-monospace,'SF Mono',Menlo,'Cascadia Code',monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#8B7F6A;white-space:nowrap;flex-shrink:0;}
+    .sn-btn{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:4px;white-space:nowrap;line-height:1;}
+    .sn-btn-out{color:#05334A;background:transparent;border:1.5px solid rgba(5,51,74,0.25);transition:border-color 0.24s;}
+    .sn-btn-out:hover{border-color:#05334A;}
+    .sn-btn-cta{color:#fff;background:#05334A;transition:background 0.24s;}
+    .sn-btn-cta:hover{background:#FF5B59;}
+    .sn-bottom{display:none;}
+    @media (max-width:768px){
+      .sn{height:48px;justify-content:center;}
+      .sn-divider,.sn-ticker,.sn-links{display:none;}
+      .sn-brand{align-items:center;}
+      .sn-bottom{display:block;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(14px) saturate(1.1);-webkit-backdrop-filter:blur(14px) saturate(1.1);border-top:1px solid rgba(5,51,74,0.10);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;}
+      .sn-bottom a{text-decoration:none;}
+      .sn-bottom-links{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));}
+      .sn-bottom-link{font-size:12px;font-weight:500;color:#3D4550;white-space:nowrap;transition:color 0.12s;}
+      .sn-bottom-link:hover{color:#05334A;}
+      .sn-bottom .sn-btn{font-size:11.5px;padding:6px 11px;}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .sn-ticker-word,.sn-caret,.sn-menu,.sn-btn,.sn-toggle{transition:none!important;animation:none!important;}
+    }
+    @media (max-width:560px){.sn-menu{left:auto;right:0;}}
   `;
 }
 
-// Toggle behaviour: click to open/close, click-outside + Escape to close,
-// arrow keys to move between items. Shared by every page that renders the nav.
-function navDropdownScript(): string {
+// Ticker rotation + dropdown behaviour. One IIFE, safe to run on any page.
+function siteHeaderScript(tickerPhrases: string[]): string {
   return `
-    (function(){
-      var drop=document.getElementById('caseDrop');
-      if(!drop)return;
-      var toggle=drop.querySelector('.nav-drop-toggle');
-      var menu=drop.querySelector('.nav-drop-menu');
+  (function(){
+    var phrases=${JSON.stringify(tickerPhrases)};
+    var track=document.getElementById('snTicker');
+    var current=0;
+    if(track){
+      phrases.forEach(function(p,i){var s=document.createElement('span');s.className='sn-ticker-word';s.textContent=p;s.id='sn-tw-'+i;track.appendChild(s);});
+      function showWord(i){var el=document.getElementById('sn-tw-'+i);if(!el)return;el.classList.add('is-in');el.addEventListener('animationend',function(){el.classList.remove('is-in');el.style.opacity=1;el.style.transform='translateY(0)';},{once:true});}
+      function hideWord(i){var el=document.getElementById('sn-tw-'+i);if(!el)return;el.style.opacity='';el.style.transform='';el.classList.add('is-out');el.addEventListener('animationend',function(){el.classList.remove('is-out');el.style.opacity=0;},{once:true});}
+      if(phrases.length){showWord(0);setInterval(function(){hideWord(current);current=(current+1)%phrases.length;setTimeout(function(){showWord(current);},320);},2600);}
+    }
+    var drop=document.getElementById('snDrop');
+    if(drop){
+      var toggle=drop.querySelector('.sn-toggle');
+      var menu=drop.querySelector('.sn-menu');
       var items=Array.prototype.slice.call(menu.querySelectorAll('a'));
       function openD(){drop.classList.add('open');toggle.setAttribute('aria-expanded','true');}
       function closeD(){drop.classList.remove('open');toggle.setAttribute('aria-expanded','false');}
@@ -660,10 +761,24 @@ function navDropdownScript(): string {
       document.addEventListener('click',function(e){if(isOpen()&&!drop.contains(e.target))closeD();});
       drop.addEventListener('keydown',function(e){
         if(e.key==='Escape'){closeD();toggle.focus();return;}
-        if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!isOpen())openD();e.preventDefault();var f=items.indexOf(document.activeElement);var d=e.key==='ArrowDown'?1:-1;var n=(f+d+items.length)%items.length;if(items[n])items[n].focus();}
+        if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+          if(!isOpen())openD();
+          e.preventDefault();
+          var focused=items.indexOf(document.activeElement);
+          var dir=e.key==='ArrowDown'?1:-1;
+          var nextIdx=(focused+dir+items.length)%items.length;
+          items[nextIdx].focus();
+        }
       });
-    })();
-  `;
+    }
+  })();`;
+}
+
+// Convenience bundle for injection into static pages (style + markup + script
+// in one string). Worker-rendered templates instead place the three pieces in
+// their proper <head>/<body> slots.
+function siteHeaderBundle(o: SiteHeaderOpts): string {
+  return `<style>${siteHeaderStyles()}</style>${siteHeaderMarkup(o)}<script>${siteHeaderScript(o.tickerPhrases)}</script>`;
 }
 
 function footerHtml(email: string, linkedin: string): string {
@@ -695,6 +810,11 @@ interface HomeData {
 // the homepage still reads well on a fresh DB. Editable in admin once seeded.
 const DEFAULT_HERO_TAGLINE = "I design end-to-end experiences built for real people in real situations. Whether it's data management flows or tools that open up new revenue opportunities, I bring a versatile skill set to whatever the problem is. I work closely with product and engineering, lean on research to move quickly, and never lose sight of the bigger picture.";
 
+// Ticker fallbacks for pages that don't carry their own D1 ticker data
+// (share landing). The homepage and case-study pages pass real values.
+const DEFAULT_TICKER_LABEL = 'I design';
+const DEFAULT_TICKER_PHRASES = ['cross-functional teams', 'revenue outcomes', 'products at scale', 'AI-powered tools', 'design strategy', 'for complexity'];
+
 function homepageTemplate(d: HomeData): string {
   const tagline    = d.heroTagline || DEFAULT_HERO_TAGLINE;
   const tickerLabel = d.tickerLabel || 'I design';
@@ -704,9 +824,6 @@ function homepageTemplate(d: HomeData): string {
   const email    = d.footerEmail || 'broadnaxux@gmail.com';
   const linkedin = d.footerLinkedIn || 'https://www.linkedin.com/in/barbarabroadnax';
   const count    = String(d.workCount).padStart(2, '0');
-  const dropItems = d.navItems
-    .map((n) => `<a href="/work/${attrEscape(n.id)}" role="menuitem"><span class="dm-title">${htmlEscape(n.title)}</span><span class="dm-co">${htmlEscape(n.company)}</span></a>`)
-    .join('\n        ');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -766,6 +883,7 @@ function homepageTemplate(d: HomeData): string {
   --bottom-nav-h: 56px;
 }
 
+${siteHeaderStyles()}
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -1495,40 +1613,7 @@ img { display: block; max-width: 100%; }
 
 <div class="progress-bar" id="progress-desktop"></div>
 
-<header class="nav">
-  <a href="#top" class="brand" aria-label="Barbara Broadnax, home">
-    <b>BARBARA</b>
-    <b>BROADNAX</b>
-  </a>
-  <div class="nav-divider" aria-hidden="true"></div>
-  <div class="ticker">
-    <span class="ticker-label">${htmlEscape(tickerLabel)}</span>
-    <div class="ticker-track" id="ticker-track" aria-live="polite"></div>
-  </div>
-  <nav class="nav-links" aria-label="Site navigation">
-    <div class="nav-drop" id="caseDrop">
-      <button type="button" class="nav-drop-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="caseDropMenu">
-        Case Studies <span class="caret" aria-hidden="true">▾</span>
-      </button>
-      <div class="nav-drop-menu" id="caseDropMenu" role="menu" aria-label="Case studies">
-        ${dropItems}
-      </div>
-    </div>
-    <a href="/resume.html" class="nav-resume">Resume</a>
-    <a href="${attrEscape(linkedin)}" target="_blank" rel="noopener" class="nav-resume">LinkedIn</a>
-    <a href="#contact" class="nav-cta">Get in touch</a>
-  </nav>
-</header>
-
-<nav class="nav-bottom" aria-label="Site navigation">
-  <div class="progress-bar" id="progress-mobile"></div>
-  <div class="nav-bottom-links">
-    <a href="#work" class="nav-resume">Case Studies</a>
-    <a href="/resume.html" class="nav-resume">Resume</a>
-    <a href="${attrEscape(linkedin)}" target="_blank" rel="noopener" class="nav-resume">LinkedIn</a>
-    <a href="#contact" class="nav-cta">Get in touch</a>
-  </div>
-</nav>
+${siteHeaderMarkup({ brandHref: '#top', tickerLabel, tickerPhrases: phrases, navItems: d.navItems, linkedinHref: linkedin, contactHref: '#contact', caseStudiesHref: '#work' })}
 
 <main id="top">
 
@@ -1682,46 +1767,6 @@ ${d.workRowsHtml}
   window.addEventListener('resize', updateProgress, { passive: true });
   updateProgress();
 
-  var phrases = ${JSON.stringify(phrases)};
-  var track = document.getElementById('ticker-track');
-  var current = 0;
-  phrases.forEach(function (p, i) {
-    var span = document.createElement('span');
-    span.className = 'ticker-word';
-    span.textContent = p;
-    span.id = 'tw-' + i;
-    track.appendChild(span);
-  });
-  function showWord(i) {
-    var el = document.getElementById('tw-' + i);
-    if (!el) return;
-    el.classList.add('is-in');
-    el.addEventListener('animationend', function () {
-      el.classList.remove('is-in');
-      el.style.opacity = 1;
-      el.style.transform = 'translateY(0)';
-    }, { once: true });
-  }
-  function hideWord(i) {
-    var el = document.getElementById('tw-' + i);
-    if (!el) return;
-    el.style.opacity = '';
-    el.style.transform = '';
-    el.classList.add('is-out');
-    el.addEventListener('animationend', function () {
-      el.classList.remove('is-out');
-      el.style.opacity = 0;
-    }, { once: true });
-  }
-  if (phrases.length) {
-    showWord(0);
-    setInterval(function () {
-      hideWord(current);
-      current = (current + 1) % phrases.length;
-      setTimeout(function () { showWord(current); }, 320);
-    }, 2600);
-  }
-
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting) {
@@ -1768,28 +1813,7 @@ ${d.workRowsHtml}
     parallax();
   }
 
-  var drop = document.getElementById('caseDrop');
-  if (drop) {
-    var toggle = drop.querySelector('.nav-drop-toggle');
-    var menu = drop.querySelector('.nav-drop-menu');
-    var items = Array.from(menu.querySelectorAll('a'));
-    function openDrop() { drop.classList.add('open'); toggle.setAttribute('aria-expanded', 'true'); }
-    function closeDrop() { drop.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); }
-    function isOpen() { return drop.classList.contains('open'); }
-    toggle.addEventListener('click', function (e) { e.stopPropagation(); isOpen() ? closeDrop() : openDrop(); });
-    document.addEventListener('click', function (e) { if (isOpen() && !drop.contains(e.target)) closeDrop(); });
-    drop.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { closeDrop(); toggle.focus(); return; }
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        if (!isOpen()) openDrop();
-        e.preventDefault();
-        var focused = items.indexOf(document.activeElement);
-        var dir = e.key === 'ArrowDown' ? 1 : -1;
-        var nextIdx = (focused + dir + items.length) % items.length;
-        items[nextIdx].focus();
-      }
-    });
-  }
+${siteHeaderScript(phrases)}
 </script>
 
 </body>
@@ -1871,7 +1895,7 @@ function caseStudyTemplate(d: CaseData): string {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css">
-  <style>${navDropdownStyles({ accent: '#FF5B59', ink: '#05334A', muted: '#8B7F6A', rule: 'rgba(5,51,74,0.1)', bg: '#FFFFFF' })}
+  <style>${siteHeaderStyles()}
     .case-company{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
     .case-company .label{margin:0;}
     .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:102px;height:102px;}
@@ -1880,7 +1904,7 @@ function caseStudyTemplate(d: CaseData): string {
 </head>
 <body>
 
-${navHtml(d.tickerLabel, d.navItems)}
+${siteHeaderMarkup({ tickerLabel: d.tickerLabel, tickerPhrases: d.tickerPhrases, navItems: d.navItems })}
 
   <section class="case-hero">
     <div class="container">
@@ -1899,8 +1923,18 @@ ${metaHtml}
 ${navBlock}${footerHtml(d.footerEmail, d.footerLinkedIn)}
 
   <script>
-${tickerScript(d.tickerPhrases)}
-${navDropdownScript()}
+${siteHeaderScript(d.tickerPhrases)}
+  (function(){
+    var EMAIL=${JSON.stringify(d.footerEmail || 'broadnaxux@gmail.com')};
+    window.copyEmail=function(btn){
+      navigator.clipboard.writeText(EMAIL).then(function(){
+        var orig=btn.innerHTML;
+        btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+      });
+    };
+  })();
   </script>
 </body>
 </html>`;
@@ -2404,15 +2438,6 @@ function shareLandingPage(d: ShareLandingData): string {
   const navItems = caseStudies
     .filter((cs) => cs.status === 'published')
     .map((cs) => ({ id: cs.id, title: cs.title, company: cs.company }));
-  const navDrop = navItems.length
-    ? `      <div class="nav-drop" id="caseDrop">
-        <button type="button" class="nav-drop-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="caseDropMenu">Case Studies <span class="caret" aria-hidden="true">&#9662;</span></button>
-        <div class="nav-drop-menu" id="caseDropMenu" role="menu" aria-label="Case studies">
-${caseDropItems(navItems, versionMap)}
-        </div>
-      </div>`
-    : '';
-
   const cards = caseStudies.map((cs) => {
     const isPublished = cs.status === 'published';
     const versionId = versionMap[cs.id];
@@ -2506,25 +2531,14 @@ ${caseDropItems(navItems, versionMap)}
       .record-role{display:none;}
       .record-outcome{grid-column:2;grid-row:1;text-align:right;font-size:0.72rem;}
     }
-    .nav-right{display:flex;align-items:center;gap:1.5rem;}
-    @media (max-width:560px){.nav-right .nav-eyebrow{display:none;}}
-${navDropdownStyles({ accent: '#FF5B59', ink: '#05334A', muted: '#8B7F6A', rule: 'rgba(5,51,74,0.1)', bg: '#FFFFFF' })}
+${siteHeaderStyles()}
   </style>
 </head>
 <body>
-  <nav>
-    <a href="/" class="site-name" aria-label="Barbara Broadnax, home">
-      <span class="name-first">Barbara</span>
-      <span class="name-last">Broadnax</span>
-    </a>
-    <div class="nav-right">
-${navDrop}
-      <span class="nav-eyebrow">${link.recipient_label ? 'Curated for ' + htmlEscapeAny(link.recipient_label) : 'Selected work'}</span>
-    </div>
-  </nav>
+${siteHeaderMarkup({ brandHref: '/', tickerLabel: DEFAULT_TICKER_LABEL, tickerPhrases: DEFAULT_TICKER_PHRASES, navItems, versionMap, contactHref: '/contact.html', caseStudiesHref: '/#work' })}
 
   <section class="hero">
-    <div class="hero-eyebrow">Selected work · Barbara Broadnax</div>
+    <div class="hero-eyebrow">${link.recipient_label ? 'Curated for ' + htmlEscapeAny(link.recipient_label) : 'Selected work'} · Barbara Broadnax</div>
     <h1>${htmlEscapeAny(heading)}</h1>
     ${messageBlock}
     ${resumeButton}
@@ -2571,7 +2585,7 @@ ${cards}
         } catch (e) { /* swallow */ }
       });
     });
-${navDropdownScript()}
+${siteHeaderScript(DEFAULT_TICKER_PHRASES)}
   </script>
 </body>
 </html>`;

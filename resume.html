@@ -270,29 +270,10 @@
 </head>
 <body>
 
-  <!-- Navigation -->
-  <nav>
-    <a href="index.html" class="site-name" aria-label="Barbara Broadnax, home">
-      <span class="name-first">Barbara</span>
-      <span class="name-last">Broadnax</span>
-    </a>
-    <div class="nav-divider" aria-hidden="true"></div>
-    <div class="ticker">
-      <span class="ticker-label">I design</span>
-      <div class="ticker-track" id="ticker" aria-live="polite"></div>
-    </div>
-    <ul class="nav-links">
-      <li><a href="index.html#work">Work</a></li>
-      <li><a href="resume.html">Resume</a></li>
-      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-  </nav>
-  <!-- Mobile-only sticky subnav -->
-  <ul class="mobile-subnav" aria-label="Quick links">
-    <li><a href="resume.html">Resume</a></li>
-    <li><a href="contact.html">Contact</a></li>
-  </ul>
+  <!-- Shared site header. Injected by the Worker (serveStaticWithHeader)
+       from the single source in cloudflare/workers/public/src/index.ts.
+       Do not hand-edit a nav here; edit the shared header in the Worker. -->
+  <div id="site-header"></div>
 
 
   <div class="resume-page">
@@ -459,30 +440,7 @@
       });
     }
 
-    /* Ticker */
-    const phrases = ['cross-functional teams','revenue outcomes','products at scale','AI-powered tools','design strategy','for complexity'];
-    const track = document.getElementById('ticker');
-    let current = 0;
-    phrases.forEach((p, i) => {
-      const span = document.createElement('span');
-      span.className = 'ticker-word';
-      span.textContent = p;
-      span.id = 'tw-' + i;
-      track.appendChild(span);
-    });
-    function showWord(i) {
-      const el = document.getElementById('tw-' + i);
-      el.classList.add('is-in');
-      el.addEventListener('animationend', () => { el.classList.remove('is-in'); el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, { once: true });
-    }
-    function hideWord(i) {
-      const el = document.getElementById('tw-' + i);
-      el.style.opacity = ''; el.style.transform = '';
-      el.classList.add('is-out');
-      el.addEventListener('animationend', () => { el.classList.remove('is-out'); el.style.opacity = 0; }, { once: true });
-    }
-    showWord(0);
-    setInterval(() => { hideWord(current); current = (current + 1) % phrases.length; setTimeout(() => showWord(current), 320); }, 2600);
+    /* Ticker is rendered by the shared site header (injected by the Worker). */
   </script>
 
 </body>
