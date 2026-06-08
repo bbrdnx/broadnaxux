@@ -715,8 +715,8 @@ function siteHeaderStyles(): string {
     .sn-btn{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:4px;white-space:nowrap;line-height:1;}
     .sn-btn-out{color:#0D1B1E;background:transparent;border:1.5px solid rgba(13,27,30,0.25);transition:border-color 0.24s;}
     .sn-btn-out:hover{border-color:#0D1B1E;}
-    .sn-btn-cta{color:#FBFEF9;background:#0D1B1E;transition:background 0.24s;}
-    .sn-btn-cta:hover{background:#E2403E;}
+    .sn-btn-cta{color:#FBFEF9;background:#E2403E;transition:background 0.24s;}
+    .sn-btn-cta:hover{background:#C0302E;}
     .sn-bottom{display:none;}
     @media (max-width:768px){
       .sn{height:48px;justify-content:center;}
