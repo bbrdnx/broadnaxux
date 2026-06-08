@@ -373,10 +373,18 @@ function cineLogoChip(company: ResolvedCompany | null, fallbackName: string): st
   const name = (company?.name ?? fallbackName ?? '').trim();
   const initial = htmlEscape((name || '·').charAt(0).toUpperCase());
   const brand = attrEscape(company?.brand ?? '#05334A');
-  const realImg = company?.logoUrl
-    ? `<img class="logo-img" src="${company.logoUrl}" alt="${attrEscape(name)}" loading="lazy" onload="this.parentElement.classList.add('has-logo');this.style.display='inline-block';" onerror="this.remove();">`
-    : '';
-  return `<div class="cine-logo">${realImg}<span class="mark" style="background:${brand}">${initial}</span><span class="wm">${htmlEscape(name)}</span></div>`;
+  // When the company has an uploaded logo (we know this from D1), render the
+  // logo visible immediately with `has-logo` already applied — no reliance on a
+  // lazy/onload toggle, which fails for display:none images. The monogram +
+  // wordmark sit underneath as an onerror fallback if the file 404s at runtime.
+  if (company?.logoUrl) {
+    return `<div class="cine-logo has-logo">`
+      + `<img class="logo-img" src="${company.logoUrl}" alt="${attrEscape(name)}" `
+      + `onerror="var p=this.parentElement;if(p){p.classList.remove('has-logo');}this.remove();">`
+      + `<span class="mark" style="background:${brand}">${initial}</span>`
+      + `<span class="wm">${htmlEscape(name)}</span></div>`;
+  }
+  return `<div class="cine-logo"><span class="mark" style="background:${brand}">${initial}</span><span class="wm">${htmlEscape(name)}</span></div>`;
 }
 
 // One cinematic case-study row. Image side alternates left/right by index.
@@ -1153,6 +1161,7 @@ img { display: block; max-width: 100%; }
   white-space: nowrap;
 }
 .cine-logo .logo-img { display: none; height: 30px; width: auto; max-width: 132px; object-fit: contain; }
+.cine-logo.has-logo .logo-img { display: inline-block; }
 .cine-logo.has-logo .mark,
 .cine-logo.has-logo .wm { display: none; }
 
