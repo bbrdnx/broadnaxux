@@ -474,8 +474,10 @@ function cineRow(cs: CaseStudyRow, index: number, company: ResolvedCompany | nul
   const imgEl = imgUrl
     ? `<img src="${imgUrl}" alt="${attrEscape(copy.alt)}" loading="${index < 2 ? 'eager' : 'lazy'}"${posStyle}>`
     : '';
-  // 'contain' shows the whole image (letterboxed) instead of cropping to fill.
-  const frameFitClass = cs.hero_fit === 'contain' ? ' fit-contain' : '';
+  // 'contain' letterboxes the whole image; 'frame' makes the frame take the
+  // image's own ratio (no crop, no letterbox); default 'cover' crops to fill.
+  const frameFitClass = cs.hero_fit === 'contain' ? ' fit-contain'
+    : cs.hero_fit === 'frame' ? ' fit-frame' : '';
   const summaryHtml = copy.summary ? `<p class="cine-sum">${htmlEscape(copy.summary)}</p>` : '';
   const tagsHtml = copy.tags.length
     ? `<div class="cine-tags">${copy.tags.map((t) => `<span class="cine-tag">${htmlEscape(t)}</span>`).join('')}</div>`
@@ -1080,7 +1082,7 @@ img { display: block; max-width: 100%; }
   position: relative;
   border-radius: var(--r-lg);
   overflow: hidden;
-  background: var(--bg-2);
+  background: transparent;
   border: 1px solid var(--rule);
   box-shadow: var(--sh-md);
   aspect-ratio: 16 / 10;
@@ -1104,6 +1106,14 @@ img { display: block; max-width: 100%; }
   object-fit: contain;
   transform: none;
 }
+
+/* 'frame' fit: the frame takes the image's own aspect ratio (no fixed 16:10),
+   so the whole image shows with no crop and no letterbox. Because the image
+   fills the frame exactly, the ken-burns scale settle is re-enabled (it
+   inherits the base .cine-frame img transforms; overflow:hidden clips the
+   brief zoom, then it settles to the full image). */
+.cine-frame.fit-frame { aspect-ratio: auto; }
+.cine-frame.fit-frame img { height: auto; }
 
 .cine-frame::after {
   content: ''; position: absolute; inset: -1px; z-index: 2;

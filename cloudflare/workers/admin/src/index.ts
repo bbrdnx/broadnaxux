@@ -651,7 +651,10 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
 
   const heroKey = row?.hero_image_key ?? '';
   const heroPreview = heroKey ? (/^(https?:|\/)/.test(heroKey) ? heroKey : publicUploadUrl(heroKey)) : '';
-  const heroFit = row?.hero_fit === 'contain' ? 'contain' : 'cover';
+  const heroFit = row?.hero_fit === 'contain' ? 'contain' : row?.hero_fit === 'frame' ? 'frame' : 'cover';
+  // Preview box is a fixed rectangle, so 'frame' (which would resize the real
+  // frame) is shown like 'contain' here: the whole image, no crop.
+  const heroPreviewFit = heroFit === 'cover' ? 'cover' : 'contain';
   const clampPct = (n: number | null | undefined) =>
     Math.max(0, Math.min(100, Math.round(typeof n === 'number' ? n : 50)));
   const heroPosX = clampPct(row?.hero_pos_x);
@@ -742,7 +745,7 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
         <label for="hero_image_key">Hero image</label>
         <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
           <span id="heroPreview" style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:78px;background:#FBFEF9;border-radius:6px;overflow:hidden;border:1px solid #244549;flex-shrink:0;">
-            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:${heroFit};object-position:${heroPosX}% ${heroPosY}%;">` : '<span class="small" style="color:#6A7678;">none</span>'}
+            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:${heroPreviewFit};object-position:${heroPosX}% ${heroPosY}%;">` : '<span class="small" style="color:#6A7678;">none</span>'}
           </span>
           <div style="flex:1; min-width:240px;">
             <input type="file" id="heroFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">
@@ -752,10 +755,11 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
             <label for="hero_fit" style="display:block;margin-top:0.7rem;">Image fit</label>
             <select id="hero_fit" name="hero_fit" style="margin-top:0.3rem;">
               <option value="cover"${heroFit === 'cover' ? ' selected' : ''}>Fill frame (crop to 16:10)</option>
-              <option value="contain"${heroFit === 'contain' ? ' selected' : ''}>Fit whole image (no crop)</option>
+              <option value="frame"${heroFit === 'frame' ? ' selected' : ''}>Fit frame to image (no crop, keeps zoom)</option>
+              <option value="contain"${heroFit === 'contain' ? ' selected' : ''}>Fit image in 16:10 (letterbox, no zoom)</option>
             </select>
-            <div class="hint" style="margin-top:0.4rem;">The homepage row uses a 16:10 frame. "Fill" crops the image to fill it; "Fit" shows the whole image, letterboxed against the frame, and turns off the ken-burns zoom for this card.</div>
-            <div id="heroPosWrap" style="margin-top:0.8rem;${heroFit === 'contain' ? 'opacity:0.45;' : ''}">
+            <div class="hint" style="margin-top:0.4rem;">"Fill" crops the image to a fixed 16:10 frame. "Fit frame to image" sizes the frame to the image's own shape, so nothing is cropped and the ken-burns zoom stays on. "Fit image in 16:10" keeps the 16:10 frame and letterboxes the whole image, with the zoom off.</div>
+            <div id="heroPosWrap" style="margin-top:0.8rem;${heroFit !== 'cover' ? 'opacity:0.45;' : ''}">
               <label style="display:block;">Image position <span class="small" style="color:#8B9698;">(only affects "Fill")</span></label>
               <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.3rem;">
                 <span class="small" style="width:5.5rem;color:#8B9698;">Horizontal</span>
@@ -786,10 +790,11 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
           var posXVal = document.getElementById('hero_pos_x_val');
           var posYVal = document.getElementById('hero_pos_y_val');
           var posWrap = document.getElementById('heroPosWrap');
-          function currentFit(){ return fitSel && fitSel.value === 'contain' ? 'contain' : 'cover'; }
+          function currentFit(){ return fitSel ? fitSel.value : 'cover'; }
+          function previewFit(){ return currentFit() === 'cover' ? 'cover' : 'contain'; }
           function currentPos(){ return (posX ? posX.value : 50) + '% ' + (posY ? posY.value : 50) + '%'; }
-          function applyToImg(img){ if (!img) return; img.style.objectFit = currentFit(); img.style.objectPosition = currentPos(); }
-          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:' + currentFit() + ';object-position:' + currentPos() + ';">'; }
+          function applyToImg(img){ if (!img) return; img.style.objectFit = previewFit(); img.style.objectPosition = currentPos(); }
+          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:' + previewFit() + ';object-position:' + currentPos() + ';">'; }
           function onPos(){
             if (posXVal && posX) posXVal.textContent = posX.value + '%';
             if (posYVal && posY) posYVal.textContent = posY.value + '%';
@@ -799,7 +804,7 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
           if (posY) posY.addEventListener('input', onPos);
           if (fitSel) fitSel.addEventListener('change', function(){
             applyToImg(preview.querySelector('img'));
-            if (posWrap) posWrap.style.opacity = currentFit() === 'contain' ? '0.45' : '';
+            if (posWrap) posWrap.style.opacity = currentFit() !== 'cover' ? '0.45' : '';
           });
           btn.addEventListener('click', function(){ input.click(); });
           keyField.addEventListener('change', function(){
@@ -983,7 +988,8 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   const subtitle = String(form.get('subtitle') ?? '');
   const about_html = String(form.get('about_html') ?? '');
   const hero_image_key = String(form.get('hero_image_key') ?? '');
-  const hero_fit = String(form.get('hero_fit') ?? 'cover') === 'contain' ? 'contain' : 'cover';
+  const rawFit = String(form.get('hero_fit') ?? 'cover');
+  const hero_fit = rawFit === 'contain' ? 'contain' : rawFit === 'frame' ? 'frame' : 'cover';
   const clampPos = (v: string | File | null) => {
     const n = Math.round(Number(v));
     return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 50;
