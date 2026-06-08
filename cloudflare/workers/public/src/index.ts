@@ -127,6 +127,8 @@ interface CaseStudyRow {
   outcome_metric: string | null;
   hero_image_key: string | null;
   hero_fit: string | null; // 'cover' (default, crop-to-fill) | 'contain' (show whole image)
+  hero_pos_x: number | null; // object-position X %, 0-100 (default 50 = center)
+  hero_pos_y: number | null; // object-position Y %, 0-100 (default 50 = center)
   body_html: string;
   status: string;
   sort_order: number;
@@ -192,7 +194,8 @@ function resolveCompany(cs: CaseStudyRow, lookup: CompanyLookup): ResolvedCompan
 
 async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
+            hero_pos_x, hero_pos_y, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -204,7 +207,8 @@ async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 
 async function loadCaseStudyBySlug(env: Env, slug: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
+            hero_pos_x, hero_pos_y, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -461,8 +465,14 @@ function cineRow(cs: CaseStudyRow, index: number, company: ResolvedCompany | nul
     alt: cs.title,
   };
   const imgUrl = cs.hero_image_key ? `/uploads/${attrEscape(cs.hero_image_key)}` : '';
+  // Focal point for the cover crop: clamp to 0-100, default 50 (center).
+  const clampPos = (n: number | null | undefined) =>
+    Math.max(0, Math.min(100, Math.round(typeof n === 'number' ? n : 50)));
+  const posX = clampPos(cs.hero_pos_x);
+  const posY = clampPos(cs.hero_pos_y);
+  const posStyle = (posX !== 50 || posY !== 50) ? ` style="object-position:${posX}% ${posY}%"` : '';
   const imgEl = imgUrl
-    ? `<img src="${imgUrl}" alt="${attrEscape(copy.alt)}" loading="${index < 2 ? 'eager' : 'lazy'}">`
+    ? `<img src="${imgUrl}" alt="${attrEscape(copy.alt)}" loading="${index < 2 ? 'eager' : 'lazy'}"${posStyle}>`
     : '';
   // 'contain' shows the whole image (letterboxed) instead of cropping to fill.
   const frameFitClass = cs.hero_fit === 'contain' ? ' fit-contain' : '';
@@ -1869,7 +1879,8 @@ async function loadCaseStudiesByIds(env: Env, ids: string[]): Promise<CaseStudyR
   if (safe.length === 0) return [];
   const placeholders = safe.map(() => '?').join(',');
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
+            hero_pos_x, hero_pos_y, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id IN (${placeholders})`

@@ -290,6 +290,8 @@ interface CaseStudyRow {
   outcome_metric: string | null;
   hero_image_key: string | null;
   hero_fit: string | null; // 'cover' (default) | 'contain'
+  hero_pos_x: number | null; // object-position X %, 0-100 (default 50)
+  hero_pos_y: number | null; // object-position Y %, 0-100 (default 50)
   body_html: string;
   status: string;
   sort_order: number;
@@ -303,7 +305,8 @@ interface CaseStudyRow {
 
 async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
+            hero_pos_x, hero_pos_y, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -314,7 +317,8 @@ async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 
 async function getCaseStudy(env: Env, id: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
+            hero_pos_x, hero_pos_y, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id = ?`
@@ -648,6 +652,10 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
   const heroKey = row?.hero_image_key ?? '';
   const heroPreview = heroKey ? (/^(https?:|\/)/.test(heroKey) ? heroKey : publicUploadUrl(heroKey)) : '';
   const heroFit = row?.hero_fit === 'contain' ? 'contain' : 'cover';
+  const clampPct = (n: number | null | undefined) =>
+    Math.max(0, Math.min(100, Math.round(typeof n === 'number' ? n : 50)));
+  const heroPosX = clampPct(row?.hero_pos_x);
+  const heroPosY = clampPct(row?.hero_pos_y);
 
   // Load versions (existing case studies only). Returns [] if migration 0006
   // hasn't been applied yet, so the versions section just shows empty.
@@ -734,7 +742,7 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
         <label for="hero_image_key">Hero image</label>
         <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
           <span id="heroPreview" style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:78px;background:#FBFEF9;border-radius:6px;overflow:hidden;border:1px solid #244549;flex-shrink:0;">
-            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:${heroFit};">` : '<span class="small" style="color:#6A7678;">none</span>'}
+            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:${heroFit};object-position:${heroPosX}% ${heroPosY}%;">` : '<span class="small" style="color:#6A7678;">none</span>'}
           </span>
           <div style="flex:1; min-width:240px;">
             <input type="file" id="heroFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">
@@ -747,6 +755,20 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
               <option value="contain"${heroFit === 'contain' ? ' selected' : ''}>Fit whole image (no crop)</option>
             </select>
             <div class="hint" style="margin-top:0.4rem;">The homepage row uses a 16:10 frame. "Fill" crops the image to fill it; "Fit" shows the whole image, letterboxed against the frame, and turns off the ken-burns zoom for this card.</div>
+            <div id="heroPosWrap" style="margin-top:0.8rem;${heroFit === 'contain' ? 'opacity:0.45;' : ''}">
+              <label style="display:block;">Image position <span class="small" style="color:#8B9698;">(only affects "Fill")</span></label>
+              <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.3rem;">
+                <span class="small" style="width:5.5rem;color:#8B9698;">Horizontal</span>
+                <input id="hero_pos_x" name="hero_pos_x" type="range" min="0" max="100" step="1" value="${heroPosX}" style="flex:1;">
+                <span id="hero_pos_x_val" class="small" style="width:3rem;text-align:right;color:#8B9698;">${heroPosX}%</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.3rem;">
+                <span class="small" style="width:5.5rem;color:#8B9698;">Vertical</span>
+                <input id="hero_pos_y" name="hero_pos_y" type="range" min="0" max="100" step="1" value="${heroPosY}" style="flex:1;">
+                <span id="hero_pos_y_val" class="small" style="width:3rem;text-align:right;color:#8B9698;">${heroPosY}%</span>
+              </div>
+              <div class="hint" style="margin-top:0.3rem;">0% horizontal = left edge, 100% = right edge. 0% vertical = top, 100% = bottom. 50/50 is centered. The preview updates as you drag.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -759,11 +781,25 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
           var keyField = document.getElementById('hero_image_key');
           var preview = document.getElementById('heroPreview');
           var fitSel = document.getElementById('hero_fit');
+          var posX = document.getElementById('hero_pos_x');
+          var posY = document.getElementById('hero_pos_y');
+          var posXVal = document.getElementById('hero_pos_x_val');
+          var posYVal = document.getElementById('hero_pos_y_val');
+          var posWrap = document.getElementById('heroPosWrap');
           function currentFit(){ return fitSel && fitSel.value === 'contain' ? 'contain' : 'cover'; }
-          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:' + currentFit() + ';">'; }
+          function currentPos(){ return (posX ? posX.value : 50) + '% ' + (posY ? posY.value : 50) + '%'; }
+          function applyToImg(img){ if (!img) return; img.style.objectFit = currentFit(); img.style.objectPosition = currentPos(); }
+          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:' + currentFit() + ';object-position:' + currentPos() + ';">'; }
+          function onPos(){
+            if (posXVal && posX) posXVal.textContent = posX.value + '%';
+            if (posYVal && posY) posYVal.textContent = posY.value + '%';
+            applyToImg(preview.querySelector('img'));
+          }
+          if (posX) posX.addEventListener('input', onPos);
+          if (posY) posY.addEventListener('input', onPos);
           if (fitSel) fitSel.addEventListener('change', function(){
-            var img = preview.querySelector('img');
-            if (img) img.style.objectFit = currentFit();
+            applyToImg(preview.querySelector('img'));
+            if (posWrap) posWrap.style.opacity = currentFit() === 'contain' ? '0.45' : '';
           });
           btn.addEventListener('click', function(){ input.click(); });
           keyField.addEventListener('change', function(){
@@ -948,6 +984,12 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   const about_html = String(form.get('about_html') ?? '');
   const hero_image_key = String(form.get('hero_image_key') ?? '');
   const hero_fit = String(form.get('hero_fit') ?? 'cover') === 'contain' ? 'contain' : 'cover';
+  const clampPos = (v: string | File | null) => {
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 50;
+  };
+  const hero_pos_x = clampPos(form.get('hero_pos_x'));
+  const hero_pos_y = clampPos(form.get('hero_pos_y'));
   const body_html = String(form.get('body_html') ?? '');
   let meta_items_str = String(form.get('meta_items') ?? '[]');
   try { JSON.parse(meta_items_str); } catch { meta_items_str = '[]'; }
@@ -964,10 +1006,12 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
     try {
       await env.DB.prepare(
         `INSERT INTO case_studies
-           (id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
+           (id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
+            hero_pos_x, hero_pos_y, body_html,
             status, sort_order, subtitle, about_html, meta_items, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
-      ).bind(id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
+      ).bind(id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
+              hero_pos_x, hero_pos_y, body_html,
               status, nextOrder, subtitle, about_html, meta_items_str).run();
     } catch (e: any) {
       return redirectWithToast(url, '/case-studies/new', 'error', `Create failed: ${e.message ?? e}`);
@@ -978,11 +1022,12 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   await env.DB.prepare(
     `UPDATE case_studies SET
        title = ?, company = ?, company_id = ?, role = ?, outcome_metric = ?, hero_image_key = ?,
-       hero_fit = ?, body_html = ?, status = ?, subtitle = ?, about_html = ?, meta_items = ?,
+       hero_fit = ?, hero_pos_x = ?, hero_pos_y = ?, body_html = ?, status = ?, subtitle = ?,
+       about_html = ?, meta_items = ?,
        updated_at = unixepoch()
      WHERE id = ?`
   ).bind(title, company, company_id, role, outcome_metric, hero_image_key,
-          hero_fit, body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
+          hero_fit, hero_pos_x, hero_pos_y, body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
   return redirectWithToast(url, `/case-studies/${idOrNull}`, 'success', 'Saved.');
 }
 
