@@ -23,8 +23,8 @@
   --accent:    #FF5B59;
   --accent-hover: #E84644;
   --border:    rgba(5, 51, 74, 0.1);
-  --bg-card:   #F4EFE6;
-  --bg-elevated:#ECE5DA;
+  --bg-card:   #FFFFFF;
+  --bg-elevated:#FFFFFF;
 }
 
 html { font-size: 16px; scroll-behavior: smooth; }
