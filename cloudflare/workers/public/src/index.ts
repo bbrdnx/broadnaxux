@@ -126,6 +126,7 @@ interface CaseStudyRow {
   role: string | null;
   outcome_metric: string | null;
   hero_image_key: string | null;
+  hero_fit: string | null; // 'cover' (default, crop-to-fill) | 'contain' (show whole image)
   body_html: string;
   status: string;
   sort_order: number;
@@ -191,7 +192,7 @@ function resolveCompany(cs: CaseStudyRow, lookup: CompanyLookup): ResolvedCompan
 
 async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -203,7 +204,7 @@ async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 
 async function loadCaseStudyBySlug(env: Env, slug: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -463,6 +464,8 @@ function cineRow(cs: CaseStudyRow, index: number, company: ResolvedCompany | nul
   const imgEl = imgUrl
     ? `<img src="${imgUrl}" alt="${attrEscape(copy.alt)}" loading="${index < 2 ? 'eager' : 'lazy'}">`
     : '';
+  // 'contain' shows the whole image (letterboxed) instead of cropping to fill.
+  const frameFitClass = cs.hero_fit === 'contain' ? ' fit-contain' : '';
   const summaryHtml = copy.summary ? `<p class="cine-sum">${htmlEscape(copy.summary)}</p>` : '';
   const tagsHtml = copy.tags.length
     ? `<div class="cine-tags">${copy.tags.map((t) => `<span class="cine-tag">${htmlEscape(t)}</span>`).join('')}</div>`
@@ -472,7 +475,7 @@ function cineRow(cs: CaseStudyRow, index: number, company: ResolvedCompany | nul
     : '';
   return `        <a href="/work/${attrEscape(cs.id)}" class="cine" data-side="${side}">
           <div class="cine-media">
-            <div class="cine-frame">${imgEl}</div>
+            <div class="cine-frame${frameFitClass}">${imgEl}</div>
             ${cineLogoChip(company, cs.company)}
           </div>
           <div class="cine-copy">
@@ -713,9 +716,9 @@ function siteHeaderStyles(): string {
     .sn-dm-title{font-size:13.5px;font-weight:500;color:#0D1B1E;letter-spacing:-0.01em;white-space:nowrap;}
     .sn-dm-co{font-family:ui-monospace,'SF Mono',Menlo,'Cascadia Code',monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#8B7F6A;white-space:nowrap;flex-shrink:0;}
     .sn-btn{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:4px;white-space:nowrap;line-height:1;}
-    .sn-btn-out{color:#0D1B1E;background:transparent;border:1.5px solid rgba(13,27,30,0.25);transition:border-color 0.24s;}
+    a.sn-btn-out{color:#0D1B1E;background:transparent;border:1.5px solid rgba(13,27,30,0.25);transition:border-color 0.24s;}
     .sn-btn-out:hover{border-color:#0D1B1E;}
-    .sn-btn-cta{color:#FBFEF9;background:#E2403E;transition:background 0.24s;}
+    a.sn-btn-cta{color:#FBFEF9;background:#E2403E;transition:background 0.24s;}
     .sn-btn-cta:hover{background:#C0302E;}
     .sn-bottom{display:none;}
     @media (max-width:768px){
@@ -1081,6 +1084,16 @@ img { display: block; max-width: 100%; }
 }
 .cine.in .cine-frame img { transform: scale(1); }
 .cine:hover .cine-frame img { transform: scale(1.05); }
+
+/* 'contain' fit: show the whole image without cropping. The ken-burns zoom
+   would re-crop a contained image, so disable the scale transforms and let
+   the image sit, letterboxed, against the frame background. */
+.cine-frame.fit-contain img,
+.cine.in .cine-frame.fit-contain img,
+.cine:hover .cine-frame.fit-contain img {
+  object-fit: contain;
+  transform: none;
+}
 
 .cine-frame::after {
   content: ''; position: absolute; inset: -1px; z-index: 2;
@@ -1856,7 +1869,7 @@ async function loadCaseStudiesByIds(env: Env, ids: string[]): Promise<CaseStudyR
   if (safe.length === 0) return [];
   const placeholders = safe.map(() => '?').join(',');
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id IN (${placeholders})`

@@ -57,7 +57,9 @@ As of June 2026 there is ONE header used by every public page. It lives in the W
 
 **To change the header anywhere, edit ONLY these functions.** Do not add a per-page nav.
 
-Layout: top nav right-justified — Case Studies dropdown, then Resume and LinkedIn as outline buttons (`sn-btn sn-btn-out`), then Get in touch as the filled CTA (`sn-btn sn-btn-cta`). Bar is 56px tall (48px on mobile). The stacked BARBARA / BROADNAX brand mark is 13px (weight 700, letter-spacing 0.22em then 0.135em). Mobile bottom bar: Case Studies, Resume, LinkedIn, Get in touch. Link targets are passed per page (e.g. the homepage "Get in touch" scrolls to `#contact`; every other page points it at `/contact.html`), but the markup/CSS are identical everywhere.
+Layout: top nav right-justified — Case Studies dropdown, then Resume and LinkedIn as outline buttons (`sn-btn sn-btn-out`), then Get in touch as the filled CTA (`sn-btn sn-btn-cta`). The CTA is white/porcelain (#FBFEF9) text on a strawberry-red (#E2403E) fill, darkening to #C0302E on hover. Bar is 56px tall (48px on mobile). The stacked BARBARA / BROADNAX brand mark is 13px (weight 700, letter-spacing 0.22em then 0.135em). Mobile bottom bar: Case Studies, Resume, LinkedIn, Get in touch. Link targets are passed per page (e.g. the homepage "Get in touch" scrolls to `#contact`; every other page points it at `/contact.html`), but the markup/CSS are identical everywhere.
+
+Button text-color gotcha (June 2026): the header reset `.sn a{color:inherit}` has specificity (0,1,1), which beats a bare `.sn-btn-cta`/`.sn-btn-out` (0,1,0), so a plain `.sn-btn-cta{color:...}` silently loses and the button inherits the bar's dark text (this was the "Get in touch CTA renders dark text" bug). The button color rules are therefore written as `a.sn-btn-cta` / `a.sn-btn-out` (0,1,1) so they out-specify the reset. Keep the `a` qualifier when editing button colors; do not drop it back to a bare class selector.
 
 How each page gets it:
 - Homepage, case-study, share-landing (Worker-rendered): call `siteHeaderStyles()` in `<head>`, `siteHeaderMarkup(...)` in `<body>`, `siteHeaderScript(...)` before `</body>`.

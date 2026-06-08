@@ -289,6 +289,7 @@ interface CaseStudyRow {
   role: string | null;
   outcome_metric: string | null;
   hero_image_key: string | null;
+  hero_fit: string | null; // 'cover' (default) | 'contain'
   body_html: string;
   status: string;
   sort_order: number;
@@ -302,7 +303,7 @@ interface CaseStudyRow {
 
 async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -313,7 +314,7 @@ async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 
 async function getCaseStudy(env: Env, id: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
-    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
+    `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id = ?`
@@ -646,6 +647,7 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
 
   const heroKey = row?.hero_image_key ?? '';
   const heroPreview = heroKey ? (/^(https?:|\/)/.test(heroKey) ? heroKey : publicUploadUrl(heroKey)) : '';
+  const heroFit = row?.hero_fit === 'contain' ? 'contain' : 'cover';
 
   // Load versions (existing case studies only). Returns [] if migration 0006
   // hasn't been applied yet, so the versions section just shows empty.
@@ -732,13 +734,19 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
         <label for="hero_image_key">Hero image</label>
         <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
           <span id="heroPreview" style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:78px;background:#FBFEF9;border-radius:6px;overflow:hidden;border:1px solid #244549;flex-shrink:0;">
-            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : '<span class="small" style="color:#6A7678;">none</span>'}
+            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:${heroFit};">` : '<span class="small" style="color:#6A7678;">none</span>'}
           </span>
           <div style="flex:1; min-width:240px;">
             <input type="file" id="heroFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">
             <button type="button" class="btn secondary" id="heroUploadBtn">Upload hero image</button>
             <input id="hero_image_key" name="hero_image_key" type="text" value="${attrEscape(row?.hero_image_key ?? '')}" placeholder="R2 key or URL" style="margin-top:0.5rem;">
             <div id="heroStatus" class="hint" style="margin-top:0.4rem;">This is the image shown on the homepage work card for this case study. Uploading fills the field automatically.</div>
+            <label for="hero_fit" style="display:block;margin-top:0.7rem;">Image fit</label>
+            <select id="hero_fit" name="hero_fit" style="margin-top:0.3rem;">
+              <option value="cover"${heroFit === 'cover' ? ' selected' : ''}>Fill frame (crop to 16:10)</option>
+              <option value="contain"${heroFit === 'contain' ? ' selected' : ''}>Fit whole image (no crop)</option>
+            </select>
+            <div class="hint" style="margin-top:0.4rem;">The homepage row uses a 16:10 frame. "Fill" crops the image to fill it; "Fit" shows the whole image, letterboxed against the frame, and turns off the ken-burns zoom for this card.</div>
           </div>
         </div>
       </div>
@@ -750,7 +758,13 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
           var status = document.getElementById('heroStatus');
           var keyField = document.getElementById('hero_image_key');
           var preview = document.getElementById('heroPreview');
-          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:cover;">'; }
+          var fitSel = document.getElementById('hero_fit');
+          function currentFit(){ return fitSel && fitSel.value === 'contain' ? 'contain' : 'cover'; }
+          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:' + currentFit() + ';">'; }
+          if (fitSel) fitSel.addEventListener('change', function(){
+            var img = preview.querySelector('img');
+            if (img) img.style.objectFit = currentFit();
+          });
           btn.addEventListener('click', function(){ input.click(); });
           keyField.addEventListener('change', function(){
             var v = keyField.value.trim();
@@ -933,6 +947,7 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   const subtitle = String(form.get('subtitle') ?? '');
   const about_html = String(form.get('about_html') ?? '');
   const hero_image_key = String(form.get('hero_image_key') ?? '');
+  const hero_fit = String(form.get('hero_fit') ?? 'cover') === 'contain' ? 'contain' : 'cover';
   const body_html = String(form.get('body_html') ?? '');
   let meta_items_str = String(form.get('meta_items') ?? '[]');
   try { JSON.parse(meta_items_str); } catch { meta_items_str = '[]'; }
@@ -949,10 +964,10 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
     try {
       await env.DB.prepare(
         `INSERT INTO case_studies
-           (id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
+           (id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
             status, sort_order, subtitle, about_html, meta_items, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
-      ).bind(id, title, company, company_id, role, outcome_metric, hero_image_key, body_html,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
+      ).bind(id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit, body_html,
               status, nextOrder, subtitle, about_html, meta_items_str).run();
     } catch (e: any) {
       return redirectWithToast(url, '/case-studies/new', 'error', `Create failed: ${e.message ?? e}`);
@@ -963,11 +978,11 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   await env.DB.prepare(
     `UPDATE case_studies SET
        title = ?, company = ?, company_id = ?, role = ?, outcome_metric = ?, hero_image_key = ?,
-       body_html = ?, status = ?, subtitle = ?, about_html = ?, meta_items = ?,
+       hero_fit = ?, body_html = ?, status = ?, subtitle = ?, about_html = ?, meta_items = ?,
        updated_at = unixepoch()
      WHERE id = ?`
   ).bind(title, company, company_id, role, outcome_metric, hero_image_key,
-          body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
+          hero_fit, body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
   return redirectWithToast(url, `/case-studies/${idOrNull}`, 'success', 'Saved.');
 }
 
