@@ -444,11 +444,11 @@ interface HomeCardCopy {
 
 const HOME_CARD_COPY: Record<string, HomeCardCopy> = {
   'ipro-ner': {
-    eyebrow: 'IPRO · Product Designer · AI',
-    summary: 'Designed an AI layer that surfaces people, places, and organizations across millions of legal documents.',
-    tags: ['AI Integration', 'Legal Tech', 'Enterprise'],
+    eyebrow: 'IPRO · Product Designer · NLP & AI',
+    summary: 'Designed the experience for a natural language processing tool that auto-detects people, money, and sensitive PII across millions of legal documents.',
+    tags: ['NLP', 'Machine Learning', 'Legal Tech'],
     stat: '4.13/5', lbl: 'in expert concept testing',
-    alt: 'Named Entity Recognition interface showing entity highlighting across document text',
+    alt: 'Named Entity Recognition interface showing machine-detected entities across document text',
   },
   'inksoft-design-studio': {
     eyebrow: 'InkSoft · UX Designer',

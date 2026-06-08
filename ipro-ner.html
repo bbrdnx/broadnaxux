@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Named Entity Recognition — IPRO | Barbara Broadnax</title>
-  <meta name="description" content="AI-powered entity detection and communication charting for a legal review platform, scoring 4.1 / 5 in concept testing.">
+  <meta name="description" content="Natural language processing and AI for legal review: in-house NER models, automated entity detection, and communication charting, scoring 4.13 / 5 in concept testing.">
 
   <!-- Open Graph -->
   <meta property="og:type" content="article">
   <meta property="og:title" content="Named Entity Recognition — IPRO | Barbara Broadnax">
-  <meta property="og:description" content="AI-powered entity detection and communication charting for a legal review platform, scoring 4.1 / 5 in concept testing.">
+  <meta property="og:description" content="Natural language processing and AI for legal review: in-house NER models, automated entity detection, and communication charting, scoring 4.13 / 5 in concept testing.">
   <meta property="og:site_name" content="Barbara Broadnax">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Named Entity Recognition — IPRO | Barbara Broadnax">
-  <meta name="twitter:description" content="AI-powered entity detection and communication charting for a legal review platform, scoring 4.1 / 5 in concept testing.">
+  <meta name="twitter:description" content="Natural language processing and AI for legal review: in-house NER models, automated entity detection, and communication charting, scoring 4.13 / 5 in concept testing.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -53,7 +53,7 @@
     <div class="container">
       <p class="label animate-in">IPRO</p>
       <h1 class="animate-in delay-1">Named Entity Recognition</h1>
-      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">AI entity detection meets a legal review platform that runs on keyword search alone.</p>
+      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">Natural language processing meets a legal review platform that ran on keyword search alone, turning machine-detected entities into the primary way to navigate a case.</p>
       <div class="company-context">
         <p class="label">About IPRO</p>
         <p>IPRO builds e-discovery software that litigation teams rely on as an industry standard. Their platform handles the full lifecycle of electronic evidence (identify, preserve, collect, process, review, produce) for legal cases and investigations.</p>
@@ -65,7 +65,7 @@
         </div>
         <div class="case-meta-item">
           <p class="label">Team</p>
-          <p>UX, PM, and NexLP partnership</p>
+          <p>UX, PM, data science, and NexLP partnership</p>
         </div>
         <div class="case-meta-item">
           <p class="label">User Rating</p>
@@ -88,15 +88,40 @@
     <div class="container">
       <p class="label">Overview</p>
       <h2>Making data navigable, not just searchable</h2>
-      <p>IPRO partnered with NexLP to bring AI entity detection (communication charts, entity management) into legal review. The bet: reviewers find more, faster, when they can see the people and conversations behind a case instead of guessing at keywords.</p>
-      <p>My job was to make NexLP's tech feel native to IPRO. I designed using Material UI to keep engineering moving while working closely with the NexLP team on what their API could and couldn't do.</p>
+      <p>IPRO brought machine learning into legal review with named entity recognition: NLP models that read across a repository and automatically surface the people, organizations, money, dates, and sensitive PII buried in millions of documents. The bet was that reviewers find more, faster, when they can see the entities and conversations behind a case instead of guessing at keywords.</p>
+      <p>My job was to turn that AI capability into an experience non-technical reviewers could trust. I designed using Material UI to keep engineering moving, partnered with NexLP on what their entity API could and couldn't do, and worked alongside IPRO's data science team as they evaluated the underlying NER models so my design decisions matched what the models could actually deliver.</p>
       <div class="tags">
+        <span class="tag">Natural Language Processing</span>
+        <span class="tag">Machine Learning</span>
+        <span class="tag">Named Entity Recognition</span>
+        <span class="tag">PII / PHI Detection</span>
         <span class="tag">NexLP Integration</span>
-        <span class="tag">Material UI</span>
         <span class="tag">Communication Charts</span>
-        <span class="tag">Entity Management</span>
-        <span class="tag">Search & Filter</span>
+        <span class="tag">Material UI</span>
       </div>
+    </div>
+  </section>
+
+  <!-- AI Foundation -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">The AI Foundation</p>
+      <h2>Designing on top of live machine learning</h2>
+      <p>This was not AI as a buzzword. The product ran on real entity-recognition models, and I sat in the evaluations where the data science team benchmarked IPRO's in-house NER models against the commercial baselines: AWS and Azure, each split into separate PII and PHI services. Understanding those results directly shaped what I designed.</p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <p class="stat-number">4</p>
+          <p class="stat-label">Commercial NLP services benchmarked (AWS &amp; Azure PII / PHI) against in-house models</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number">~0.4</p>
+          <p class="stat-label">F1 ceiling across every system, in-house and commercial alike</p>
+        </div>
+      </div>
+
+      <p>The takeaway was sobering and useful: the models were fast, but recall and accuracy were limited across the board, and the most sensitive entity types (social security numbers, credit cards, passports) were both the hardest to detect reliably and the most consequential to miss. False positives were a real risk on broad types like person and address.</p>
+      <p>So I designed for a human-in-the-loop reality instead of treating model output as truth. Entity recognition narrows the haystack; people make the calls. That principle drove concrete decisions: confirmable redaction rather than blind automation, document and custodian holds, partial redaction that masks the first digits of a card while keeping the last four for identification, and explicit warnings before any irreversible action.</p>
     </div>
   </section>
 
@@ -151,6 +176,17 @@
         <li>A merge dialogue with explicit warnings (no undo on the back end).</li>
         <li>NexLP's chart controls, layered with the tooltips, legends, and help text the original lacked.</li>
       </ul>
+    </div>
+  </section>
+
+  <!-- Applied walkthrough -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">NER in Action</p>
+      <h2>One investigation, no keywords</h2>
+      <p>To make the AI concrete for stakeholders, I designed and presented an end-to-end scenario: a suspected donation-fraud investigation, starting from almost nothing. The only leads were a $150 charge on a card ending 4637 and a charity name. No keyword list.</p>
+      <p>The entire path ran through machine-detected entities. Filter the Money entity to $150, narrow by date, and a deleted email surfaces with a matching receipt. A partial signer name leads through the People entities to a single suspect, whose profile (email addresses, concepts, and frequent communicators) reveals he was collecting donations through Venmo. A chat thread then exposes a donor's full card number and expiration, sent in plain text. From there, I selected the exposed PII, created a redaction category, and pushed it straight into Search &amp; Redact.</p>
+      <p>The scenario showed what entity recognition unlocks: money, dates, people, organizations, PII, and conversational concepts, detected automatically, turning a million-document repository into a few decisive clicks. It also grounded the abstraction in a real risk I cited, where a government agency released thousands of pages in a public records response and tried to claw redactions back a day later, after the data was already out.</p>
     </div>
   </section>
 
