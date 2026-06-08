@@ -5,26 +5,26 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Palette — matches the homepage (porcelain / ink-black / strawberry red) */
-  --white:   #FBFEF9;
-  --ink:     #0D1B1E;
-  --purple:  #E2403E;   /* name kept for back-compat; now the red accent */
+  /* Warm palette — matches the homepage (cream / navy / red) */
+  --white:   #FFFFFF;
+  --ink:     #05334A;
+  --purple:  #FF5B59;   /* name kept for back-compat; now the red accent */
   --muted:   #8B7F6A;
-  --rule:    rgba(13,27,30, 0.1);
+  --rule:    rgba(5, 51, 74, 0.1);
   --pad:     clamp(1.25rem, 5vw, 4rem);
   --max-width: 1100px;
   --radius:  8px;
   --radius-lg: 14px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   /* Legacy aliases so existing case study markup still works */
-  --bg:        #FBFEF9;
-  --text:      #0D1B1E;
+  --bg:        #FFFFFF;
+  --text:      #05334A;
   --text-muted:#8B7F6A;
-  --accent:    #E2403E;
-  --accent-hover: #C0302E;
-  --border:    rgba(13,27,30, 0.1);
-  --bg-card:   #FBFEF9;
-  --bg-elevated:#FBFEF9;
+  --accent:    #FF5B59;
+  --accent-hover: #E84644;
+  --border:    rgba(5, 51, 74, 0.1);
+  --bg-card:   #FFFFFF;
+  --bg-elevated:#FFFFFF;
 }
 
 html { font-size: 16px; scroll-behavior: smooth; }
@@ -411,9 +411,9 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
 }
 
 .prototype-link:hover {
-  border-color: rgba(226,64,62, 0.3);
+  border-color: rgba(255, 91, 89, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(226,64,62, 0.08);
+  box-shadow: 0 8px 24px rgba(255, 91, 89, 0.08);
 }
 
 .prototype-link .proto-icon {
@@ -504,9 +504,9 @@ nav > *:nth-child(4) { animation-delay: 0.18s; }
 }
 
 .case-nav a:hover {
-  border-color: rgba(226,64,62, 0.3);
+  border-color: rgba(255, 91, 89, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(226,64,62, 0.08);
+  box-shadow: 0 8px 24px rgba(255, 91, 89, 0.08);
 }
 
 .case-nav a .label { font-size: 0.65rem; }

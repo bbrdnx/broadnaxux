@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — Barbara Broadnax</title>
+  <meta name="description" content="Get in touch with Barbara Broadnax. Email, phone, LinkedIn, and live Phoenix, AZ time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    /* ── Page wrapper ── */
+    .contact-page {
+      padding: 5rem var(--pad) 5rem;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .contact-eyebrow {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .contact-headline {
+      font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 1rem;
+    }
+
+    .contact-headline em {
+      font-style: normal;
+      color: var(--purple);
+    }
+
+    .contact-intro {
+      font-size: 1.02rem;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 580px;
+      margin-bottom: 3rem;
+    }
+
+    /* ── Contact rows ── */
+    .contact-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 3rem;
+      border-top: 1px solid var(--rule);
+    }
+
+    .contact-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 2rem;
+      align-items: baseline;
+      padding: 1.4rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .contact-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .contact-value {
+      font-size: 1.05rem;
+      color: var(--ink);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .contact-value a {
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--rule);
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .contact-value a:hover {
+      color: var(--purple);
+      border-bottom-color: var(--purple);
+    }
+
+    .contact-email-btn {
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--rule);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--ink);
+      padding: 0 0 1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s, border-color 0.2s;
+      line-height: inherit;
+    }
+    .contact-email-btn:hover { color: var(--purple); border-bottom-color: var(--purple); }
+    .contact-email-btn.copied { color: #16a34a; border-bottom-color: #16a34a; }
+
+    .contact-note {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Live clock widget ── */
+    .clock {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      padding: 0.55rem 0.95rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--rule);
+      border-radius: 100px;
+      margin-top: 0.55rem;
+    }
+
+    .clock-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16a34a;
+      align-self: center;
+      box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
+      animation: clockPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes clockPulse {
+      0%   { box-shadow: 0 0 0 0   rgba(22, 163, 74, 0.55); }
+      70%  { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+      100% { box-shadow: 0 0 0 0   rgba(22, 163, 74, 0); }
+    }
+
+    .clock-time {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: 'tnum';
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .clock-meta {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .contact-row {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+        padding: 1.2rem 0;
+      }
+      .contact-page { padding-top: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Shared site header. Injected by the Worker (serveStaticWithHeader)
+       from the single source in cloudflare/workers/public/src/index.ts.
+       Do not hand-edit a nav here; edit the shared header in the Worker. -->
+  <div id="site-header"></div>
+
+
+  <main class="contact-page">
+    <p class="contact-eyebrow">Contact</p>
+    <h1 class="contact-headline">Let's talk about <em>your next thing</em>.</h1>
+    <p class="contact-intro">
+      Open to senior product design, design technology, and product roles. Remote preferred. The fastest way to reach me is email, but text and LinkedIn both work.
+    </p>
+
+    <ul class="contact-list">
+      <li class="contact-row">
+        <span class="contact-label">Email</span>
+        <span class="contact-value">
+          <button class="contact-email-btn" onclick="copyEmail(this)" aria-label="Copy email address">broadnaxux@gmail.com<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <span class="contact-note">Best for project inquiries and longer messages.</span>
+        </span>
+      </li>
+
+      <li class="contact-row">
+        <span class="contact-label">Phone</span>
+        <span class="contact-value">
+          <a href="tel:+16109379849">610-937-9849</a>
+          <span class="contact-note">Text or call. Quick questions welcome.</span>
+        </span>
+      </li>
+
+      <li class="contact-row">
+        <span class="contact-label">LinkedIn</span>
+        <span class="contact-value">
+          <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">linkedin.com/in/barbarabroadnax</a>
+          <span class="contact-note">Connect or message me there.</span>
+        </span>
+      </li>
+
+      <li class="contact-row">
+        <span class="contact-label">My Time</span>
+        <span class="contact-value">
+          Mountain Standard Time (UTC-7), Phoenix, AZ
+          <span class="contact-note">Arizona doesn't observe Daylight Saving, so it's MST year round.</span>
+          <span class="clock" role="status" aria-live="polite" aria-label="Current local time in Phoenix, Arizona">
+            <span class="clock-dot" aria-hidden="true"></span>
+            <span class="clock-time" id="clockTime">--:--:-- --</span>
+            <span class="clock-meta" id="clockMeta">MST</span>
+          </span>
+        </span>
+      </li>
+    </ul>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Barbara Broadnax</p>
+    <ul class="footer-links">
+      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    function copyEmail(btn) {
+      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+    /* Live clock — Phoenix is America/Phoenix (no DST, stays MST year round) */
+    (function () {
+      var timeEl = document.getElementById('clockTime');
+      var metaEl = document.getElementById('clockMeta');
+      var timeFmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Phoenix',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      var dayFmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Phoenix',
+        weekday: 'short'
+      });
+
+      function tick() {
+        var now = new Date();
+        timeEl.textContent = timeFmt.format(now);
+        metaEl.textContent = dayFmt.format(now) + ' · MST';
+      }
+
+      tick();
+      // Sync to the next whole second so the display ticks cleanly.
+      setTimeout(function () {
+        tick();
+        setInterval(tick, 1000);
+      }, 1000 - (Date.now() % 1000));
+    })();
+
+    /* Ticker is rendered by the shared site header (injected by the Worker). */
+  </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Easy SSL Install — InkSoft | Barbara Broadnax</title>
+  <meta name="description" content="A self-serve SSL setup widget for InkSoft storefront owners that took adoption from 34% to near-full and replaced a high-friction support workflow.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Easy SSL Install — InkSoft | Barbara Broadnax">
+  <meta property="og:description" content="A self-serve SSL setup widget for InkSoft storefront owners that took adoption from 34% to near-full and replaced a high-friction support workflow.">
+  <meta property="og:site_name" content="Barbara Broadnax">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Easy SSL Install — InkSoft | Barbara Broadnax">
+  <meta name="twitter:description" content="A self-serve SSL setup widget for InkSoft storefront owners that took adoption from 34% to near-full and replaced a high-friction support workflow.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="site-name" aria-label="Barbara Broadnax, home">
+      <span class="name-first">Barbara</span>
+      <span class="name-last">Broadnax</span>
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <div class="ticker">
+      <span class="ticker-label">I design</span>
+      <div class="ticker-track" id="ticker" aria-live="polite"></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+  <!-- Mobile-only sticky subnav -->
+  <ul class="mobile-subnav" aria-label="Quick links">
+    <li><a href="resume.html">Resume</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+
+
+  <section class="case-hero">
+    <div class="container">
+      <p class="label animate-in">InkSoft</p>
+      <h1 class="animate-in delay-1">Easy SSL Install</h1>
+      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">A self-serve SSL setup widget for micro-storefront owners, replacing a high-friction support workflow.</p>
+      <div class="company-context">
+        <p class="label">About InkSoft</p>
+        <p>InkSoft is a SaaS platform for print shops, apparel decorators, and promotional product vendors. Subscribers run custom-branded microstores, manage orders, and streamline production from a single workflow.</p>
+      </div>
+      <div class="case-meta animate-in delay-3">
+        <div class="case-meta-item">
+          <p class="label">Role</p>
+          <p>UI Design & UX Copy</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Challenge</p>
+          <p>Only 34% adoption of free SSL</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Method</p>
+          <p>Survey research + iterative prototyping</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Image -->
+  <div class="container">
+    <div class="image-showcase">
+      <img src="images/SSL - 1 - Desktop.png" alt="Easy SSL Install — Desktop widget">
+      <p class="image-caption">The SSL configuration widget. A confusing multi-system process replaced with clear, in-context guidance.</p>
+    </div>
+  </div>
+
+  <!-- Problem -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">The Problem</p>
+      <h2>A free feature nobody was using</h2>
+      <p>InkSoft offered free SSL certificates to every storefront owner on the platform. As security awareness grew across e-commerce, users wanted to take advantage. But only 34% of active users had actually configured theirs.</p>
+      <p>The settings were buried in an advanced configuration area many users had never visited. For those who did find it, setup required working in two systems at once (InkSoft's panel and their domain provider's), often encountered for the first time.</p>
+
+      <div class="callout">
+        <p>Users and support staff alike felt lost during SSL installation. They were doing a lot of work to set up something they didn't fully understand, with no system feedback to confirm it was working.</p>
+      </div>
+
+      <p>The result: many shop owners avoided securing their stores entirely. Until a customer got locked out or couldn't complete a checkout. By then, the damage was already done.</p>
+    </div>
+  </section>
+
+  <!-- Images -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/SSL - 2 - Desktop.png" alt="SSL Install — Verification state">
+        <p class="image-caption">SSL verification state. Clear system communication about setup progress.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/SSL - Mobile-1.png" alt="SSL Install — Mobile view">
+        <p class="image-caption">Mobile. The SSL widget adapted for smaller screens.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Research -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Research</p>
+      <h2>Going to where the users are</h2>
+      <p>I used InkSoft's Facebook Group to find users who had connected their own domain to the platform, the exact audience who needed SSL. I sent a short survey with three questions. Did they know about the free security features? Were they familiar with the advanced settings area? How comfortable were they with their domain provider's configuration panel?</p>
+      <p>From 22 complete responses, the picture was clear. The biggest concerns about SSL setup were:</p>
+      <ul>
+        <li>Setting it up wrong, with no way to tell until something broke.</li>
+        <li>Too many steps. The process felt overwhelming.</li>
+        <li>Unclear directions. They didn't understand what was happening at each stage.</li>
+        <li>No verification. No way to confirm it was set up correctly.</li>
+      </ul>
+      <p>What they wanted was simple: a dedicated, reliable place to check SSL status and clear, numbered directions.</p>
+    </div>
+  </section>
+
+  <!-- Domain Config Screens -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/ssl-configure-domain.png" alt="SSL — Domain configuration panel">
+        <p class="image-caption">The domain configuration panel. Previously a confusing multi-step process.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/ssl-configure-domain-alt.png" alt="SSL — Configuration alternative view">
+        <p class="image-caption">Configuration states. Clear progress through the SSL setup.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Process -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Design Process</p>
+      <h2>From wizard to widget</h2>
+      <p>I started with whiteboarding sessions with developers to figure out what was technically possible. From there I sketched the user journey, planned interactions, then moved to mockups.</p>
+      <p>I initially explored a guided wizard, but after three iterations I moved toward something simpler. An on-page component that communicated why SSL mattered, showed numbered steps, and gave real-time feedback on setup status.</p>
+      <ul>
+        <li>The SSL section made prominent, not buried in advanced settings.</li>
+        <li>Configuration shown as editable, reducing fear of "doing it wrong."</li>
+        <li>Clearly illustrated, numbered steps to reduce the feeling of complexity.</li>
+        <li>A verification check so users could confirm SSL was active and working.</li>
+        <li>UX copy that explained the value of SSL in plain language, not just the mechanics.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Outcome -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Outcome</p>
+      <h2>Security made approachable</h2>
+      <p>After three rounds of testing, we landed on a design that transformed SSL setup from anxiety-inducing into guided and communicative. Adoption climbed from 34% to near-full. The widget pulled a critical security feature out of the shadows and into the everyday workflow of shop owners, many of whom were new to SaaS entirely.</p>
+      <p>The "why" alongside the "how," and visible confirmation that setup was correct, addressed the three root causes of low adoption: confusion, fear, and invisibility.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="case-nav">
+      <a href="inksoft-design-studio.html">
+        <span class="label">&larr; Previous</span>
+        <span>Design Studio</span>
+      </a>
+      <a href="index.html" class="next">
+        <span class="label">View all &rarr;</span>
+        <span>All Projects</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Barbara Broadnax</p>
+    <ul class="footer-links">
+      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    function copyEmail(btn) {
+      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+    /* Ticker */
+    const phrases = ['cross-functional teams','revenue outcomes','products at scale','AI-powered tools','design strategy','for complexity'];
+    const track = document.getElementById('ticker');
+    let current = 0;
+    phrases.forEach((p, i) => {
+      const span = document.createElement('span');
+      span.className = 'ticker-word';
+      span.textContent = p;
+      span.id = 'tw-' + i;
+      track.appendChild(span);
+    });
+    function showWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.classList.add('is-in');
+      el.addEventListener('animationend', () => { el.classList.remove('is-in'); el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, { once: true });
+    }
+    function hideWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.style.opacity = ''; el.style.transform = '';
+      el.classList.add('is-out');
+      el.addEventListener('animationend', () => { el.classList.remove('is-out'); el.style.opacity = 0; }, { once: true });
+    }
+    showWord(0);
+    setInterval(() => { hideWord(current); current = (current + 1) % phrases.length; setTimeout(() => showWord(current), 320); }, 2600);
+  </script>
+</body>
+</html>

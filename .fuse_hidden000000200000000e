@@ -10,7 +10,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --white:  #FBFEF9;
+      --white:  #ffffff;
       --ink:    #150d26;
       --purple: #2d0a5e;
       --muted:  #7c6d90;
@@ -482,7 +482,7 @@
       inset: 0;
       background: radial-gradient(
         600px circle at var(--gx, 50%) var(--gy, 50%),
-        rgba(251,254,249,0.12),
+        rgba(255,255,255,0.12),
         transparent 45%
       );
       opacity: 0;

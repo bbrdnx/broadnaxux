@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Same Day Change – Alaska Airlines – Barbara Broadnax</title>
+  <meta name="description" content="A new same-day flight change product at Alaska Airlines that generated $612K in revenue within six months while honoring DOT regulations.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Same Day Change – Alaska Airlines – Barbara Broadnax">
+  <meta property="og:description" content="A new same-day flight change product at Alaska Airlines that generated $612K in revenue within six months while honoring DOT regulations.">
+  <meta property="og:site_name" content="Barbara Broadnax">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Same Day Change – Alaska Airlines – Barbara Broadnax">
+  <meta name="twitter:description" content="A new same-day flight change product at Alaska Airlines that generated $612K in revenue within six months while honoring DOT regulations.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="site-name" aria-label="Barbara Broadnax, home">
+      <span class="name-first">Barbara</span>
+      <span class="name-last">Broadnax</span>
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <div class="ticker">
+      <span class="ticker-label">I design</span>
+      <div class="ticker-track" id="ticker" aria-live="polite"></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+  <!-- Mobile-only sticky subnav -->
+  <ul class="mobile-subnav" aria-label="Quick links">
+    <li><a href="resume.html">Resume</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+
+
+  <!-- Case Study Hero -->
+  <section class="case-hero">
+    <div class="container">
+      <p class="label animate-in">Alaska Airlines</p>
+      <h1 class="animate-in delay-1">Same Day Change</h1>
+      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">Turning a kiosk-only airport service into a revenue-generating online product, on top of dozens of business rules and DOT regulations.</p>
+      <div class="company-context">
+        <p class="label">About Alaska Airlines</p>
+        <p>Alaska Airlines is a Seattle-based carrier with roughly 2,000 daily departures and the largest presence at SEA. Founded in 1932, Alaska grew up serving the Pacific Northwest, then went global in 2024 with the acquisition of Hawaiian Airlines.</p>
+      </div>
+      <div class="case-meta animate-in delay-3">
+        <div class="case-meta-item">
+          <p class="label">Role</p>
+          <p>Senior Product Designer</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Team</p>
+          <p>Design, Product, Engineering</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Impact</p>
+          <p>$612K revenue in 6 months</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Image -->
+  <div class="container">
+    <div class="image-showcase">
+      <img src="images/SDC - Desktop.png" alt="Same Day Change — Desktop experience">
+      <p class="image-caption">Same Day Change on desktop. Travelers rebook to an earlier or later flight before they leave for the airport.</p>
+    </div>
+  </div>
+
+  <!-- The Opportunity -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Context</p>
+      <h2>A kiosk-only service, ready for the digital world</h2>
+      <p>In 2022, Sea-Tac International Airport began a $500 million renovation. Alaska, the largest carrier in Seattle with roughly 2,000 daily departures, needed to reduce lobby congestion fast. One of the experiences crowding the lobby was Same Day Change (SDC), the service that let travelers swap to an earlier or later flight on their day of travel.</p>
+      <p>The catch: SDC was only available at airport kiosks, averaging just under three minutes per transaction. Most guests didn't know the option existed. Those who did were understandably nervous about waiting until they got to the airport to make the change.</p>
+
+      <div class="callout">
+        <p>Imagine you and your travel partner are returning from a ski trip. They get injured and need the last flight out. You need to get home for work the next morning. At a kiosk, you could split your reservation and rebook, but only if you knew to try.</p>
+      </div>
+
+      <p>The opportunity: bring SDC online so travelers could rebook from their own devices, reduce lobby traffic, and capture the fee earlier in the process.</p>
+    </div>
+  </section>
+
+  <!-- Discovery -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Discovery</p>
+      <h2>Starting at the call center</h2>
+      <p>I kicked off the project with my research partner at Alaska's call center, listening to live customer calls about cancellations and changes. Three things stood out immediately.</p>
+      <ul>
+        <li>Most guests were completely unaware of the kiosk-based SDC option.</li>
+        <li>When told they could change at the airport for a smaller fee, they were surprised, and skeptical.</li>
+        <li>The idea of waiting until they were at the airport to change a flight made people anxious, and for good reason.</li>
+      </ul>
+      <p>The Technical Product Owner walked me through the business constraints. SDC opened only when check-in did. New flights had to depart the same calendar day. Children under 16 had to stay paired with an adult. Guests with checked bags were excluded. Seat upsells and special assistance had to transfer correctly.</p>
+      <p>I mapped every flow and validated them with product and engineering before anyone wrote a line of code.</p>
+    </div>
+  </section>
+
+  <!-- Flow Diagram -->
+  <div class="container">
+    <div class="image-showcase">
+      <img src="images/sdc-flow.png" alt="Same Day Change — User flow diagram">
+      <p class="image-caption">The SDC user flow. Every business rule, edge case, and decision point, mapped before design began.</p>
+    </div>
+  </div>
+
+  <!-- Iteration -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Iteration</p>
+      <h2>Simplicity under complexity</h2>
+      <p>My first iterations let users filter flights by "earlier" or "later" to narrow the list quickly. I pushed to keep the UI simple. Someone making a snap decision at the airport should not face a learning curve. I also pushed to show flight details and boarding status directly in the results, so travelers understood the implications of their new flight before committing.</p>
+      <p>Behind that simple interface sat dozens of business rules, DOT regulations, and edge cases (party splitting logic, seat transfer validation, and more). The design job was to absorb all of that so the traveler never had to.</p>
+    </div>
+  </section>
+
+  <!-- UI Details -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/sdc-frame-flight-list.png" alt="Same Day Change — Flight selection screen">
+        <p class="image-caption">Flight selection with boarding status and time filtering.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/sdc-frame-party-split.png" alt="Same Day Change — Party splitting flow">
+        <p class="image-caption">Party splitting. Travelers on the same reservation who need different flights.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile + Desktop -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/SDC - Mobile.png" alt="Same Day Change — Mobile experience">
+        <p class="image-caption">Mobile-first design ensured travelers could rebook on the go.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/sdc-frame-confirmation.png" alt="Same Day Change — Confirmation screen">
+        <p class="image-caption">Confirmation screen. A clear summary before committing to the change.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Outcomes -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Outcomes</p>
+      <h2>Revenue from day one</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <p class="stat-number">$175K</p>
+          <p class="stat-label">Revenue in first 30 days</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number">$612K</p>
+          <p class="stat-label">Revenue by six months</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number">$25</p>
+          <p class="stat-label">Fee per change at launch</p>
+        </div>
+      </div>
+
+      <p>Same Day Change went from an obscure kiosk feature to a self-service product generating real revenue while reducing airport congestion. Exactly what the business needed heading into Sea-Tac's renovation.</p>
+    </div>
+  </section>
+
+  <!-- Nav -->
+  <div class="container">
+    <div class="case-nav">
+      <a href="index.html">
+        <span class="label">&larr; Back</span>
+        <span>All Projects</span>
+      </a>
+      <a href="alaska-view-reservation.html" class="next">
+        <span class="label">Next &rarr;</span>
+        <span>View Reservation</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Barbara Broadnax</p>
+    <ul class="footer-links">
+      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    function copyEmail(btn) {
+      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+    /* Ticker */
+    const phrases = ['cross-functional teams','revenue outcomes','products at scale','AI-powered tools','design strategy','for complexity'];
+    const track = document.getElementById('ticker');
+    let current = 0;
+    phrases.forEach((p, i) => {
+      const span = document.createElement('span');
+      span.className = 'ticker-word';
+      span.textContent = p;
+      span.id = 'tw-' + i;
+      track.appendChild(span);
+    });
+    function showWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.classList.add('is-in');
+      el.addEventListener('animationend', () => { el.classList.remove('is-in'); el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, { once: true });
+    }
+    function hideWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.style.opacity = ''; el.style.transform = '';
+      el.classList.add('is-out');
+      el.addEventListener('animationend', () => { el.classList.remove('is-out'); el.style.opacity = 0; }, { once: true });
+    }
+    showWord(0);
+    setInterval(() => { hideWord(current); current = (current + 1) % phrases.length; setTimeout(() => showWord(current), 320); }, 2600);
+  </script>
+</body>
+</html>

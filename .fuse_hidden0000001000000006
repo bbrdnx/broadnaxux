@@ -56,12 +56,12 @@
 
     .btn-primary {
       background: var(--accent);
-      color: #FBFEF9;
+      color: #fff;
     }
 
     .btn-primary:hover {
       background: var(--accent-hover);
-      color: #FBFEF9;
+      color: #fff;
       transform: translateY(-1px);
     }
 
@@ -72,7 +72,7 @@
     }
 
     .btn-secondary:hover {
-      border-color: rgba(226,64,62, 0.3);
+      border-color: rgba(255, 91, 89, 0.3);
       color: var(--text);
       transform: translateY(-1px);
     }
@@ -102,7 +102,7 @@
 
     /* ── Resume paper ── */
     .resume-paper {
-      background: #FBFEF9;
+      background: #fff;
       border-radius: var(--radius-lg);
       overflow: hidden;
       box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);

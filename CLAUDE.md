@@ -5,15 +5,26 @@
 - Keep copy concise and direct.
 - Descriptions on cards should be one sentence max, active voice.
 
-## Color Palette (all public pages — light)
-Every public-facing page (home, case study, share landing) is on a white background. As of June 2026:
-- Page background AND card background: #FFFFFF (the earlier warm cream #FBF8F1 and the legacy dark theme are both retired)
-- Ink (headings/body): #05334A (navy)
-- Accent: #FF5B59 (red — replaces the legacy purple)
-- Muted text: #8B7F6A
-- Hairline rule: rgba(5,51,74,0.1)
+## Color Palette
+Five-color brand palette (June 2026): porcelain `#FBFEF9`, strawberry red `#E2403E`, ink-black `#0D1B1E`, stormy teal `#127475`, sunflower gold `#F7B32B`.
 
-Where the tokens live: the home page palette is in `homepageTemplate`'s `:root` (`--bg: #FFFFFF`). The case-study + share-landing palette is in `styles.css` `:root` (`--white`, `--bg`, `--bg-card`, `--bg-elevated` are all #FFFFFF) and the share-landing inline `:root` (`--white: #FFFFFF`). Cards stay legible on white via their existing `1px solid var(--rule)` borders (and a couple of soft box-shadows), not via a fill, so do not reintroduce a tinted `--bg-card`/`--bg-elevated`.
+### Public pages (light)
+Every public-facing page (home, case study, share landing) is on a porcelain background:
+- Page background AND card background: #FBFEF9 (porcelain — replaces the earlier #FFFFFF white, and the older cream #FBF8F1; the legacy dark theme is retired)
+- Ink (headings/body): #0D1B1E (ink-black — replaces the earlier navy #05334A)
+- Accent: #E2403E (strawberry red — replaces the earlier #FF5B59 and the legacy purple). Hover/deep: #C0302E.
+- Muted text: #8B7F6A
+- Hairline rule: rgba(13,27,30,0.1)
+- Optional secondary accents: stormy teal #127475 and sunflower gold #F7B32B (the gold draft chip uses sunflower gold).
+
+Where the tokens live: the home page palette is in `homepageTemplate`'s `:root` (`--bg: #FBFEF9`). The case-study + share-landing palette is in `styles.css` `:root` (`--white`, `--bg`, `--bg-card`, `--bg-elevated` are all #FBFEF9) and the share-landing inline `:root` (`--white: #FBFEF9`). Cards stay legible on porcelain via their existing `1px solid var(--rule)` borders (and a couple of soft box-shadows), not via a fill, so do not reintroduce a tinted `--bg-card`/`--bg-elevated`.
+
+### Admin panel (dark)
+The admin (`cloudflare/workers/admin/src/index.ts`) is a dark theme on an ink-black base with strawberry red as the accent:
+- Background ladder (deepest → most elevated): #0D1B1E (body), #122A2E (cards/tables), #163236, #1B3A3F (rows/borders), #244549 (inputs/borders) — all teal-toned tints of ink-black.
+- Accent: #E2403E (strawberry red — replaces the legacy purple #C084FC / #7C6D90).
+- Text: #E6EBE8 (primary), #8B9698 / #6A7678 / #7E8F91 (muted).
+- Secondary accents: sunflower gold #F7B32B (draft/warning chips) and stormy teal #127475. Danger states keep their own reds (#FF6B6B / #FF8585 / #5A2A2A); success keeps green #8EECB1.
 
 ## Case Study Order (home page)
 1. Named Entity Recognition — IPRO

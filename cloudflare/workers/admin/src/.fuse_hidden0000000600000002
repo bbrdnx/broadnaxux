@@ -374,31 +374,31 @@ function attrEscape(s: unknown): string { return htmlEscape(s); }
 
 const SHARED_CSS = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, system-ui, sans-serif; background: #0D1B1E; color: #E6EBE8; min-height: 100vh; padding: 0; margin: 0; -webkit-font-smoothing: antialiased; }
+  body { font-family: -apple-system, system-ui, sans-serif; background: #0D1B1E; color: #e0e0e8; min-height: 100vh; padding: 0; margin: 0; -webkit-font-smoothing: antialiased; }
   a { color: #E2403E; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .topbar { background: #122A2E; border-bottom: 1px solid #1B3A3F; padding: 0.85rem 2rem; display: flex; align-items: center; gap: 2rem; position: sticky; top: 0; z-index: 100; }
   .topbar h1 { font-size: 0.85rem; font-weight: 700; color: #E2403E; letter-spacing: 0.08em; text-transform: uppercase; margin: 0; }
   .topbar nav { display: flex; gap: 1.25rem; flex: 1; }
-  .topbar nav a { font-size: 0.78rem; color: #8B9698; letter-spacing: 0.04em; }
-  .topbar nav a:hover, .topbar nav a.active { color: #E6EBE8; text-decoration: none; }
+  .topbar nav a { font-size: 0.78rem; color: #8a8a9a; letter-spacing: 0.04em; }
+  .topbar nav a:hover, .topbar nav a.active { color: #e0e0e8; text-decoration: none; }
   .topbar form { margin: 0; }
-  .topbar button { background: transparent; color: #8B9698; border: 1px solid #244549; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.75rem; font-family: inherit; cursor: pointer; }
+  .topbar button { background: transparent; color: #8a8a9a; border: 1px solid #244549; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.75rem; font-family: inherit; cursor: pointer; }
   .topbar button:hover { color: #E2403E; border-color: #E2403E; }
   .wrap { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
   .wrap h2 { font-size: 1.4rem; font-weight: 500; color: #E2403E; letter-spacing: 0.04em; margin: 0 0 0.4rem; }
-  .wrap .sub { color: #8B9698; font-size: 0.85rem; margin-bottom: 2rem; }
+  .wrap .sub { color: #8a8a9a; font-size: 0.85rem; margin-bottom: 2rem; }
   .toolbar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
   .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; background: #E2403E; color: #0D1B1E; font-weight: 600; border-radius: 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 0.85rem; text-decoration: none; }
   .btn:hover { filter: brightness(1.1); text-decoration: none; }
-  .btn.secondary { background: transparent; color: #E6EBE8; border: 1px solid #244549; }
+  .btn.secondary { background: transparent; color: #e0e0e8; border: 1px solid #244549; }
   .btn.secondary:hover { border-color: #E2403E; color: #E2403E; }
   .btn.danger { background: transparent; color: #ff6b6b; border: 1px solid #5a2a2a; }
   .btn.danger:hover { background: rgba(255, 107, 107, 0.08); }
   .badge { display: inline-block; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 100px; }
   .badge.published { background: rgba(132, 252, 168, 0.12); color: #8eecb1; border: 1px solid rgba(132, 252, 168, 0.25); }
   .badge.draft { background: rgba(247,179,43, 0.12); color: #F7B32B; border: 1px solid rgba(247,179,43, 0.25); }
-  .badge.hidden { background: rgba(140, 140, 160, 0.12); color: #8B9698; border: 1px solid rgba(140, 140, 160, 0.25); }
+  .badge.hidden { background: rgba(140, 140, 160, 0.12); color: #8a8a9a; border: 1px solid rgba(140, 140, 160, 0.25); }
 
   table.list { width: 100%; border-collapse: collapse; background: #122A2E; border-radius: 8px; overflow: hidden; border: 1px solid #1B3A3F; }
   table.list th, table.list td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #1B3A3F; vertical-align: middle; font-size: 0.85rem; }
@@ -412,7 +412,7 @@ const SHARED_CSS = `
   .form-grid { display: grid; gap: 1.1rem; }
   .field { display: flex; flex-direction: column; gap: 0.4rem; }
   .field label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91; font-weight: 700; }
-  .field input, .field textarea, .field select { background: #0D1B1E; border: 1px solid #244549; color: #E6EBE8; padding: 0.65rem 0.8rem; border-radius: 4px; font-family: inherit; font-size: 0.9rem; width: 100%; }
+  .field input, .field textarea, .field select { background: #0D1B1E; border: 1px solid #244549; color: #e0e0e8; padding: 0.65rem 0.8rem; border-radius: 4px; font-family: inherit; font-size: 0.9rem; width: 100%; }
   .field textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; line-height: 1.55; min-height: 8rem; resize: vertical; }
   .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: #E2403E; }
   .field .hint { font-size: 0.72rem; color: #7E8F91; }
@@ -420,7 +420,7 @@ const SHARED_CSS = `
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
   @media (max-width: 720px) { .row2 { grid-template-columns: 1fr; } }
 
-  .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #122A2E; color: #E6EBE8; padding: 0.7rem 1.1rem; border: 1px solid #244549; border-radius: 6px; font-size: 0.85rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: opacity 0.4s; }
+  .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #122A2E; color: #e0e0e8; padding: 0.7rem 1.1rem; border: 1px solid #244549; border-radius: 6px; font-size: 0.85rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: opacity 0.4s; }
   .toast.success { border-color: rgba(132, 252, 168, 0.4); color: #8eecb1; }
   .toast.error   { border-color: rgba(255, 107, 107, 0.4); color: #ff6b6b; }
 `;
@@ -517,28 +517,28 @@ async function dashboardPage(env: Env): Promise<Response> {
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
       <a href="/case-studies" style="background: #122A2E; border: 1px solid #1B3A3F; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91;">Case Studies</div>
-        <div style="font-size: 1.6rem; font-weight: 700; color: #E6EBE8; margin: 0.4rem 0;">${cs?.total ?? 0}</div>
-        <div style="color: #8B9698; font-size: 0.78rem;">${cs?.published ?? 0} published</div>
+        <div style="font-size: 1.6rem; font-weight: 700; color: #e0e0e8; margin: 0.4rem 0;">${cs?.total ?? 0}</div>
+        <div style="color: #8a8a9a; font-size: 0.78rem;">${cs?.published ?? 0} published</div>
       </a>
       <a href="/companies" style="background: #122A2E; border: 1px solid #1B3A3F; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91;">Companies</div>
-        <div style="font-size: 1.6rem; font-weight: 700; color: #E6EBE8; margin: 0.4rem 0;">${co?.total ?? 0}</div>
-        <div style="color: #8B9698; font-size: 0.78rem;">${co?.withLogo ?? 0} with a logo</div>
+        <div style="font-size: 1.6rem; font-weight: 700; color: #e0e0e8; margin: 0.4rem 0;">${co?.total ?? 0}</div>
+        <div style="color: #8a8a9a; font-size: 0.78rem;">${co?.withLogo ?? 0} with a logo</div>
       </a>
       <a href="/content" style="background: #122A2E; border: 1px solid #1B3A3F; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91;">Site Content Keys</div>
-        <div style="font-size: 1.6rem; font-weight: 700; color: #E6EBE8; margin: 0.4rem 0;">${cn?.n ?? 0}</div>
-        <div style="color: #8B9698; font-size: 0.78rem;">homepage copy + ticker</div>
+        <div style="font-size: 1.6rem; font-weight: 700; color: #e0e0e8; margin: 0.4rem 0;">${cn?.n ?? 0}</div>
+        <div style="color: #8a8a9a; font-size: 0.78rem;">homepage copy + ticker</div>
       </a>
       <a href="/share-links" style="background: #122A2E; border: 1px solid #1B3A3F; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91;">Share Links</div>
-        <div style="font-size: 1.6rem; font-weight: 700; color: #E6EBE8; margin: 0.4rem 0;">${sl?.total ?? 0}</div>
-        <div style="color: #8B9698; font-size: 0.78rem;">${sl?.active ?? 0} active</div>
+        <div style="font-size: 1.6rem; font-weight: 700; color: #e0e0e8; margin: 0.4rem 0;">${sl?.total ?? 0}</div>
+        <div style="color: #8a8a9a; font-size: 0.78rem;">${sl?.active ?? 0} active</div>
       </a>
       <a href="https://barbarabroadnax.com/" target="_blank" rel="noopener" style="background: #122A2E; border: 1px solid #1B3A3F; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91;">Public Site</div>
         <div style="font-size: 1rem; font-weight: 600; color: #E2403E; margin: 0.4rem 0;">view live →</div>
-        <div style="color: #8B9698; font-size: 0.78rem;">opens in new tab</div>
+        <div style="color: #8a8a9a; font-size: 0.78rem;">opens in new tab</div>
       </a>
     </div>
 
@@ -610,7 +610,7 @@ function caseStudyListRow(r: CaseStudyRow, idx: number, total: number): string {
             </div>
           </td>
           <td>
-            <a href="/case-studies/${attrEscape(r.id)}" style="font-weight: 600; color: #E6EBE8;">${htmlEscape(r.title)}</a>
+            <a href="/case-studies/${attrEscape(r.id)}" style="font-weight: 600; color: #e0e0e8;">${htmlEscape(r.title)}</a>
             <div class="small">/work/${htmlEscape(r.id)}</div>
           </td>
           <td>${htmlEscape(r.company)}</td>
@@ -654,7 +654,7 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
 
   const body = `
     <div class="toolbar">
-      <a href="/case-studies" class="small" style="color: #8B9698;">← All case studies</a>
+      <a href="/case-studies" class="small" style="color: #8a8a9a;">← All case studies</a>
     </div>
     <h2>${isNew ? 'New case study' : htmlEscape(row!.title)}</h2>
     <p class="sub">${isNew ? 'Slug is the URL piece (lowercase, hyphens). Pick wisely, it goes into /work/:slug.' : `Editing <code>${htmlEscape(row!.id)}</code>. Public URL: <a href="https://barbarabroadnax.com/work/${attrEscape(row!.id)}" target="_blank" rel="noopener">/work/${htmlEscape(row!.id)}</a>`}</p>
@@ -732,7 +732,7 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
         <label for="hero_image_key">Hero image</label>
         <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
           <span id="heroPreview" style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:78px;background:#FBFEF9;border-radius:6px;overflow:hidden;border:1px solid #244549;flex-shrink:0;">
-            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : '<span class="small" style="color:#6A7678;">none</span>'}
+            ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : '<span class="small" style="color:#6a6a78;">none</span>'}
           </span>
           <div style="flex:1; min-width:240px;">
             <input type="file" id="heroFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">
@@ -1083,7 +1083,7 @@ async function editCaseStudyVersionPage(
 
   const body = `
     <div class="toolbar">
-      <a href="/case-studies/${attrEscape(cs.id)}" class="small" style="color:#8B9698;">← ${htmlEscape(cs.title)}</a>
+      <a href="/case-studies/${attrEscape(cs.id)}" class="small" style="color:#8a8a9a;">← ${htmlEscape(cs.title)}</a>
     </div>
     <h2>${isNew ? 'New version' : htmlEscape(row!.label)} <span style="color:#7E8F91;font-weight:400;">— variant of ${htmlEscape(cs.title)}</span></h2>
     <p class="sub">A version overrides individual fields on the canonical case study. Leave a field blank to inherit from the canonical version. Visible at <code>/work/${htmlEscape(cs.id)}?v=&lt;id&gt;</code> and selectable inside share-links.</p>
@@ -1373,7 +1373,7 @@ function renderVersionsSection(csId: string, csTitle: string, versions: CaseStud
     const updated = formatTimestamp(v.updated_at);
     const previewUrl = `https://barbarabroadnax.com/work/${csId}?v=${v.id}`;
     return `      <tr>
-        <td><a href="/case-studies/${attrEscape(csId)}/versions/${attrEscape(v.id)}" style="font-weight:600;color:#E6EBE8;">${htmlEscape(v.label)}</a></td>
+        <td><a href="/case-studies/${attrEscape(csId)}/versions/${attrEscape(v.id)}" style="font-weight:600;color:#e0e0e8;">${htmlEscape(v.label)}</a></td>
         <td class="small">${overrideLabel}</td>
         <td class="small" style="color:#7E8F91;">${htmlEscape(updated)}</td>
         <td>
@@ -1392,7 +1392,7 @@ function renderVersionsSection(csId: string, csTitle: string, versions: CaseStud
   return `
     <div style="margin-top:3rem;border-top:1px solid #1B3A3F;padding-top:2rem;">
       <div class="toolbar" style="margin-bottom:0.75rem;">
-        <h3 style="margin:0;font-size:1rem;color:#E6EBE8;">Versions of this case study</h3>
+        <h3 style="margin:0;font-size:1rem;color:#e0e0e8;">Versions of this case study</h3>
         <a href="/case-studies/${attrEscape(csId)}/versions/new" class="btn">+ New version</a>
       </div>
       ${empty}
@@ -1453,13 +1453,13 @@ async function listCompaniesPage(env: Env, url: URL): Promise<Response> {
           : rows.map((r) => {
           const logoCell = r.logo_image_key
             ? `<img src="${attrEscape(publicUploadUrl(r.logo_image_key))}" alt="" style="width: 34px; height: 34px; object-fit: contain; background: #FBFEF9; border-radius: 6px; padding: 3px;">`
-            : `<span class="small" style="color: #6A7678;">—</span>`;
+            : `<span class="small" style="color: #6a6a78;">—</span>`;
           const swatch = r.brand_color
             ? `<span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:14px;height:14px;border-radius:3px;background:${attrEscape(r.brand_color)};display:inline-block;border:1px solid #244549;"></span><span class="small">${htmlEscape(r.brand_color)}</span></span>`
-            : `<span class="small" style="color: #6A7678;">—</span>`;
+            : `<span class="small" style="color: #6a6a78;">—</span>`;
           return `<tr>
             <td>${logoCell}</td>
-            <td><a href="/companies/${attrEscape(r.id)}" style="font-weight: 600; color: #E6EBE8;">${htmlEscape(r.name)}</a></td>
+            <td><a href="/companies/${attrEscape(r.id)}" style="font-weight: 600; color: #e0e0e8;">${htmlEscape(r.name)}</a></td>
             <td>${swatch}</td>
             <td class="small">${htmlEscape(r.id)}</td>
             <td style="text-align: right;"><a href="/companies/${attrEscape(r.id)}" class="btn secondary">Edit</a></td>
@@ -1481,7 +1481,7 @@ async function editCompanyPage(env: Env, id: string | null, url: URL): Promise<R
 
   const body = `
     <div class="toolbar">
-      <a href="/companies" class="small" style="color: #8B9698;">← All companies</a>
+      <a href="/companies" class="small" style="color: #8a8a9a;">← All companies</a>
     </div>
     <h2>${isNew ? 'New company' : htmlEscape(row!.name)}</h2>
     <p class="sub">${isNew ? 'The name must match the Company field on the case studies it applies to.' : `Editing <code>${htmlEscape(row!.id)}</code>.`}</p>
@@ -1519,7 +1519,7 @@ async function editCompanyPage(env: Env, id: string | null, url: URL): Promise<R
         <label>Logo</label>
         <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
           <span id="logoPreview" style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;background:#FBFEF9;border-radius:8px;padding:6px;border:1px solid #244549;">
-            ${previewUrl ? `<img src="${attrEscape(previewUrl)}" alt="" style="width:100%;height:100%;object-fit:contain;">` : '<span class="small" style="color:#6A7678;">none</span>'}
+            ${previewUrl ? `<img src="${attrEscape(previewUrl)}" alt="" style="width:100%;height:100%;object-fit:contain;">` : '<span class="small" style="color:#6a6a78;">none</span>'}
           </span>
           <div>
             <input type="file" id="logoFile" accept="image/png,image/svg+xml,image/jpeg,image/webp" style="display:none;">
@@ -1658,7 +1658,7 @@ async function listContentPage(env: Env, url: URL): Promise<Response> {
             : r.value.replace(/<[^>]+>/g, '').slice(0, 120) + (r.value.length > 120 ? '…' : '');
           return `<tr>
             <td>
-              <a href="/content/${attrEscape(r.key)}" style="font-weight: 600; color: #E6EBE8;">${htmlEscape(label)}</a>
+              <a href="/content/${attrEscape(r.key)}" style="font-weight: 600; color: #e0e0e8;">${htmlEscape(label)}</a>
               <div class="small">${htmlEscape(r.key)}</div>
             </td>
             <td><span class="badge hidden">${htmlEscape(r.value_type)}</span></td>
@@ -1689,7 +1689,7 @@ async function editContentPage(env: Env, key: string, url: URL): Promise<Respons
 
   const body = `
     <div class="toolbar">
-      <a href="/content" class="small" style="color: #8B9698;">← All site content</a>
+      <a href="/content" class="small" style="color: #8a8a9a;">← All site content</a>
     </div>
     <h2>${htmlEscape(label)}</h2>
     <p class="sub">${htmlEscape(help)}</p>
@@ -1792,12 +1792,12 @@ function loginPage(): Response {
 <meta name="robots" content="noindex,nofollow">
 <title>Admin · Barbara Broadnax</title>
 <style>
-  body{font-family:-apple-system,system-ui,sans-serif;background:#0D1B1E;color:#E6EBE8;min-height:100vh;display:grid;place-items:center;margin:0;}
+  body{font-family:-apple-system,system-ui,sans-serif;background:#0D1B1E;color:#e0e0e8;min-height:100vh;display:grid;place-items:center;margin:0;}
   form{background:#122A2E;padding:2rem;border-radius:8px;min-width:320px;box-shadow:0 10px 40px rgba(0,0,0,0.4);}
   h1{margin:0 0 .25rem;font-weight:500;font-size:1.15rem;color:#E2403E;letter-spacing:0.04em;}
   p.sub{margin:0 0 1.5rem;color:#7E8F91;font-size:.85rem;}
   label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#7E8F91;display:block;margin-bottom:.5rem;}
-  input{width:100%;padding:.75rem;border-radius:4px;border:1px solid #244549;background:#0D1B1E;color:#E6EBE8;box-sizing:border-box;font-family:inherit;font-size:1rem;}
+  input{width:100%;padding:.75rem;border-radius:4px;border:1px solid #244549;background:#0D1B1E;color:#e0e0e8;box-sizing:border-box;font-family:inherit;font-size:1rem;}
   input:focus{outline:none;border-color:#E2403E;}
   button{width:100%;margin-top:1rem;padding:.75rem;border:0;border-radius:4px;background:#E2403E;color:#0D1B1E;font-weight:600;cursor:pointer;font-size:.95rem;}
   button:disabled{opacity:.5;cursor:not-allowed;}
@@ -2045,7 +2045,7 @@ async function listShareLinksPage(env: Env, url: URL): Promise<Response> {
     <p class="sub">Curated, optionally password-protected views with view tracking. Use these for recruiters, hiring managers, and tailored outreach.</p>
 
     ${rows.length === 0 ? `
-      <div style="background:#122A2E;border:1px solid #1B3A3F;border-radius:8px;padding:2.5rem;text-align:center;color:#8B9698;">
+      <div style="background:#122A2E;border:1px solid #1B3A3F;border-radius:8px;padding:2.5rem;text-align:center;color:#8a8a9a;">
         No share-links yet. <a href="/share-links/new">Create the first one</a>.
       </div>
     ` : `
@@ -2084,7 +2084,7 @@ function shareLinkListRow(r: ShareLinkListRow): string {
   const displayPath = r.slug ? `/r/${r.slug}` : `/share/${r.token}`;
   return `        <tr>
           <td>
-            <a href="/share-links/${attrEscape(r.id)}" style="font-weight: 600; color: #E6EBE8;">${htmlEscape(r.name)}</a>${pwBadge}${expiredBadge}
+            <a href="/share-links/${attrEscape(r.id)}" style="font-weight: 600; color: #e0e0e8;">${htmlEscape(r.name)}</a>${pwBadge}${expiredBadge}
             <div class="small">
               <a href="${attrEscape(publicUrl)}" target="_blank" rel="noopener" style="color: #E2403E;">${htmlEscape(displayPath)}</a>
               <button type="button" class="btn secondary" data-copy="${attrEscape(publicUrl)}" style="margin-left:0.5rem;padding:0.1rem 0.4rem;font-size:0.65rem;">Copy URL</button>
@@ -2176,7 +2176,7 @@ async function editShareLinkPage(env: Env, id: string | null, url: URL): Promise
 
   const body = `
     <div class="toolbar">
-      <a href="/share-links" class="small" style="color: #8B9698;">← All share-links</a>
+      <a href="/share-links" class="small" style="color: #8a8a9a;">← All share-links</a>
     </div>
     <h2>${isNew ? 'New share-link' : htmlEscape(row!.name)}</h2>
     <p class="sub">${isNew ? 'Curated case study list with optional headline, message, password, and resume PDF.' : `Created ${htmlEscape(formatTimestamp(row!.created_at))}. ${row!.last_viewed_at ? 'Last viewed ' + htmlEscape(formatTimestamp(row!.last_viewed_at)) + '.' : 'Not yet opened.'}`}</p>
@@ -2294,7 +2294,7 @@ async function editShareLinkPage(env: Env, id: string | null, url: URL): Promise
           row.style.cssText = rowStyle();
           row.innerHTML =
             '<button type="button" class="btn secondary" data-add="' + escAttr(c.id) + '" style="padding:0.2rem 0.5rem;font-size:0.7rem;">+ add</button>' +
-            '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;color:#E6EBE8;">' + escAttr(c.title) + statusBadge(c.status) + '</div><div style="font-size:0.7rem;color:#7E8F91;">' + escAttr(c.company) + '</div></div>';
+            '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;color:#e0e0e8;">' + escAttr(c.title) + statusBadge(c.status) + '</div><div style="font-size:0.7rem;color:#7E8F91;">' + escAttr(c.company) + '</div></div>';
           avEl.appendChild(row);
         });
         if (avEl.children.length === 0) {
@@ -2319,14 +2319,14 @@ async function editShareLinkPage(env: Env, id: string | null, url: URL): Promise
               .concat(versions.map(v => '<option value="' + escAttr(v.id) + '"' + (v.id === currentVid ? ' selected' : '') + '>' + escAttr(v.label) + '</option>'))
               .join('');
             versionSelectHtml =
-              '<select data-version-for="' + escAttr(c.id) + '" style="background:#0D1B1E;border:1px solid #244549;color:#E6EBE8;font-size:0.65rem;border-radius:3px;padding:0.1rem 0.3rem;margin-left:0.4rem;max-width:11rem;">' +
+              '<select data-version-for="' + escAttr(c.id) + '" style="background:#0D1B1E;border:1px solid #244549;color:#e0e0e8;font-size:0.65rem;border-radius:3px;padding:0.1rem 0.3rem;margin-left:0.4rem;max-width:11rem;">' +
               optionsHtml + '</select>';
           }
 
           row.innerHTML =
             '<span class="sl-drag" title="Drag to reorder" style="cursor:grab;color:#7E8F91;font-size:0.95rem;line-height:1;user-select:none;padding:0 0.15rem;">⋮⋮</span>' +
             '<span style="font-size:0.62rem;color:#7E8F91;font-weight:700;min-width:1.4rem;text-align:right;">' + (i+1) + '.</span>' +
-            '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;color:#E6EBE8;">' + escAttr(c.title) + statusBadge(c.status) + '</div><div style="font-size:0.7rem;color:#7E8F91;display:flex;align-items:center;flex-wrap:wrap;">' + escAttr(c.company) + versionSelectHtml + '</div></div>' +
+            '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;color:#e0e0e8;">' + escAttr(c.title) + statusBadge(c.status) + '</div><div style="font-size:0.7rem;color:#7E8F91;display:flex;align-items:center;flex-wrap:wrap;">' + escAttr(c.company) + versionSelectHtml + '</div></div>' +
             '<button type="button" class="btn secondary" data-up="' + escAttr(c.id) + '" ' + (i === 0 ? 'disabled' : '') + ' style="padding:0.15rem 0.4rem;font-size:0.7rem;">↑</button>' +
             '<button type="button" class="btn secondary" data-down="' + escAttr(c.id) + '" ' + (i === selected.length - 1 ? 'disabled' : '') + ' style="padding:0.15rem 0.4rem;font-size:0.7rem;">↓</button>' +
             '<button type="button" class="btn danger" data-remove="' + escAttr(c.id) + '" style="padding:0.15rem 0.4rem;font-size:0.7rem;">×</button>';
@@ -2639,7 +2639,7 @@ function eventBadge(event: string): string {
     resume_download: ['rgba(247,179,43,0.12)', '#F7B32B'],
     unlock_failed: ['rgba(255,107,107,0.12)', '#ff6b6b'],
   };
-  const [bg, fg] = colors[event] ?? ['rgba(124,109,144,0.12)', '#8B9698'];
+  const [bg, fg] = colors[event] ?? ['rgba(124,109,144,0.12)', '#8a8a9a'];
   return `<span style="background:${bg};color:${fg};font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.18rem 0.45rem;border-radius:100px;white-space:nowrap;">${htmlEscape(event.replace(/_/g, ' '))}</span>`;
 }
 
@@ -2742,7 +2742,7 @@ async function analyticsShareLinkPage(env: Env, id: string, url: URL): Promise<R
     const title = r.title ?? r.id;
     const company = r.company ?? '';
     return `<tr>
-      <td><div style="font-weight:600;color:#E6EBE8;">${htmlEscape(title)}</div><div class="small" style="color:#7E8F91;">${htmlEscape(company)} · <code>${htmlEscape(r.id)}</code></div></td>
+      <td><div style="font-weight:600;color:#e0e0e8;">${htmlEscape(title)}</div><div class="small" style="color:#7E8F91;">${htmlEscape(company)} · <code>${htmlEscape(r.id)}</code></div></td>
       <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:#E2403E;font-size:1rem;">${r.n}</td>
     </tr>`;
   }).join('');
@@ -2750,7 +2750,7 @@ async function analyticsShareLinkPage(env: Env, id: string, url: URL): Promise<R
   const recentRows = (recentRes.results ?? []).map((r) => {
     const t = new Date(r.viewed_at * 1000);
     const ts = `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}-${String(t.getUTCDate()).padStart(2, '0')} ${String(t.getUTCHours()).padStart(2, '0')}:${String(t.getUTCMinutes()).padStart(2, '0')}`;
-    const detail = r.case_study_id ? `<code style="color:#8B9698;">${htmlEscape(r.case_study_id)}</code>` : '<span style="color:#7E8F91;">—</span>';
+    const detail = r.case_study_id ? `<code style="color:#8a8a9a;">${htmlEscape(r.case_study_id)}</code>` : '<span style="color:#7E8F91;">—</span>';
     const ua = r.user_agent ? shortUA(r.user_agent) : '—';
     const ref = r.referrer ? ' ← ' + shortRef(r.referrer) : '';
     return `<tr>
@@ -2766,8 +2766,8 @@ async function analyticsShareLinkPage(env: Env, id: string, url: URL): Promise<R
 
   const body = `
     <div class="toolbar">
-      <a href="/share-links" class="small" style="color:#8B9698;">← All share-links</a>
-      <a href="/share-links/${attrEscape(id)}" class="small" style="color:#8B9698;">Edit this link</a>
+      <a href="/share-links" class="small" style="color:#8a8a9a;">← All share-links</a>
+      <a href="/share-links/${attrEscape(id)}" class="small" style="color:#8a8a9a;">Edit this link</a>
     </div>
     <h2>${htmlEscape(link.name)} <span style="color:#7E8F91;font-weight:400;">— Analytics</span></h2>
     <p class="sub">
@@ -2783,20 +2783,20 @@ async function analyticsShareLinkPage(env: Env, id: string, url: URL): Promise<R
       ${tile('Unlock failures', counts.unlock_failed ?? 0, '#ff6b6b')}
     </div>
 
-    <h3 style="margin-top:2rem;font-size:0.95rem;color:#E6EBE8;">Last 30 days · ${totalEvents} event${totalEvents === 1 ? '' : 's'} total</h3>
+    <h3 style="margin-top:2rem;font-size:0.95rem;color:#e0e0e8;">Last 30 days · ${totalEvents} event${totalEvents === 1 ? '' : 's'} total</h3>
     <div style="background:#122A2E;border:1px solid #1B3A3F;border-radius:8px;padding:1rem;">
       <div style="display:flex;align-items:flex-end;gap:0.15rem;">${bars}</div>
       <div style="display:flex;gap:0.15rem;margin-top:0.4rem;">${xLabels}</div>
       <div class="small" style="color:#7E8F91;margin-top:0.5rem;">Hover a bar for the per-event breakdown.</div>
     </div>
 
-    <h3 style="margin-top:2rem;font-size:0.95rem;color:#E6EBE8;">Card clicks by case study</h3>
+    <h3 style="margin-top:2rem;font-size:0.95rem;color:#e0e0e8;">Card clicks by case study</h3>
     ${csRows ? `<table class="list">
       <thead><tr><th>Case study</th><th style="text-align:right;">Clicks</th></tr></thead>
       <tbody>${csRows}</tbody>
     </table>` : '<p class="sub" style="color:#7E8F91;">No card clicks yet.</p>'}
 
-    <h3 style="margin-top:2rem;font-size:0.95rem;color:#E6EBE8;">Recent activity (last 50 events)</h3>
+    <h3 style="margin-top:2rem;font-size:0.95rem;color:#e0e0e8;">Recent activity (last 50 events)</h3>
     ${recentRows ? `<table class="list">
       <thead><tr><th>When (UTC)</th><th>Event</th><th>Case study</th><th>Browser · referrer</th></tr></thead>
       <tbody>${recentRows}</tbody>

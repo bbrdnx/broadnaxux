@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Named Entity Recognition — IPRO | Barbara Broadnax</title>
+  <meta name="description" content="AI-powered entity detection and communication charting for a legal review platform, scoring 4.1 / 5 in concept testing.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Named Entity Recognition — IPRO | Barbara Broadnax">
+  <meta property="og:description" content="AI-powered entity detection and communication charting for a legal review platform, scoring 4.1 / 5 in concept testing.">
+  <meta property="og:site_name" content="Barbara Broadnax">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Named Entity Recognition — IPRO | Barbara Broadnax">
+  <meta name="twitter:description" content="AI-powered entity detection and communication charting for a legal review platform, scoring 4.1 / 5 in concept testing.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="site-name" aria-label="Barbara Broadnax, home">
+      <span class="name-first">Barbara</span>
+      <span class="name-last">Broadnax</span>
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <div class="ticker">
+      <span class="ticker-label">I design</span>
+      <div class="ticker-track" id="ticker" aria-live="polite"></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+  <!-- Mobile-only sticky subnav -->
+  <ul class="mobile-subnav" aria-label="Quick links">
+    <li><a href="resume.html">Resume</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+
+
+  <section class="case-hero">
+    <div class="container">
+      <p class="label animate-in">IPRO</p>
+      <h1 class="animate-in delay-1">Named Entity Recognition</h1>
+      <p class="animate-in delay-2" style="font-size: 1.15rem; max-width: 640px;">AI entity detection meets a legal review platform that runs on keyword search alone.</p>
+      <div class="company-context">
+        <p class="label">About IPRO</p>
+        <p>IPRO builds e-discovery software that litigation teams rely on as an industry standard. Their platform handles the full lifecycle of electronic evidence (identify, preserve, collect, process, review, produce) for legal cases and investigations.</p>
+      </div>
+      <div class="case-meta animate-in delay-3">
+        <div class="case-meta-item">
+          <p class="label">Role</p>
+          <p>Product Designer</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">Team</p>
+          <p>UX, PM, and NexLP partnership</p>
+        </div>
+        <div class="case-meta-item">
+          <p class="label">User Rating</p>
+          <p>4.13 / 5 (concept testing)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Image -->
+  <div class="container">
+    <div class="image-showcase">
+      <img src="images/NER - Desktop.png" alt="Named Entity Recognition — Communication chart and entity panel">
+      <p class="image-caption">The communication chart with collapsible entity panel, giving legal reviewers a visual way to navigate complex case data.</p>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Overview</p>
+      <h2>Making data navigable, not just searchable</h2>
+      <p>IPRO partnered with NexLP to bring AI entity detection (communication charts, entity management) into legal review. The bet: reviewers find more, faster, when they can see the people and conversations behind a case instead of guessing at keywords.</p>
+      <p>My job was to make NexLP's tech feel native to IPRO. I designed using Material UI to keep engineering moving while working closely with the NexLP team on what their API could and couldn't do.</p>
+      <div class="tags">
+        <span class="tag">NexLP Integration</span>
+        <span class="tag">Material UI</span>
+        <span class="tag">Communication Charts</span>
+        <span class="tag">Entity Management</span>
+        <span class="tag">Search & Filter</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Research -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Research</p>
+      <h2>Testing with expert users</h2>
+      <p>I ran concept testing with five expert users (a mix of internal service providers and external clients) in 45-minute prototype walkthroughs. The pattern was clear: NexLP had power, but the surface was punishing.</p>
+      <ul>
+        <li>Tooltips too sparse. Users guessing.</li>
+        <li>Actions scattered across the screen, no logic to placement.</li>
+        <li>Merging complex, with no undo.</li>
+        <li>Colors and symbols, no legend.</li>
+        <li>Profile cards looked tappable, weren't.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Interactive Demos -->
+  <div class="container">
+    <div class="image-showcase-grid">
+      <div class="image-showcase">
+        <img src="images/ner-in-action.png" alt="NER in action — entity detection on case data">
+        <p class="image-caption">NER in action. People, organizations, and addresses, detected automatically across case documents.</p>
+      </div>
+      <div class="image-showcase">
+        <img src="images/ner-merge-entities.png" alt="Merge entities dialogue">
+        <p class="image-caption">The merge entities dialogue. Combining duplicates with explicit warnings, because the back end has no undo.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Navigation GIF -->
+  <div class="container">
+    <div class="image-showcase">
+      <video src="images/ner-charts-demo.mp4" autoplay loop muted playsinline aria-label="NER communication chart — interactive demo" style="display:block;width:100%;height:auto;"></video>
+      <p class="image-caption">The interactive communication chart. Reviewers drill into entity relationships and filter connections in real time.</p>
+    </div>
+  </div>
+
+  <!-- Concept -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Concept Design</p>
+      <h2>Five integrated components</h2>
+      <p>I designed five features that translated API capabilities into a repeatable flow for early data analysis (EDA).</p>
+      <ul>
+        <li>A full-width communication chart with a collapsible entities panel, sized to actually be legible, with drill-down via the API.</li>
+        <li>An entities launchpad wired into search.</li>
+        <li>Person profiles that surface details only at the moment of need.</li>
+        <li>A merge dialogue with explicit warnings (no undo on the back end).</li>
+        <li>NexLP's chart controls, layered with the tooltips, legends, and help text the original lacked.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Findings -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Findings</p>
+      <h2>What users valued most</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <p class="stat-number">4.13</p>
+          <p class="stat-label">Average experience rating (out of 5)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number">5/5</p>
+          <p class="stat-label">Users engaged with chart interactivity</p>
+        </div>
+      </div>
+
+      <p>The entity list was the runaway favorite. All five users said it would change how they built searches. Every participant engaged with chart interactivity, including features I wasn't sure would land. They also expected the chart to update in tandem like a live search, an ambition I scoped into a later phase.</p>
+      <p>One thing I cut: the business card section of entity profiles. Users could see it, but couldn't tell me what they'd do with it. I recommended dropping it.</p>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section class="case-section">
+    <div class="container">
+      <p class="label">Recommendations</p>
+      <h2>Phased rollout: now, next, later</h2>
+      <p>I structured implementation in three phases so engineering could ship value without waiting for the full vision.</p>
+      <ul>
+        <li><strong>Now:</strong> NexLP API for chart, controls, and entities list. Plus quick wins (entities visible by default, max chart container space).</li>
+        <li><strong>Next:</strong> tighter integration. Better merge visibility, refreshed profile cards from user feedback, timeline integration, support for live Early Data Assessment.</li>
+        <li><strong>Later:</strong> entities across other widgets, NexLP's tree chart, full-size chart views, and the live-search behavior users had asked for.</li>
+      </ul>
+      <p>Vision in long shots, ship in short ones.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="case-nav">
+      <a href="ipro-search-redact.html">
+        <span class="label">&larr; Previous</span>
+        <span>Search & Redact</span>
+      </a>
+      <a href="ipro-eda.html" class="next">
+        <span class="label">Next &rarr;</span>
+        <span>Early Data Assessment</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Barbara Broadnax</p>
+    <ul class="footer-links">
+      <li><button class="footer-email-btn" onclick="copyEmail(this)" aria-label="Copy email address"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Email</button></li>
+      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    function copyEmail(btn) {
+      navigator.clipboard.writeText('broadnaxux@gmail.com').then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+    /* Ticker */
+    const phrases = ['cross-functional teams','revenue outcomes','products at scale','AI-powered tools','design strategy','for complexity'];
+    const track = document.getElementById('ticker');
+    let current = 0;
+    phrases.forEach((p, i) => {
+      const span = document.createElement('span');
+      span.className = 'ticker-word';
+      span.textContent = p;
+      span.id = 'tw-' + i;
+      track.appendChild(span);
+    });
+    function showWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.classList.add('is-in');
+      el.addEventListener('animationend', () => { el.classList.remove('is-in'); el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, { once: true });
+    }
+    function hideWord(i) {
+      const el = document.getElementById('tw-' + i);
+      el.style.opacity = ''; el.style.transform = '';
+      el.classList.add('is-out');
+      el.addEventListener('animationend', () => { el.classList.remove('is-out'); el.style.opacity = 0; }, { once: true });
+    }
+    showWord(0);
+    setInterval(() => { hideWord(current); current = (current + 1) % phrases.length; setTimeout(() => showWord(current), 320); }, 2600);
+  </script>
+</body>
+</html>

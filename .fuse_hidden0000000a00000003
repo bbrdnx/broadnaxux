@@ -27,29 +27,29 @@
 ============================================================ */
 
 :root {
-  --ink:          #0D1B1E;
+  --ink:          #05334A;
   --ink-2:        #3D4550;
   --muted:        #8B7F6A;
-  --ink-dark:     #06100E;
+  --ink-dark:     #042736;
 
-  --bg:           #FBFEF9;
-  --bg-2:         #F0F3EE;
-  --bg-card:      #FBFEF9;
+  --bg:           #FFFFFF;
+  --bg-2:         #F4F4F4;
+  --bg-card:      #FFFFFF;
 
-  --accent:       #E2403E;
-  --accent-deep:  #C0302E;
-  --accent-wash:  rgba(226,64,62,0.10);
-  --accent-line:  rgba(226,64,62,0.32);
+  --accent:       #FF5B59;
+  --accent-deep:  #E2403E;
+  --accent-wash:  rgba(255,91,89,0.10);
+  --accent-line:  rgba(255,91,89,0.32);
 
-  --rule:         rgba(13,27,30,0.10);
-  --rule-2:       rgba(13,27,30,0.18);
-  --rule-dark:    rgba(251,254,249,0.12);
+  --rule:         rgba(5,51,74,0.10);
+  --rule-2:       rgba(5,51,74,0.18);
+  --rule-dark:    rgba(255,255,255,0.12);
 
   --r-xs:2px; --r-sm:4px; --r-md:8px; --r-lg:14px; --r-xl:20px; --r-pill:999px;
 
-  --sh-sm: 0 1px 2px rgba(13,27,30,.06), 0 1px 1px rgba(13,27,30,.04);
-  --sh-md: 0 10px 30px rgba(13,27,30,.10), 0 2px 6px rgba(13,27,30,.05);
-  --sh-lg: 0 30px 70px rgba(13,27,30,.16), 0 4px 10px rgba(13,27,30,.07);
+  --sh-sm: 0 1px 2px rgba(5,51,74,.06), 0 1px 1px rgba(5,51,74,.04);
+  --sh-md: 0 10px 30px rgba(5,51,74,.10), 0 2px 6px rgba(5,51,74,.05);
+  --sh-lg: 0 30px 70px rgba(5,51,74,.16), 0 4px 10px rgba(5,51,74,.07);
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --d1: 120ms; --d2: 240ms; --d3: 420ms;
@@ -108,7 +108,7 @@ img { display: block; max-width: 100%; }
   display: flex; align-items: center;
   padding: 0 var(--gutter);
   gap: 18px;
-  background: rgba(251,254,249,0.94);
+  background: rgba(255,255,255,0.94);
   backdrop-filter: blur(14px) saturate(1.1);
   border-bottom: 1px solid var(--rule);
 }
@@ -186,7 +186,7 @@ img { display: block; max-width: 100%; }
   background: transparent;
   padding: 7px 16px;
   border-radius: var(--r-sm);
-  border: 1.5px solid rgba(13,27,30,0.25);
+  border: 1.5px solid rgba(5,51,74,0.25);
   white-space: nowrap; line-height: 1;
   transition: border-color var(--d2);
 }
@@ -196,7 +196,7 @@ img { display: block; max-width: 100%; }
 .nav-cta {
   display: inline-flex; align-items: center;
   font-size: 12.5px; font-weight: 600;
-  color: #FBFEF9 !important;
+  color: #fff !important;
   background: var(--ink);
   padding: 7px 16px;
   border-radius: var(--r-sm);
@@ -226,7 +226,7 @@ img { display: block; max-width: 100%; }
 .nav-drop-menu {
   position: absolute; top: calc(100% + 10px); left: 0;
   min-width: 280px; padding: 7px;
-  background: rgba(251,254,249,0.98);
+  background: rgba(255,255,255,0.98);
   backdrop-filter: blur(14px) saturate(1.1);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
@@ -307,9 +307,9 @@ img { display: block; max-width: 100%; }
   animation: pulse 2.4s var(--ease) infinite;
 }
 @keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(226,64,62,.45); }
-  70%  { box-shadow: 0 0 0 7px rgba(226,64,62,0); }
-  100% { box-shadow: 0 0 0 0 rgba(226,64,62,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(255,91,89,.45); }
+  70%  { box-shadow: 0 0 0 7px rgba(255,91,89,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,91,89,0); }
 }
 .hero-status span {
   font-family: var(--mono); font-size: 11px; font-weight: 600;
@@ -466,7 +466,7 @@ img { display: block; max-width: 100%; }
   bottom: clamp(-8px, -0.8vw, -14px);
   display: inline-flex; align-items: center; gap: 10px;
   padding: 10px 15px 10px 11px;
-  background: rgba(251,254,249,0.9);
+  background: rgba(255,255,255,0.9);
   backdrop-filter: blur(12px) saturate(1.3);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
@@ -481,9 +481,9 @@ img { display: block; max-width: 100%; }
   width: 30px; height: 30px; flex-shrink: 0;
   border-radius: 7px; display: grid; place-items: center;
   font-family: var(--display); font-weight: 700;
-  font-size: 14px; color: #FBFEF9;
+  font-size: 14px; color: #fff;
 }
-.cine-logo[data-co="ipro"]   .mark { background: linear-gradient(135deg, #0D1B1E, #0D1B1E); }
+.cine-logo[data-co="ipro"]   .mark { background: linear-gradient(135deg, #0A4862, #05334A); }
 .cine-logo[data-co="alaska"] .mark { background: linear-gradient(135deg, #0A6FB0, #01426A); }
 .cine-logo[data-co="inksoft"] .mark { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); }
 .cine-logo .wm {
@@ -574,7 +574,7 @@ img { display: block; max-width: 100%; }
 .side-head .l .eyebrow { color: var(--accent); }
 .side-head .r {
   font-size: 14px; line-height: 1.6;
-  color: rgba(251,254,249,.7); max-width: 38ch; margin: 0;
+  color: rgba(251,248,241,.7); max-width: 38ch; margin: 0;
 }
 .side-grid {
   display: grid; grid-template-columns: repeat(2,1fr); gap: 14px;
@@ -590,7 +590,7 @@ img { display: block; max-width: 100%; }
 .spc-mark {
   width: 46px; height: 46px; flex-shrink: 0;
   border-radius: var(--r-sm);
-  background: linear-gradient(135deg, #0D1B1E, var(--ink-dark));
+  background: linear-gradient(135deg, #0A4862, var(--ink-dark));
   border: 1px solid var(--rule-dark);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--bg);
@@ -613,10 +613,10 @@ img { display: block; max-width: 100%; }
 }
 .spc-desc {
   font-size: 12.5px; line-height: 1.45;
-  color: rgba(251,254,249,.6); margin: 0;
+  color: rgba(251,248,241,.6); margin: 0;
 }
 .spc .arr {
-  color: rgba(251,254,249,.4); font-size: 16px;
+  color: rgba(251,248,241,.4); font-size: 16px;
   transition: transform var(--d2) var(--ease), color var(--d2);
 }
 .spc:hover .arr { color: var(--accent); transform: translate(3px,-3px); }
@@ -762,7 +762,7 @@ img { display: block; max-width: 100%; }
     position: fixed;
     bottom: 0; left: 0; right: 0;
     z-index: 100;
-    background: rgba(251,254,249,0.96);
+    background: rgba(255,255,255,0.96);
     backdrop-filter: blur(14px) saturate(1.1);
     border-top: 1px solid var(--rule);
   }
@@ -803,7 +803,7 @@ img { display: block; max-width: 100%; }
     background: transparent;
     padding: 6px 11px;
     border-radius: var(--r-sm);
-    border: 1.5px solid rgba(13,27,30,0.25);
+    border: 1.5px solid rgba(5,51,74,0.25);
     white-space: nowrap; line-height: 1;
     transition: border-color var(--d2);
   }
@@ -812,7 +812,7 @@ img { display: block; max-width: 100%; }
   .nav-bottom-links .nav-cta {
     display: inline-flex; align-items: center;
     font-size: 11.5px; font-weight: 600;
-    color: #FBFEF9 !important;
+    color: #fff !important;
     background: var(--ink);
     padding: 6px 11px;
     border-radius: var(--r-sm);

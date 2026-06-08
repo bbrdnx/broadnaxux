@@ -5,7 +5,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Palette — matches the homepage (porcelain / ink-black / strawberry red) */
+  /* Warm palette — matches the homepage (cream / navy / red) */
   --white:   #FBFEF9;
   --ink:     #0D1B1E;
   --purple:  #E2403E;   /* name kept for back-compat; now the red accent */
