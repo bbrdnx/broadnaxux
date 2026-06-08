@@ -289,9 +289,13 @@ interface CaseStudyRow {
   role: string | null;
   outcome_metric: string | null;
   hero_image_key: string | null;
-  hero_fit: string | null; // 'cover' (default) | 'contain'
+  hero_fit: string | null; // 'cover' (default) | 'contain' | 'frame'
   hero_pos_x: number | null; // object-position X %, 0-100 (default 50)
   hero_pos_y: number | null; // object-position Y %, 0-100 (default 50)
+  hero_image_key_2: string | null; // optional secondary ("mobile") image
+  hero_fit_2: string | null; // same values as hero_fit
+  hero_pos_x_2: number | null; // object-position X %, 0-100 (default 50)
+  hero_pos_y_2: number | null; // object-position Y %, 0-100 (default 50)
   body_html: string;
   status: string;
   sort_order: number;
@@ -306,7 +310,7 @@ interface CaseStudyRow {
 async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
-            hero_pos_x, hero_pos_y, body_html,
+            hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -318,7 +322,7 @@ async function listCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 async function getCaseStudy(env: Env, id: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
-            hero_pos_x, hero_pos_y, body_html,
+            hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id = ?`
@@ -660,6 +664,14 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
   const heroPosX = clampPct(row?.hero_pos_x);
   const heroPosY = clampPct(row?.hero_pos_y);
 
+  // Secondary ("mobile") image — same treatment as the primary one.
+  const heroKey2 = row?.hero_image_key_2 ?? '';
+  const heroPreview2 = heroKey2 ? (/^(https?:|\/)/.test(heroKey2) ? heroKey2 : publicUploadUrl(heroKey2)) : '';
+  const heroFit2 = row?.hero_fit_2 === 'contain' ? 'contain' : row?.hero_fit_2 === 'frame' ? 'frame' : 'cover';
+  const heroPreviewFit2 = heroFit2 === 'cover' ? 'cover' : 'contain';
+  const heroPosX2 = clampPct(row?.hero_pos_x_2);
+  const heroPosY2 = clampPct(row?.hero_pos_y_2);
+
   // Load versions (existing case studies only). Returns [] if migration 0006
   // hasn't been applied yet, so the versions section just shows empty.
   const versions: CaseStudyVersionRow[] = isNew ? [] : await listCaseStudyVersions(env, id!);
@@ -742,7 +754,7 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
       </div>
 
       <div class="field">
-        <label for="hero_image_key">Hero image</label>
+        <label for="hero_image_key">Hero image (desktop)</label>
         <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
           <span id="heroPreview" style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:78px;background:#FBFEF9;border-radius:6px;overflow:hidden;border:1px solid #244549;flex-shrink:0;">
             ${heroPreview ? `<img src="${attrEscape(heroPreview)}" alt="" style="width:100%;height:100%;object-fit:${heroPreviewFit};object-position:${heroPosX}% ${heroPosY}%;">` : '<span class="small" style="color:#6A7678;">none</span>'}
@@ -750,8 +762,9 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
           <div style="flex:1; min-width:240px;">
             <input type="file" id="heroFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">
             <button type="button" class="btn secondary" id="heroUploadBtn">Upload hero image</button>
+            <button type="button" class="btn secondary" id="heroRemoveBtn" style="margin-left:0.4rem;">Remove</button>
             <input id="hero_image_key" name="hero_image_key" type="text" value="${attrEscape(row?.hero_image_key ?? '')}" placeholder="R2 key or URL" style="margin-top:0.5rem;">
-            <div id="heroStatus" class="hint" style="margin-top:0.4rem;">This is the image shown on the homepage work card for this case study. Uploading fills the field automatically.</div>
+            <div id="heroStatus" class="hint" style="margin-top:0.4rem;">The primary (desktop) image. Shown on the homepage work card and at the top of the case-study page. Uploading fills the field automatically.</div>
             <label for="hero_fit" style="display:block;margin-top:0.7rem;">Image fit</label>
             <select id="hero_fit" name="hero_fit" style="margin-top:0.3rem;">
               <option value="cover"${heroFit === 'cover' ? ' selected' : ''}>Fill frame (crop to 16:10)</option>
@@ -806,10 +819,115 @@ async function editCaseStudyPage(env: Env, id: string | null, url: URL): Promise
             applyToImg(preview.querySelector('img'));
             if (posWrap) posWrap.style.opacity = currentFit() !== 'cover' ? '0.45' : '';
           });
+          var removeBtn = document.getElementById('heroRemoveBtn');
           btn.addEventListener('click', function(){ input.click(); });
+          if (removeBtn) removeBtn.addEventListener('click', function(){
+            keyField.value = '';
+            preview.innerHTML = '<span class="small" style="color:#6A7678;">none</span>';
+            if (status) status.textContent = 'Image removed. Save to apply.';
+          });
           keyField.addEventListener('change', function(){
             var v = keyField.value.trim();
-            if (!v) return;
+            if (!v) { preview.innerHTML = '<span class="small" style="color:#6A7678;">none</span>'; return; }
+            setPreview(/^(https?:|\\/)/.test(v) ? v : 'https://barbarabroadnax.com/uploads/' + v);
+          });
+          input.addEventListener('change', async function(){
+            var f = input.files && input.files[0];
+            if (!f) return;
+            status.textContent = 'Uploading ' + f.name + '…';
+            try {
+              var fd = new FormData();
+              fd.append('file', f);
+              var r = await fetch('/api/uploads', { method: 'POST', body: fd, credentials: 'same-origin' });
+              if (!r.ok) { var j = await r.json().catch(function(){return {};}); throw new Error(j.error || ('upload failed: ' + r.status)); }
+              var j = await r.json();
+              keyField.value = j.key;
+              setPreview('https://barbarabroadnax.com/uploads/' + j.key);
+              status.textContent = 'Uploaded. Save to apply.';
+            } catch (ex) {
+              status.textContent = 'Upload failed: ' + (ex.message || ex);
+            } finally { input.value = ''; }
+          });
+        })();
+      </script>
+
+      <div class="field">
+        <label for="hero_image_key_2">Secondary image (mobile)</label>
+        <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
+          <span id="hero2Preview" style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:78px;background:#FBFEF9;border-radius:6px;overflow:hidden;border:1px solid #244549;flex-shrink:0;">
+            ${heroPreview2 ? `<img src="${attrEscape(heroPreview2)}" alt="" style="width:100%;height:100%;object-fit:${heroPreviewFit2};object-position:${heroPosX2}% ${heroPosY2}%;">` : '<span class="small" style="color:#6A7678;">none</span>'}
+          </span>
+          <div style="flex:1; min-width:240px;">
+            <input type="file" id="hero2File" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">
+            <button type="button" class="btn secondary" id="hero2UploadBtn">Upload secondary image</button>
+            <button type="button" class="btn secondary" id="hero2RemoveBtn" style="margin-left:0.4rem;">Remove</button>
+            <input id="hero_image_key_2" name="hero_image_key_2" type="text" value="${attrEscape(row?.hero_image_key_2 ?? '')}" placeholder="R2 key or URL" style="margin-top:0.5rem;">
+            <div id="hero2Status" class="hint" style="margin-top:0.4rem;">Optional. The mobile companion image. When both images are set, this one floats over the desktop image (as a phone-shaped panel) with a parallax on scroll. If only one of the two images is set, that image just fills the frame on its own. Leave blank to show only the desktop image.</div>
+            <label for="hero_fit_2" style="display:block;margin-top:0.7rem;">Image fit</label>
+            <select id="hero_fit_2" name="hero_fit_2" style="margin-top:0.3rem;">
+              <option value="cover"${heroFit2 === 'cover' ? ' selected' : ''}>Fill frame (crop)</option>
+              <option value="frame"${heroFit2 === 'frame' ? ' selected' : ''}>Fit frame to image (no crop, keeps zoom)</option>
+              <option value="contain"${heroFit2 === 'contain' ? ' selected' : ''}>Fit image (letterbox, no zoom)</option>
+            </select>
+            <div class="hint" style="margin-top:0.4rem;">Same options as the desktop image. When this image floats as the phone panel, "Fill" crops it to the panel, "Fit image" shows the whole shot letterboxed.</div>
+            <div id="hero2PosWrap" style="margin-top:0.8rem;${heroFit2 !== 'cover' ? 'opacity:0.45;' : ''}">
+              <label style="display:block;">Image position <span class="small" style="color:#8B9698;">(only affects "Fill")</span></label>
+              <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.3rem;">
+                <span class="small" style="width:5.5rem;color:#8B9698;">Horizontal</span>
+                <input id="hero_pos_x_2" name="hero_pos_x_2" type="range" min="0" max="100" step="1" value="${heroPosX2}" style="flex:1;">
+                <span id="hero_pos_x_2_val" class="small" style="width:3rem;text-align:right;color:#8B9698;">${heroPosX2}%</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.3rem;">
+                <span class="small" style="width:5.5rem;color:#8B9698;">Vertical</span>
+                <input id="hero_pos_y_2" name="hero_pos_y_2" type="range" min="0" max="100" step="1" value="${heroPosY2}" style="flex:1;">
+                <span id="hero_pos_y_2_val" class="small" style="width:3rem;text-align:right;color:#8B9698;">${heroPosY2}%</span>
+              </div>
+              <div class="hint" style="margin-top:0.3rem;">0% horizontal = left edge, 100% = right edge. 0% vertical = top, 100% = bottom. 50/50 is centered. The preview updates as you drag.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function(){
+          var btn = document.getElementById('hero2UploadBtn');
+          var input = document.getElementById('hero2File');
+          var status = document.getElementById('hero2Status');
+          var keyField = document.getElementById('hero_image_key_2');
+          var preview = document.getElementById('hero2Preview');
+          var removeBtn = document.getElementById('hero2RemoveBtn');
+          var fitSel = document.getElementById('hero_fit_2');
+          var posX = document.getElementById('hero_pos_x_2');
+          var posY = document.getElementById('hero_pos_y_2');
+          var posXVal = document.getElementById('hero_pos_x_2_val');
+          var posYVal = document.getElementById('hero_pos_y_2_val');
+          var posWrap = document.getElementById('hero2PosWrap');
+          function currentFit(){ return fitSel ? fitSel.value : 'cover'; }
+          function previewFit(){ return currentFit() === 'cover' ? 'cover' : 'contain'; }
+          function currentPos(){ return (posX ? posX.value : 50) + '% ' + (posY ? posY.value : 50) + '%'; }
+          function applyToImg(img){ if (!img) return; img.style.objectFit = previewFit(); img.style.objectPosition = currentPos(); }
+          function setPreview(url){ preview.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:' + previewFit() + ';object-position:' + currentPos() + ';">'; }
+          function clearPreview(){ preview.innerHTML = '<span class="small" style="color:#6A7678;">none</span>'; }
+          function onPos(){
+            if (posXVal && posX) posXVal.textContent = posX.value + '%';
+            if (posYVal && posY) posYVal.textContent = posY.value + '%';
+            applyToImg(preview.querySelector('img'));
+          }
+          if (posX) posX.addEventListener('input', onPos);
+          if (posY) posY.addEventListener('input', onPos);
+          if (fitSel) fitSel.addEventListener('change', function(){
+            applyToImg(preview.querySelector('img'));
+            if (posWrap) posWrap.style.opacity = currentFit() !== 'cover' ? '0.45' : '';
+          });
+          btn.addEventListener('click', function(){ input.click(); });
+          if (removeBtn) removeBtn.addEventListener('click', function(){
+            keyField.value = '';
+            clearPreview();
+            if (status) status.textContent = 'Image removed. Save to apply.';
+          });
+          keyField.addEventListener('change', function(){
+            var v = keyField.value.trim();
+            if (!v) { clearPreview(); return; }
             setPreview(/^(https?:|\\/)/.test(v) ? v : 'https://barbarabroadnax.com/uploads/' + v);
           });
           input.addEventListener('change', async function(){
@@ -996,6 +1114,11 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   };
   const hero_pos_x = clampPos(form.get('hero_pos_x'));
   const hero_pos_y = clampPos(form.get('hero_pos_y'));
+  const hero_image_key_2 = String(form.get('hero_image_key_2') ?? '');
+  const rawFit2 = String(form.get('hero_fit_2') ?? 'cover');
+  const hero_fit_2 = rawFit2 === 'contain' ? 'contain' : rawFit2 === 'frame' ? 'frame' : 'cover';
+  const hero_pos_x_2 = clampPos(form.get('hero_pos_x_2'));
+  const hero_pos_y_2 = clampPos(form.get('hero_pos_y_2'));
   const body_html = String(form.get('body_html') ?? '');
   let meta_items_str = String(form.get('meta_items') ?? '[]');
   try { JSON.parse(meta_items_str); } catch { meta_items_str = '[]'; }
@@ -1013,11 +1136,11 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
       await env.DB.prepare(
         `INSERT INTO case_studies
            (id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
-            hero_pos_x, hero_pos_y, body_html,
+            hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
       ).bind(id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
-              hero_pos_x, hero_pos_y, body_html,
+              hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
               status, nextOrder, subtitle, about_html, meta_items_str).run();
     } catch (e: any) {
       return redirectWithToast(url, '/case-studies/new', 'error', `Create failed: ${e.message ?? e}`);
@@ -1028,12 +1151,16 @@ async function saveCaseStudy(request: Request, env: Env, idOrNull: string | null
   await env.DB.prepare(
     `UPDATE case_studies SET
        title = ?, company = ?, company_id = ?, role = ?, outcome_metric = ?, hero_image_key = ?,
-       hero_fit = ?, hero_pos_x = ?, hero_pos_y = ?, body_html = ?, status = ?, subtitle = ?,
+       hero_fit = ?, hero_pos_x = ?, hero_pos_y = ?,
+       hero_image_key_2 = ?, hero_fit_2 = ?, hero_pos_x_2 = ?, hero_pos_y_2 = ?,
+       body_html = ?, status = ?, subtitle = ?,
        about_html = ?, meta_items = ?,
        updated_at = unixepoch()
      WHERE id = ?`
   ).bind(title, company, company_id, role, outcome_metric, hero_image_key,
-          hero_fit, hero_pos_x, hero_pos_y, body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
+          hero_fit, hero_pos_x, hero_pos_y,
+          hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2,
+          body_html, status, subtitle, about_html, meta_items_str, idOrNull).run();
   return redirectWithToast(url, `/case-studies/${idOrNull}`, 'success', 'Saved.');
 }
 

@@ -85,6 +85,22 @@ How each page gets it:
 
 The earlier `footerHtml()` helper (a minimal Email-button + LinkedIn footer), the per-page hardcoded `<footer>` markup on the static pages and share landing, and the homepage's old `.contact` / `.contact-links` / `.foot` CSS have all been removed. Do not reintroduce them.
 
+## Hero images — primary (desktop) + secondary (mobile) (June 2026)
+Each case study can carry up to two hero images, stored on `case_studies`:
+- Primary: `hero_image_key` + `hero_fit` (`cover` | `frame` | `contain`) + `hero_pos_x` / `hero_pos_y` (object-position %, default 50/50). This is the desktop shot.
+- Secondary: `hero_image_key_2` + `hero_fit_2` + `hero_pos_x_2` / `hero_pos_y_2` (migration `0011_hero_secondary.sql`). This is the optional mobile shot. `hero_image_key_2` is nullable (NULL = unset); the fit/pos columns default to the same neutral values as the primary, so existing studies are unchanged.
+
+Admin (case-study editor) exposes both as direct uploaders with thumbnail previews, a fit dropdown, and X/Y position sliders, plus a **Remove** button on each (Remove just clears the key field; save to apply). Either, both, or neither image can be set.
+
+Rendering rules (both the homepage cinematic rows and the case-study page hero), implemented identically in `cineRow` and `caseStudyTemplate`:
+- **Both set**: the desktop image fills the 16:10 frame; the mobile image floats over the frame as a phone-shaped panel (`.cine-phone` / `.case-hero-phone`, aspect 9/19) with its own faster parallax (`--py2`), Dropbox-style. On the homepage the panel sits on the **inner** edge (the side nearest the copy, driven by `data-side`), and the company logo chip relocates to the **top outer** corner so the two never collide; on mobile the panel keeps its inner-side placement. On the case-study page the panel sits bottom-right (no logo chip there).
+- **Only one set**: that image fills the frame using its own fit/position. No overlay, no parallax.
+- **Neither**: no image, exactly as before.
+
+Parallax: the base frame moves via `--py` (homepage script sets it on `.cine-media`; case-study script on `.case-hero-media`), and the phone panel gets a larger `--py2` so it drifts up a touch faster. All motion is disabled under `prefers-reduced-motion`. The case-study page got its own small parallax IIFE (it had none before).
+
+The new hero block on the case-study page lives inside `.case-hero`, immediately after `.case-meta`. Versions (`?v=`) do NOT override hero imagery, only subtitle/about/body/meta, so the canonical row's images always render.
+
 ## Architecture (Worker is the source of truth)
 The live site is rendered by the Cloudflare Worker at `cloudflare/workers/public/src/index.ts`, which builds the homepage, case-study pages, and share-link pages from D1, and serves `barbarabroadnax.com` / `www.barbarabroadnax.com`. The Worker's `homepageTemplate` now renders the cinematic homepage from D1 (ported June 2026); it and the static `index.html` carry the same design, but the Worker version is what ships. The static `index.html` (`vercel.json` rewrites `/` to `/index.html`) is a Vercel-era leftover kept only for local design review.
 

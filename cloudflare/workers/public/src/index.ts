@@ -138,6 +138,10 @@ interface CaseStudyRow {
   hero_fit: string | null; // 'cover' (default, crop-to-fill) | 'contain' (show whole image)
   hero_pos_x: number | null; // object-position X %, 0-100 (default 50 = center)
   hero_pos_y: number | null; // object-position Y %, 0-100 (default 50 = center)
+  hero_image_key_2: string | null; // optional secondary ("mobile") image
+  hero_fit_2: string | null; // same values as hero_fit
+  hero_pos_x_2: number | null; // object-position X %, 0-100 (default 50)
+  hero_pos_y_2: number | null; // object-position Y %, 0-100 (default 50)
   body_html: string;
   status: string;
   sort_order: number;
@@ -204,7 +208,7 @@ function resolveCompany(cs: CaseStudyRow, lookup: CompanyLookup): ResolvedCompan
 async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   const { results } = await env.DB.prepare(
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
-            hero_pos_x, hero_pos_y, body_html,
+            hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -217,7 +221,7 @@ async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
 async function loadCaseStudyBySlug(env: Env, slug: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
-            hero_pos_x, hero_pos_y, body_html,
+            hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies
@@ -498,20 +502,37 @@ function cineRow(cs: CaseStudyRow, index: number, company: ResolvedCompany | nul
     lbl: cs.outcome_metric ?? '',
     alt: cs.title,
   };
-  const imgUrl = cs.hero_image_key ? `/uploads/${attrEscape(cs.hero_image_key)}` : '';
   // Focal point for the cover crop: clamp to 0-100, default 50 (center).
   const clampPos = (n: number | null | undefined) =>
     Math.max(0, Math.min(100, Math.round(typeof n === 'number' ? n : 50)));
-  const posX = clampPos(cs.hero_pos_x);
-  const posY = clampPos(cs.hero_pos_y);
-  const posStyle = (posX !== 50 || posY !== 50) ? ` style="object-position:${posX}% ${posY}%"` : '';
-  const imgEl = imgUrl
-    ? `<img src="${imgUrl}" alt="${attrEscape(copy.alt)}" loading="${index < 2 ? 'eager' : 'lazy'}"${posStyle}>`
-    : '';
   // 'contain' letterboxes the whole image; 'frame' makes the frame take the
   // image's own ratio (no crop, no letterbox); default 'cover' crops to fill.
-  const frameFitClass = cs.hero_fit === 'contain' ? ' fit-contain'
-    : cs.hero_fit === 'frame' ? ' fit-frame' : '';
+  const fitClass = (fit: string | null) => fit === 'contain' ? ' fit-contain'
+    : fit === 'frame' ? ' fit-frame' : '';
+  const posStyle = (x: number, y: number) =>
+    (x !== 50 || y !== 50) ? ` style="object-position:${x}% ${y}%"` : '';
+
+  const url1 = cs.hero_image_key ? `/uploads/${attrEscape(cs.hero_image_key)}` : '';
+  const url2 = cs.hero_image_key_2 ? `/uploads/${attrEscape(cs.hero_image_key_2)}` : '';
+  const both = !!url1 && !!url2;
+
+  // The frame shows the desktop image; if only the mobile image exists it fills
+  // the frame instead (using its own fit/position). The phone overlay only
+  // appears when BOTH images are set.
+  const baseUrl = url1 || url2;
+  const baseFromPrimary = !!url1;
+  const baseFit = baseFromPrimary ? cs.hero_fit : cs.hero_fit_2;
+  const basePosX = clampPos(baseFromPrimary ? cs.hero_pos_x : cs.hero_pos_x_2);
+  const basePosY = clampPos(baseFromPrimary ? cs.hero_pos_y : cs.hero_pos_y_2);
+  const imgEl = baseUrl
+    ? `<img src="${baseUrl}" alt="${attrEscape(copy.alt)}" loading="${index < 2 ? 'eager' : 'lazy'}"${posStyle(basePosX, basePosY)}>`
+    : '';
+  const frameFitClass = fitClass(baseFit);
+
+  const phoneEl = both
+    ? `<div class="cine-phone${fitClass(cs.hero_fit_2)}"><img src="${url2}" alt="${attrEscape(copy.alt)} (mobile)" loading="lazy"${posStyle(clampPos(cs.hero_pos_x_2), clampPos(cs.hero_pos_y_2))}></div>`
+    : '';
+  const mediaClass = both ? ' has-phone' : '';
   const summaryHtml = copy.summary ? `<p class="cine-sum">${htmlEscape(copy.summary)}</p>` : '';
   const tagsHtml = copy.tags.length
     ? `<div class="cine-tags">${copy.tags.map((t) => `<span class="cine-tag">${htmlEscape(t)}</span>`).join('')}</div>`
@@ -520,8 +541,9 @@ function cineRow(cs: CaseStudyRow, index: number, company: ResolvedCompany | nul
     ? `<div class="cine-outcome">${copy.stat ? `<span class="stat">${htmlEscape(copy.stat)}</span>` : ''}${copy.lbl ? `<span class="lbl">${htmlEscape(copy.lbl)}</span>` : ''}</div>`
     : '';
   return `        <a href="/work/${attrEscape(cs.id)}" class="cine" data-side="${side}">
-          <div class="cine-media">
+          <div class="cine-media${mediaClass}">
             <div class="cine-frame${frameFitClass}">${imgEl}</div>
+            ${phoneEl}
             ${cineLogoChip(company, cs.company)}
           </div>
           <div class="cine-copy">
@@ -609,11 +631,25 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
   const navItems = all.map((x) => ({ id: x.id, title: x.title, company: x.company }));
   const company = resolveCompany(cs, buildCompanyLookup(companies));
 
+  // Hero images come from the canonical row (versions don't override imagery).
+  const clampPos = (n: number | null | undefined) =>
+    Math.max(0, Math.min(100, Math.round(typeof n === 'number' ? n : 50)));
+  const normFit = (f: string | null) => f === 'contain' ? 'contain' : f === 'frame' ? 'frame' : 'cover';
+
   const html = caseStudyTemplate({
     title: cs.title,
     company: cs.company,
     companyLogoUrl: company?.logoUrl ?? '',
     companyBrand: company?.brand ?? '',
+    heroUrl: cs.hero_image_key ? `/uploads/${cs.hero_image_key}` : '',
+    heroFit: normFit(cs.hero_fit),
+    heroPosX: clampPos(cs.hero_pos_x),
+    heroPosY: clampPos(cs.hero_pos_y),
+    hero2Url: cs.hero_image_key_2 ? `/uploads/${cs.hero_image_key_2}` : '',
+    hero2Fit: normFit(cs.hero_fit_2),
+    hero2PosX: clampPos(cs.hero_pos_x_2),
+    hero2PosY: clampPos(cs.hero_pos_y_2),
+    heroAlt: cs.title,
     subtitle,
     about_html,
     meta,
@@ -1310,6 +1346,51 @@ img { display: block; max-width: 100%; }
 .cine-logo.has-logo .mark,
 .cine-logo.has-logo .wm { display: none; }
 
+/* Secondary "mobile" image: a floating phone-shaped panel overlapping the
+   inner edge of the desktop frame (the side nearest the copy). It carries its
+   own faster parallax via --py2 (set by the parallax script), so on scroll it
+   drifts up a touch quicker than the frame behind it. */
+.cine-phone {
+  position: absolute; z-index: 4;
+  bottom: 6%;
+  width: clamp(86px, 23%, 188px);
+  aspect-ratio: 9 / 19;
+  border-radius: clamp(12px, 1.4vw, 20px);
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  box-shadow: 0 22px 48px -14px rgba(13,27,30,0.5), 0 4px 12px rgba(13,27,30,0.18);
+  transform: translateY(var(--py2, 0));
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 0.7s var(--ease) 0.35s;
+}
+.cine.in .cine-phone { opacity: 1; }
+.cine-phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cine-phone.fit-contain img,
+.cine-phone.fit-frame img { object-fit: contain; }
+/* Inner edge = the side nearest the copy block. */
+.cine[data-side="left"]  .cine-phone { right: clamp(-26px, -3%, -8px); }
+.cine[data-side="right"] .cine-phone { left:  clamp(-26px, -3%, -8px); }
+
+/* When a phone overlay is present, move the logo chip to the TOP corner on the
+   outer (page-margin) side so it never collides with the phone. It also gets a
+   horizontal parallax (--lx, set by the script) so it slides in from the outer
+   edge as the row scrolls; only opacity is transitioned so the slide tracks the
+   scroll instantly rather than lagging. */
+.cine-media.has-phone .cine-logo {
+  top: clamp(-14px, -0.8vw, -8px); bottom: auto;
+  --lx: 0px;
+  transform: translateX(var(--lx, 0));
+  transition: opacity 0.6s var(--ease);
+  transition-delay: 0.3s;
+  will-change: transform, opacity;
+}
+.cine.in .cine-media.has-phone .cine-logo { transform: translateX(var(--lx, 0)); }
+.cine:hover .cine-media.has-phone .cine-logo { transform: translateX(var(--lx, 0)) translateY(-3px); }
+.cine[data-side="left"]  .cine-media.has-phone .cine-logo { left:  clamp(-14px, -0.8vw, -8px); right: auto; }
+.cine[data-side="right"] .cine-media.has-phone .cine-logo { right: clamp(-14px, -0.8vw, -8px); left:  auto; }
+
 .cine-copy { max-width: 30rem; }
 .cine-copy > * {
   opacity: 0; transform: translateY(14px);
@@ -1474,6 +1555,15 @@ img { display: block; max-width: 100%; }
   .cine-logo .wm { font-size: 13px; }
   .cine-logo .logo-img { height: 24px; max-width: 104px; }
 
+  /* Phone overlay keeps its inner-side placement on mobile, a touch larger so
+     it stays legible in the single-column layout. */
+  .cine-phone { width: clamp(78px, 30%, 150px); bottom: 5%; }
+  .cine[data-side="left"]  .cine-phone { right: -3%; }
+  .cine[data-side="right"] .cine-phone { left:  -3%; }
+  .cine-media.has-phone .cine-logo { top: 8px; bottom: auto; }
+  .cine[data-side="left"]  .cine-media.has-phone .cine-logo { left: 8px; right: auto; }
+  .cine[data-side="right"] .cine-media.has-phone .cine-logo { right: 8px; left: auto; }
+
   main {
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 1rem);
   }
@@ -1488,6 +1578,7 @@ img { display: block; max-width: 100%; }
   .cine-media { transform: none !important; }
   .cine-frame img { transform: none !important; }
   .cine-frame::after { transform: scaleY(0) !important; }
+  .cine-phone { transform: none !important; opacity: 1 !important; transition: none !important; }
   .cine-logo,
   .cine-copy > * { opacity: 1 !important; transform: none !important; transition: none !important; }
 }
@@ -1666,6 +1757,22 @@ ${siteFooterMarkup({ email, linkedin, workHref: '#work', contactHref: '/contact.
         if (r.bottom < -80 || r.top > vh + 80) return;
         var off = ((r.top + r.height / 2) - vh / 2) / vh;
         f.style.setProperty('--py', (off * -20).toFixed(1) + 'px');
+        // The phone overlay travels the OPPOSITE way to the frame (Dropbox-
+        // style counter-parallax): scroll down and it drifts up. It sits inside
+        // .cine-media (which moves off*-20), so a positive multiplier here makes
+        // its net movement (off*48 - off*20 = off*28) reverse the frame.
+        var ph = f.querySelector('.cine-phone');
+        if (ph) ph.style.setProperty('--py2', (off * 48).toFixed(1) + 'px');
+        // Logo chip slides in horizontally from the outer (margin) edge: left
+        // for a left-side row, right for a right-side row.
+        if (f.classList.contains('has-phone')) {
+          var lg = f.querySelector('.cine-logo');
+          if (lg) {
+            var a = f.closest('.cine');
+            var sideSign = (a && a.getAttribute('data-side') === 'right') ? 1 : -1;
+            lg.style.setProperty('--lx', (sideSign * off * 40).toFixed(1) + 'px');
+          }
+        }
       });
       ticking = false;
     }
@@ -1691,6 +1798,15 @@ interface CaseData {
   company: string;
   companyLogoUrl: string;
   companyBrand: string;
+  heroUrl: string;
+  heroFit: string;
+  heroPosX: number;
+  heroPosY: number;
+  hero2Url: string;
+  hero2Fit: string;
+  hero2PosX: number;
+  hero2PosY: number;
+  heroAlt: string;
   subtitle: string;
   about_html: string;
   meta: MetaItem[];
@@ -1735,6 +1851,23 @@ function caseStudyTemplate(d: CaseData): string {
 
   const titleEsc = htmlEscape(`${d.title} — ${d.company} | Barbara Broadnax`);
 
+  // Hero media: desktop image fills the frame; if only the mobile image exists
+  // it fills the frame instead (using its own fit/position). The floating phone
+  // overlay only renders when BOTH images are set.
+  const heroFitClass = (f: string) => f === 'contain' ? ' fit-contain' : f === 'frame' ? ' fit-frame' : '';
+  const heroPosStyle = (x: number, y: number) => (x !== 50 || y !== 50) ? ` style="object-position:${x}% ${y}%"` : '';
+  const heroBoth = !!d.heroUrl && !!d.hero2Url;
+  const heroBaseFromPrimary = !!d.heroUrl;
+  const heroBaseUrl = d.heroUrl || d.hero2Url;
+  const heroBaseFit = heroBaseFromPrimary ? d.heroFit : d.hero2Fit;
+  const heroBasePosX = heroBaseFromPrimary ? d.heroPosX : d.hero2PosX;
+  const heroBasePosY = heroBaseFromPrimary ? d.heroPosY : d.hero2PosY;
+  const heroMediaHtml = heroBaseUrl ? `      <div class="case-hero-media">
+        <div class="case-hero-frame${heroFitClass(heroBaseFit)}"><img src="${attrEscape(heroBaseUrl)}" alt="${attrEscape(d.heroAlt)}"${heroPosStyle(heroBasePosX, heroBasePosY)}></div>
+        ${heroBoth ? `<div class="case-hero-phone${heroFitClass(d.hero2Fit)}"><img src="${attrEscape(d.hero2Url)}" alt="${attrEscape(d.heroAlt)} (mobile)"${heroPosStyle(d.hero2PosX, d.hero2PosY)}></div>` : ''}
+      </div>
+` : '';
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1764,6 +1897,20 @@ function caseStudyTemplate(d: CaseData): string {
     .case-company .label{margin:0;}
     .case-company-logo{display:inline-flex;align-items:center;justify-content:center;width:102px;height:102px;}
     .case-company-logo img{width:100%;height:100%;object-fit:contain;display:block;}
+    /* Hero image block: desktop shot in the frame, optional mobile shot floating
+       over the inner edge with a faster parallax (--py2). Mirrors the homepage
+       cinematic-row treatment. */
+    .case-hero-media{position:relative;margin-top:2.5rem;transform:translateY(var(--py,0));will-change:transform;}
+    .case-hero-frame{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--rule);box-shadow:0 26px 64px -22px rgba(13,27,30,0.35);aspect-ratio:16/10;background:var(--bg);}
+    .case-hero-frame img{width:100%;height:100%;object-fit:cover;display:block;}
+    .case-hero-frame.fit-contain img{object-fit:contain;}
+    .case-hero-frame.fit-frame{aspect-ratio:auto;}
+    .case-hero-frame.fit-frame img{height:auto;}
+    .case-hero-phone{position:absolute;z-index:3;bottom:6%;right:clamp(-28px,-3%,-10px);width:clamp(92px,21%,206px);aspect-ratio:9/19;border-radius:clamp(14px,1.4vw,22px);overflow:hidden;background:var(--bg);border:1px solid var(--rule);box-shadow:0 24px 52px -14px rgba(13,27,30,0.5),0 4px 12px rgba(13,27,30,0.18);transform:translateY(var(--py2,0));will-change:transform;}
+    .case-hero-phone img{width:100%;height:100%;object-fit:cover;display:block;}
+    .case-hero-phone.fit-contain img,.case-hero-phone.fit-frame img{object-fit:contain;}
+    @media (max-width:768px){.case-hero-phone{width:clamp(82px,30%,150px);right:-4%;}}
+    @media (prefers-reduced-motion:reduce){.case-hero-media,.case-hero-phone{transform:none !important;}}
   </style>
 </head>
 <body>
@@ -1779,7 +1926,7 @@ ${siteHeaderMarkup({ tickerLabel: d.tickerLabel, tickerPhrases: d.tickerPhrases,
 ${subtitleBlock}${aboutBlock}      <div class="case-meta animate-in delay-3">
 ${metaHtml}
       </div>
-    </div>
+${heroMediaHtml}    </div>
   </section>
 
   ${d.body_html}
@@ -1799,6 +1946,25 @@ ${siteFooterScript(d.footerEmail)}
         setTimeout(function(){btn.innerHTML=orig;btn.classList.remove('copied');},2000);
       });
     };
+  })();
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var media = document.querySelector('.case-hero-media');
+    if (!media) return;
+    var phone = media.querySelector('.case-hero-phone');
+    var ticking = false;
+    function px(){
+      var vh = window.innerHeight;
+      var r = media.getBoundingClientRect();
+      var off = ((r.top + r.height / 2) - vh / 2) / vh;
+      media.style.setProperty('--py', (off * -16).toFixed(1) + 'px');
+      // Phone travels opposite to the frame: net off*44 - off*16 = off*28.
+      if (phone) phone.style.setProperty('--py2', (off * 44).toFixed(1) + 'px');
+      ticking = false;
+    }
+    window.addEventListener('scroll', function(){ if (!ticking) { requestAnimationFrame(px); ticking = true; } }, { passive: true });
+    window.addEventListener('resize', px, { passive: true });
+    px();
   })();
   </script>
 </body>
@@ -1960,7 +2126,7 @@ async function loadCaseStudiesByIds(env: Env, ids: string[]): Promise<CaseStudyR
   const placeholders = safe.map(() => '?').join(',');
   const { results } = await env.DB.prepare(
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
-            hero_pos_x, hero_pos_y, body_html,
+            hero_pos_x, hero_pos_y, hero_image_key_2, hero_fit_2, hero_pos_x_2, hero_pos_y_2, body_html,
             status, sort_order, subtitle, about_html, meta_items,
             meta_role, meta_team, meta_rating
        FROM case_studies WHERE id IN (${placeholders})`
