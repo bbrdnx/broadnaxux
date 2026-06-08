@@ -40,9 +40,18 @@ const LEGACY_HTML_REDIRECTS = new Set([
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 
 // Static HTML pages whose markup is served as-is BUT that should receive the
-// shared site header, injected by the Worker at their <div id="site-header">
-// placeholder. List a path here and the page gets the canonical header for free.
-const STATIC_HEADER_PAGES = new Set(['/resume.html', '/contact.html']);
+// shared site header + footer, injected by the Worker at their
+// <div id="site-header"> / <div id="site-footer"> placeholders. List a path
+// here and the page gets the canonical header/footer for free.
+//
+// NOTE: these are the CLEAN paths (no .html), because Cloudflare's static-asset
+// layer strips the .html extension (it 301s /resume.html -> /resume). Keying on
+// the clean path means: a direct /resume request matches here and is injected,
+// and a /resume.html request falls through, the asset layer 301s it to /resume,
+// and the follow-up request is injected. Keying on /resume.html instead would
+// break injection: env.ASSETS.fetch('/resume.html') returns the 301, not the
+// HTML, so serveStaticWithHeader would bail and serve the page un-injected.
+const STATIC_HEADER_PAGES = new Set(['/resume', '/contact']);
 
 // ─── entrypoint ──────────────────────────────────────────────────────────
 
