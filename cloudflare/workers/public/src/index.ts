@@ -603,35 +603,41 @@ function navHtml(tickerLabel: string, caseStudies: NavCaseItem[] = []): string {
       <span class="ticker-label">${htmlEscape(tickerLabel)}</span>
       <div class="ticker-track" id="ticker" aria-live="polite"></div>
     </div>
-    <ul class="nav-links">
-      <li class="nav-drop" id="caseDrop">
+    <div class="nav-links">
+      <div class="nav-drop" id="caseDrop">
         <button type="button" class="nav-drop-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="caseDropMenu">Case Studies <span class="caret" aria-hidden="true">&#9662;</span></button>
         <div class="nav-drop-menu" id="caseDropMenu" role="menu" aria-label="Case studies">
 ${caseDropItems(caseStudies)}
         </div>
-      </li>
-      <li><a href="/resume.html">Resume</a></li>
-      <li><a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener">LinkedIn</a></li>
-      <li><a href="/contact.html">Contact</a></li>
-    </ul>
+      </div>
+      <a href="/resume.html" class="nav-resume">Resume</a>
+      <a href="https://www.linkedin.com/in/barbarabroadnax" target="_blank" rel="noopener" class="nav-resume">LinkedIn</a>
+      <a href="/contact.html" class="nav-cta">Get in touch</a>
+    </div>
   </nav>`;
 }
 
 // Self-contained dropdown styles, parameterised so each page (homepage,
 // case-study page, share landing) can pass its own palette tokens.
 function navDropdownStyles(o: { accent: string; ink: string; muted: string; rule: string; bg: string }): string {
+  const ink2 = '#3D4550';
   return `
+    .nav-links{gap:18px;}
     .nav-drop{position:relative;list-style:none;display:inline-flex;align-items:center;}
-    .nav-drop-toggle{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:0.68rem;font-weight:600;line-height:1;letter-spacing:0.1em;text-transform:uppercase;color:${o.muted};background:transparent;border:0;padding:6px 0;cursor:pointer;white-space:nowrap;transition:color 0.2s;}
-    .nav-drop-toggle:hover{color:${o.accent};}
+    .nav-drop-toggle{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:13px;font-weight:500;line-height:1;letter-spacing:normal;text-transform:none;color:${ink2};background:transparent;border:0;padding:7px 2px;cursor:pointer;white-space:nowrap;transition:color 0.2s;}
+    .nav-drop-toggle:hover,.nav-drop[aria-expanded="true"] .nav-drop-toggle{color:${o.ink};}
     .nav-drop-toggle:focus-visible{outline:2px solid ${o.accent};outline-offset:3px;border-radius:2px;}
     .nav-drop-toggle .caret{display:inline-flex;align-items:center;font-size:14px;line-height:1;transition:transform 0.2s;}
     .nav-drop.open .nav-drop-toggle .caret{transform:rotate(180deg);}
+    .nav-links a.nav-resume{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;letter-spacing:normal;text-transform:none;color:${o.ink} !important;background:transparent;padding:7px 16px;border-radius:8px;border:1.5px solid rgba(5,51,74,0.25);white-space:nowrap;line-height:1;transition:border-color 0.2s;}
+    .nav-links a.nav-resume:hover{border-color:${o.ink};color:${o.ink} !important;}
+    .nav-links a.nav-cta{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;letter-spacing:normal;text-transform:none;color:#fff !important;background:${o.ink};padding:7px 16px;border-radius:8px;white-space:nowrap;line-height:1;transition:background 0.2s;}
+    .nav-links a.nav-cta:hover{background:${o.accent};color:#fff !important;}
     .nav-drop-menu{position:absolute;top:calc(100% + 12px);left:0;min-width:280px;padding:7px;background:${o.bg};border:1px solid ${o.rule};border-radius:8px;box-shadow:0 18px 50px rgba(5,51,74,0.16);opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity 0.2s,transform 0.2s;z-index:200;}
     .nav-drop.open .nav-drop-menu{opacity:1;transform:translateY(0);pointer-events:auto;}
     .nav-drop-menu a{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 12px;border-radius:4px;transition:background 0.15s;}
     .nav-drop-menu a:hover,.nav-drop-menu a:focus-visible{background:rgba(5,51,74,0.06);outline:none;}
-    .nav-drop-menu .dm-title{font-size:0.82rem;font-weight:600;color:${o.ink};white-space:nowrap;text-transform:none;letter-spacing:-0.01em;}
+    .nav-drop-menu .dm-title{font-size:13.5px;font-weight:500;color:${o.ink};white-space:nowrap;text-transform:none;letter-spacing:-0.01em;}
     .nav-drop-menu .dm-co{font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${o.muted};white-space:nowrap;flex-shrink:0;}
     @media (max-width:560px){.nav-drop-menu{left:auto;right:0;}}
   `;

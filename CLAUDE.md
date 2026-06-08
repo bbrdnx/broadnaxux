@@ -5,16 +5,15 @@
 - Keep copy concise and direct.
 - Descriptions on cards should be one sentence max, active voice.
 
-## Color Palette (Dark Theme — case study pages)
-- Background: #0b0b0f
-- Accent: #c084fc
-- Text muted: #8a8a9a
-
-## Color Palette (Light Theme — home page)
-- Background: #FBF8F1 (warm cream)
+## Color Palette (all public pages — light)
+Every public-facing page (home, case study, share landing) is on a white background. As of June 2026:
+- Page background AND card background: #FFFFFF (the earlier warm cream #FBF8F1 and the legacy dark theme are both retired)
 - Ink (headings/body): #05334A (navy)
-- Accent: #FF5B59 (red — replaces purple)
+- Accent: #FF5B59 (red — replaces the legacy purple)
 - Muted text: #8B7F6A
+- Hairline rule: rgba(5,51,74,0.1)
+
+Where the tokens live: the home page palette is in `homepageTemplate`'s `:root` (`--bg: #FFFFFF`). The case-study + share-landing palette is in `styles.css` `:root` (`--white`, `--bg`, `--bg-card`, `--bg-elevated` are all #FFFFFF) and the share-landing inline `:root` (`--white: #FFFFFF`). Cards stay legible on white via their existing `1px solid var(--rule)` borders (and a couple of soft box-shadows), not via a fill, so do not reintroduce a tinted `--bg-card`/`--bg-elevated`.
 
 ## Case Study Order (home page)
 1. Named Entity Recognition — IPRO
@@ -39,6 +38,10 @@ Logo chip rendering: when the company has an uploaded logo, `cineLogoChip` emits
 
 ## Navigation
 Top nav, right-justified: Case Studies dropdown, then Resume and LinkedIn as secondary outline buttons, then Get in touch as the primary filled button. No Work / Companies / Building links. The Case Studies dropdown lists every case study, each linking to its `/work/:slug` page, and is keyboard-accessible (Escape, click-outside, arrow keys). Mobile bottom bar: Case Studies, Resume, LinkedIn, Get in touch.
+
+The nav must read identically on every public page. The stacked BARBARA / BROADNAX brand mark is 13px (weight 700, letter-spacing 0.22em then 0.135em) everywhere; the case-study + share-landing brand text is set explicitly to 13px in `styles.css` `.site-name` and the share-landing inline `.site-name span` so it does not shrink to the old 0.6rem. The nav bar itself is 56px tall on all pages.
+
+Dropdown alignment (June 2026): the "Case Studies" toggle must sit on the same vertical centerline as the Resume / LinkedIn / Get in touch buttons. Achieved by making `.nav-drop` an `inline-flex; align-items: center` item (not a block, which let the toggle drift in its line box) and giving `.nav-drop-toggle` `line-height: 1`. The caret (▾) is 14px and centered with the label via `display: inline-flex; align-items: center` — do NOT restore the old 24px caret, whose oversized line box floated the arrow above the text. These rules live in both the homepage `homepageTemplate` CSS and the shared `navDropdownStyles` (case study + share landing).
 
 ## Architecture (Worker is the source of truth)
 The live site is rendered by the Cloudflare Worker at `cloudflare/workers/public/src/index.ts`, which builds the homepage, case-study pages, and share-link pages from D1, and serves `barbarabroadnax.com` / `www.barbarabroadnax.com`. The Worker's `homepageTemplate` now renders the cinematic homepage from D1 (ported June 2026); it and the static `index.html` carry the same design, but the Worker version is what ships. The static `index.html` (`vercel.json` rewrites `/` to `/index.html`) is a Vercel-era leftover kept only for local design review.
@@ -68,6 +71,8 @@ Making the hardcoded pieces admin-editable is future work (new `site_content` ke
 
 ## Companies and logos (Worker + admin)
 Companies are first-class entities (`companies` table: `id` slug, `name`, `logo_image_key`, `brand_color`, `sort_order`). Manage them in the admin Companies section: one logo (uploaded to PUBLIC_BUCKET, served at `/uploads/<key>`) and one brand color per company, reused everywhere. Case studies link via `case_studies.company_id` (set with the "Company logo" dropdown in the case-study editor); if it is blank the Worker falls back to matching `companies.name` against the free-text `company` field (`resolveCompany`, case-insensitive). The logo appears beside the company name in the case-study hero, on share-link landing cards, and as the cinematic logo chip over the bottom-right of each homepage row image. On the homepage chip specifically: an uploaded logo shows as the image; with no logo (or if the file 404s) it falls back to a brand-tinted monogram tile plus company wordmark, so there is always a chip. The case-study editor's Hero image field is a direct uploader with a thumbnail preview; that image is what shows on the homepage row.
+
+In the case-study hero specifically, the company logo renders large and unframed: `.case-company-logo` is 102px square with no background, border, or padding (June 2026 change from the old 34px tinted-tile treatment), and the `<img>` is `object-fit: contain`. These styles are inline in `caseStudyTemplate` in the Worker.
 
 ## Deploy
 Deploy from the terminal with Wrangler, not the Cloudflare dashboard. There are two Workers: the public site (`cloudflare/workers/public`) and the admin panel (`cloudflare/workers/admin`). From either directory, `npm run deploy` builds and pushes that Worker (the public one auto-runs `prepare-assets` first to copy the static files into the bundle). Preview locally with `npm run dev`. First-time auth: `npx wrangler login`.
