@@ -57,6 +57,12 @@ const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_UPLOAD_MIME = new Set([
   'image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml', 'video/mp4',
 ]);
+// Application materials (resume / cover letter). Stored in PRIVATE_BUCKET.
+const ALLOWED_DOC_MIME = new Set([
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  'application/msword', // .doc (legacy)
+]);
 
 // ─── entrypoint ──────────────────────────────────────────────────────────
 
@@ -81,6 +87,10 @@ export default {
       return Response.json({ ok: true, session: { created_at: session.created_at, expires_at: session.expires_at } });
     }
     if (path === '/api/uploads' && method === 'POST') return handleUpload(request, env);
+    // Application materials → PRIVATE_BUCKET (never public). Download is auth-gated.
+    if (path === '/api/app-docs' && method === 'POST') return handleDocUpload(request, env);
+    const docMatch = path.match(/^\/app-docs\/(.+)$/);
+    if (docMatch && method === 'GET') return serveAppDoc(env, decodeURIComponent(docMatch[1]));
 
     // HTML pages — case studies
     if (path === '/dashboard' && method === 'GET') return dashboardPage(env);
@@ -151,6 +161,20 @@ export default {
       if (!action && method === 'POST') return saveShareLink(request, env, id);
       if (action === 'delete' && method === 'POST') return deleteShareLink(env, id);
       if (action === 'analytics' && method === 'GET') return analyticsShareLinkPage(env, id, url);
+    }
+
+    // HTML pages — applications (job tracker)
+    if (path === '/applications' && method === 'GET') return listApplicationsPage(env, url);
+    if (path === '/applications/new' && method === 'GET')  return editApplicationPage(env, null, url);
+    if (path === '/applications/new' && method === 'POST') return saveApplication(request, env, null);
+
+    const appMatch = path.match(/^\/applications\/([a-z0-9-]+)(?:\/(delete))?$/);
+    if (appMatch) {
+      const id = appMatch[1];
+      const action = appMatch[2];
+      if (!action && method === 'GET')  return editApplicationPage(env, id, url);
+      if (!action && method === 'POST') return saveApplication(request, env, id);
+      if (action === 'delete' && method === 'POST') return deleteApplication(env, id);
     }
 
     return new Response('Not found', { status: 404 });
@@ -442,7 +466,7 @@ const SHARED_CSS = `
 
 function shell(opts: {
   title: string;
-  activeNav?: 'dashboard' | 'case-studies' | 'companies' | 'content' | 'share-links';
+  activeNav?: 'dashboard' | 'case-studies' | 'companies' | 'content' | 'share-links' | 'applications';
   body: string;
   extraHead?: string;
   toast?: { kind: 'success' | 'error'; text: string };
@@ -473,6 +497,7 @@ ${opts.extraHead ?? ''}
       ${navLink('/companies', 'Companies', 'companies')}
       ${navLink('/content', 'Site Content', 'content')}
       ${navLink('/share-links', 'Share Links', 'share-links')}
+      ${navLink('/applications', 'Applications', 'applications')}
     </nav>
     <form method="POST" action="/api/logout" id="logoutForm">
       <button type="button" id="logoutBtn">Sign out</button>
@@ -524,6 +549,10 @@ async function dashboardPage(env: Env): Promise<Response> {
     `SELECT count(*) as total,
             sum(CASE WHEN expires_at IS NULL OR expires_at > unixepoch() THEN 1 ELSE 0 END) as active
        FROM share_links`);
+  const ap = await safeFirst<{ total: number; live: number }>(env,
+    `SELECT count(*) as total,
+            sum(CASE WHEN status IN ('applied','followed_up','interviewing','offer') THEN 1 ELSE 0 END) as live
+       FROM applications`);
 
   const body = `
     <h2>Dashboard</h2>
@@ -550,6 +579,11 @@ async function dashboardPage(env: Env): Promise<Response> {
         <div style="font-size: 1.6rem; font-weight: 700; color: #E6EBE8; margin: 0.4rem 0;">${sl?.total ?? 0}</div>
         <div style="color: #8B9698; font-size: 0.78rem;">${sl?.active ?? 0} active</div>
       </a>
+      <a href="/applications" style="background: #122A2E; border: 1px solid #1B3A3F; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
+        <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91;">Applications</div>
+        <div style="font-size: 1.6rem; font-weight: 700; color: #E6EBE8; margin: 0.4rem 0;">${ap?.total ?? 0}</div>
+        <div style="color: #8B9698; font-size: 0.78rem;">${ap?.live ?? 0} in flight</div>
+      </a>
       <a href="https://barbarabroadnax.com/" target="_blank" rel="noopener" style="background: #122A2E; border: 1px solid #1B3A3F; padding: 1.25rem; border-radius: 8px; text-decoration: none;">
         <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91;">Public Site</div>
         <div style="font-size: 1rem; font-weight: 600; color: #E2403E; margin: 0.4rem 0;">view live →</div>
@@ -561,6 +595,7 @@ async function dashboardPage(env: Env): Promise<Response> {
       <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7E8F91; margin-bottom: 0.5rem;">Quick actions</div>
       <ul style="list-style: none; padding: 0; line-height: 2;">
         <li><a href="/case-studies/new">+ New case study</a></li>
+        <li><a href="/applications/new">+ New application</a></li>
         <li><a href="/share-links/new">+ New share-link</a></li>
         <li><a href="/case-studies">Manage case studies</a></li>
         <li><a href="/content">Edit homepage content</a></li>
@@ -1879,6 +1914,433 @@ async function deleteCompany(env: Env, id: string): Promise<Response> {
   await env.DB.prepare(`UPDATE case_studies SET company_id = NULL WHERE company_id = ?`).bind(id).run();
   await env.DB.prepare(`DELETE FROM companies WHERE id = ?`).bind(id).run();
   return new Response(null, { status: 303, headers: { Location: '/companies?toast=Company%20deleted&kind=success' } });
+}
+
+// ─── applications (job tracker) ──────────────────────────────────────────
+
+interface ApplicationRow {
+  id: string;
+  company: string;
+  role: string;
+  location: string | null;
+  jd_url: string | null;
+  source: string | null;
+  status: string;
+  fit_score: number | null;
+  fit_notes: string | null;
+  notes: string | null;
+  salary: string | null;
+  resume_pdf_key: string | null;
+  resume_docx_key: string | null;
+  cover_pdf_key: string | null;
+  cover_docx_key: string | null;
+  applied_at: number | null;
+  created_at: number;
+  updated_at: number;
+}
+
+const APP_STATUSES: { value: string; label: string; color: string }[] = [
+  { value: 'in_progress',  label: 'In Progress',  color: '#F7B32B' },
+  { value: 'applied',      label: 'Applied',      color: '#127475' },
+  { value: 'followed_up',  label: 'Followed Up',  color: '#5BA3A4' },
+  { value: 'interviewing', label: 'Interviewing', color: '#8EECB1' },
+  { value: 'offer',        label: 'Offer',        color: '#E2403E' },
+  { value: 'denied',       label: 'Denied',       color: '#6A7678' },
+];
+
+function appStatusMeta(value: string): { value: string; label: string; color: string } {
+  return APP_STATUSES.find((s) => s.value === value) ?? { value, label: value, color: '#8B9698' };
+}
+
+function appStatusBadge(value: string): string {
+  const m = appStatusMeta(value);
+  return `<span style="display:inline-block;padding:0.15rem 0.55rem;border-radius:999px;font-size:0.7rem;font-weight:600;color:${m.color};border:1px solid ${m.color}55;background:${m.color}1a;">${htmlEscape(m.label)}</span>`;
+}
+
+function appSlug(company: string, role: string): string {
+  return `${company}-${role}`.toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 50);
+}
+
+function epochToDateInput(epoch: number | null): string {
+  if (!epoch) return '';
+  return new Date(epoch * 1000).toISOString().slice(0, 10);
+}
+
+function dateInputToEpoch(s: string): number | null {
+  if (!s) return null;
+  const ms = Date.parse(`${s}T00:00:00Z`);
+  return Number.isNaN(ms) ? null : Math.floor(ms / 1000);
+}
+
+function fmtDate(epoch: number | null): string {
+  if (!epoch) return '—';
+  return new Date(epoch * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+
+const APPLICATION_COLUMNS =
+  `id, company, role, location, jd_url, source, status, fit_score, fit_notes, notes, salary,
+   resume_pdf_key, resume_docx_key, cover_pdf_key, cover_docx_key, applied_at, created_at, updated_at`;
+
+async function listApplications(env: Env): Promise<ApplicationRow[]> {
+  const { results } = await env.DB.prepare(
+    `SELECT ${APPLICATION_COLUMNS} FROM applications
+      ORDER BY (status = 'denied') ASC, updated_at DESC`
+  ).all<ApplicationRow>();
+  return results ?? [];
+}
+
+async function getApplication(env: Env, id: string): Promise<ApplicationRow | null> {
+  return await env.DB.prepare(
+    `SELECT ${APPLICATION_COLUMNS} FROM applications WHERE id = ?`
+  ).bind(id).first<ApplicationRow>();
+}
+
+async function listApplicationsPage(env: Env, url: URL): Promise<Response> {
+  const rows = await listApplications(env);
+  const counts = APP_STATUSES.map((s) => `${rows.filter((r) => r.status === s.value).length} ${s.label.toLowerCase()}`);
+  const body = `
+    <div class="toolbar">
+      <h2 style="flex: 1;">Applications</h2>
+      <a href="/applications/new" class="btn">+ New</a>
+    </div>
+    <p class="sub">Your job-search tracker. ${rows.length} total — ${counts.join(', ')}.</p>
+
+    <table class="list">
+      <thead>
+        <tr>
+          <th>Company / Role</th>
+          <th>Status</th>
+          <th>Docs</th>
+          <th>Applied</th>
+          <th>Updated</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.length === 0
+          ? `<tr><td colspan="6" class="small" style="padding: 1.5rem; text-align: center; color: #7E8F91;">No applications yet. <a href="/applications/new">Add one</a>.</td></tr>`
+          : rows.map((r) => {
+          const docs = [
+            r.resume_pdf_key || r.resume_docx_key ? 'Resume' : null,
+            r.cover_pdf_key || r.cover_docx_key ? 'Cover' : null,
+          ].filter(Boolean).join(' + ') || '<span style="color:#6A7678;">—</span>';
+          const jd = r.jd_url
+            ? ` &middot; <a href="${attrEscape(r.jd_url)}" target="_blank" rel="noopener" class="small">JD ↗</a>`
+            : '';
+          return `<tr>
+            <td>
+              <a href="/applications/${attrEscape(r.id)}" style="font-weight: 600; color: #E6EBE8;">${htmlEscape(r.company)}</a>
+              <div class="small" style="color:#8B9698;">${htmlEscape(r.role)}${jd}</div>
+            </td>
+            <td>${appStatusBadge(r.status)}</td>
+            <td class="small">${docs}</td>
+            <td class="small">${fmtDate(r.applied_at)}</td>
+            <td class="small" style="color:#8B9698;">${fmtDate(r.updated_at)}</td>
+            <td style="text-align: right;"><a href="/applications/${attrEscape(r.id)}" class="btn secondary">Edit</a></td>
+          </tr>`;
+        }).join('\n')}
+      </tbody>
+    </table>
+  `;
+  return new Response(shell({ title: 'Applications', activeNav: 'applications', body, toast: readToast(url) }), {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex, nofollow' },
+  });
+}
+
+// One resume/cover document slot in the editor: shows current file (if any),
+// an upload button, and a hidden key field. All four share one upload script.
+function appDocSlot(slotId: string, label: string, fieldName: string, key: string | null): string {
+  const view = key
+    ? `<a href="/app-docs/${attrEscape(key)}" target="_blank" rel="noopener" class="small" id="${slotId}View">view current ↗</a>`
+    : `<span class="small" id="${slotId}View" style="color:#6A7678;">none</span>`;
+  return `
+    <div class="field">
+      <label>${htmlEscape(label)}</label>
+      <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+        <input type="file" id="${slotId}File" accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.docx" style="display:none;">
+        <button type="button" class="btn secondary" id="${slotId}Btn">Upload</button>
+        ${view}
+        <button type="button" class="btn secondary" id="${slotId}Clear" style="color:#ff8585;border-color:#5a2a2a;${key ? '' : 'display:none;'}">Remove</button>
+        <span id="${slotId}Status" class="hint"></span>
+      </div>
+      <input type="hidden" id="${slotId}Key" name="${fieldName}" value="${attrEscape(key ?? '')}">
+    </div>`;
+}
+
+async function editApplicationPage(env: Env, id: string | null, url: URL): Promise<Response> {
+  const row = id ? await getApplication(env, id) : null;
+  if (id && !row) return new Response('Not found', { status: 404 });
+  const isNew = !row;
+
+  const statusOptions = APP_STATUSES.map((s) =>
+    `<option value="${s.value}"${(row?.status ?? 'in_progress') === s.value ? ' selected' : ''}>${htmlEscape(s.label)}</option>`
+  ).join('');
+
+  const body = `
+    <div class="toolbar">
+      <a href="/applications" class="small" style="color: #8B9698;">← All applications</a>
+    </div>
+    <h2>${isNew ? 'New application' : `${htmlEscape(row!.company)} — ${htmlEscape(row!.role)}`}</h2>
+    <p class="sub">${isNew ? 'Log a new application. Company and role are required.' : `Editing <code>${htmlEscape(row!.id)}</code>.`}</p>
+
+    <form method="POST" action="${isNew ? '/applications/new' : `/applications/${attrEscape(row!.id)}`}" class="form-grid">
+      <div class="row2">
+        <div class="field">
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" required value="${attrEscape(row?.company ?? '')}" placeholder="Weedmaps">
+        </div>
+        <div class="field">
+          <label for="role">Role</label>
+          <input id="role" name="role" type="text" required value="${attrEscape(row?.role ?? '')}" placeholder="Senior Product Designer">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status">${statusOptions}</select>
+        </div>
+        <div class="field">
+          <label for="applied_at">Applied date</label>
+          <input id="applied_at" name="applied_at" type="date" value="${attrEscape(epochToDateInput(row?.applied_at ?? null))}">
+          <div class="hint">Leave blank if not yet applied.</div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="location">Location</label>
+          <input id="location" name="location" type="text" value="${attrEscape(row?.location ?? '')}" placeholder="Remote / Irvine, CA">
+        </div>
+        <div class="field">
+          <label for="source">Source</label>
+          <input id="source" name="source" type="text" value="${attrEscape(row?.source ?? '')}" placeholder="LinkedIn, referral, ...">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="jd_url">Job posting URL</label>
+          <input id="jd_url" name="jd_url" type="url" value="${attrEscape(row?.jd_url ?? '')}" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="salary">Compensation</label>
+          <input id="salary" name="salary" type="text" value="${attrEscape(row?.salary ?? '')}" placeholder="$160k–$190k">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="fit_score">Fit score (0–100, optional)</label>
+        <input id="fit_score" name="fit_score" type="number" min="0" max="100" value="${row?.fit_score ?? ''}" style="max-width:8rem;">
+      </div>
+
+      <div class="field">
+        <label for="fit_notes">Fit analysis</label>
+        <textarea id="fit_notes" name="fit_notes" rows="5" placeholder="Why this role is a match; gaps to address.">${htmlEscape(row?.fit_notes ?? '')}</textarea>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes / next steps</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="Recruiter name, interview dates, follow-up reminders.">${htmlEscape(row?.notes ?? '')}</textarea>
+      </div>
+
+      <fieldset style="border:1px solid #1B3A3F;border-radius:8px;padding:1rem 1.25rem;margin:0;">
+        <legend class="small" style="color:#7E8F91;text-transform:uppercase;letter-spacing:0.08em;padding:0 0.4rem;">Documents (private)</legend>
+        <p class="hint" style="margin-top:0;">Stored in the private bucket and only downloadable while signed in. PDF or DOCX.</p>
+        <div class="row2">
+          ${appDocSlot('resumePdf',  'Resume (PDF)',        'resume_pdf_key',  row?.resume_pdf_key ?? null)}
+          ${appDocSlot('resumeDocx', 'Resume (DOCX)',       'resume_docx_key', row?.resume_docx_key ?? null)}
+        </div>
+        <div class="row2">
+          ${appDocSlot('coverPdf',   'Cover letter (PDF)',  'cover_pdf_key',   row?.cover_pdf_key ?? null)}
+          ${appDocSlot('coverDocx',  'Cover letter (DOCX)', 'cover_docx_key',  row?.cover_docx_key ?? null)}
+        </div>
+      </fieldset>
+
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <button type="submit" class="btn">${isNew ? 'Create' : 'Save changes'}</button>
+        <a href="/applications" class="btn secondary">Cancel</a>
+        ${isNew ? '' : `<button type="submit" formaction="/applications/${attrEscape(row!.id)}/delete" formmethod="POST" class="btn secondary" style="margin-left:auto;color:#ff8585;border-color:#5a2a2a;" onclick="return confirm('Delete this application and its uploaded documents? This cannot be undone.');">Delete</button>`}
+      </div>
+    </form>
+
+    <script>
+      (function(){
+        var slots = ['resumePdf','resumeDocx','coverPdf','coverDocx'];
+        slots.forEach(function(s){
+          var btn = document.getElementById(s + 'Btn');
+          var input = document.getElementById(s + 'File');
+          var status = document.getElementById(s + 'Status');
+          var keyField = document.getElementById(s + 'Key');
+          var view = document.getElementById(s + 'View');
+          var clear = document.getElementById(s + 'Clear');
+          if (!btn) return;
+          btn.addEventListener('click', function(){ input.click(); });
+          clear.addEventListener('click', function(){
+            keyField.value = '';
+            if (view) { view.outerHTML = '<span class="small" id="' + s + 'View" style="color:#6A7678;">none</span>'; }
+            clear.style.display = 'none';
+            status.textContent = 'Cleared. Save to apply.';
+          });
+          input.addEventListener('change', async function(){
+            var f = input.files && input.files[0];
+            if (!f) return;
+            status.textContent = 'Uploading ' + f.name + '…';
+            try {
+              var fd = new FormData();
+              fd.append('file', f);
+              var r = await fetch('/api/app-docs', { method: 'POST', body: fd, credentials: 'same-origin' });
+              if (!r.ok) { var j = await r.json().catch(function(){return {};}); throw new Error(j.error || ('upload failed: ' + r.status)); }
+              var j = await r.json();
+              keyField.value = j.key;
+              var link = document.getElementById(s + 'View');
+              var html = '<a href="/app-docs/' + encodeURIComponent(j.key) + '" target="_blank" rel="noopener" class="small" id="' + s + 'View">view current ↗</a>';
+              if (link) { link.outerHTML = html; }
+              clear.style.display = '';
+              status.textContent = 'Uploaded. Save to apply.';
+            } catch (ex) {
+              status.textContent = 'Upload failed: ' + (ex.message || ex);
+            } finally { input.value = ''; }
+          });
+        });
+      })();
+    </script>
+  `;
+  return new Response(shell({ title: isNew ? 'New application' : `Edit ${row!.company}`, activeNav: 'applications', body, toast: readToast(url) }), {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex, nofollow' },
+  });
+}
+
+async function saveApplication(request: Request, env: Env, id: string | null): Promise<Response> {
+  const url = new URL(request.url);
+  const form = await request.formData();
+  const company = String(form.get('company') ?? '').trim();
+  const role = String(form.get('role') ?? '').trim();
+  const failPath = id ? `/applications/${id}` : '/applications/new';
+  if (!company) return redirectWithToast(url, failPath, 'error', 'Company is required.');
+  if (!role)    return redirectWithToast(url, failPath, 'error', 'Role is required.');
+
+  const status = String(form.get('status') ?? 'in_progress').trim();
+  const validStatus = APP_STATUSES.some((s) => s.value === status) ? status : 'in_progress';
+  const str = (k: string) => { const v = String(form.get(k) ?? '').trim(); return v || null; };
+  const location = str('location');
+  const jd_url = str('jd_url');
+  const source = str('source');
+  const salary = str('salary');
+  const fit_notes = str('fit_notes');
+  const notes = str('notes');
+  const fitRaw = String(form.get('fit_score') ?? '').trim();
+  const fit_score = fitRaw === '' ? null : Math.max(0, Math.min(100, parseInt(fitRaw, 10) || 0));
+  let applied_at = dateInputToEpoch(String(form.get('applied_at') ?? '').trim());
+  // If marked applied (or further) but no date given, stamp today.
+  if (!applied_at && validStatus !== 'in_progress') applied_at = nowSeconds();
+  const resume_pdf_key  = str('resume_pdf_key');
+  const resume_docx_key = str('resume_docx_key');
+  const cover_pdf_key   = str('cover_pdf_key');
+  const cover_docx_key  = str('cover_docx_key');
+
+  if (id) {
+    // Clean up any private docs that were removed in this edit.
+    const prev = await getApplication(env, id);
+    if (prev) {
+      const pairs: [string | null, string | null][] = [
+        [prev.resume_pdf_key, resume_pdf_key],
+        [prev.resume_docx_key, resume_docx_key],
+        [prev.cover_pdf_key, cover_pdf_key],
+        [prev.cover_docx_key, cover_docx_key],
+      ];
+      for (const [oldKey, newKey] of pairs) {
+        if (oldKey && oldKey !== newKey) await deleteDoc(env, oldKey);
+      }
+    }
+    await env.DB.prepare(
+      `UPDATE applications SET
+         company = ?, role = ?, location = ?, jd_url = ?, source = ?, status = ?,
+         fit_score = ?, fit_notes = ?, notes = ?, salary = ?,
+         resume_pdf_key = ?, resume_docx_key = ?, cover_pdf_key = ?, cover_docx_key = ?,
+         applied_at = ?, updated_at = unixepoch()
+       WHERE id = ?`
+    ).bind(company, role, location, jd_url, source, validStatus,
+           fit_score, fit_notes, notes, salary,
+           resume_pdf_key, resume_docx_key, cover_pdf_key, cover_docx_key,
+           applied_at, id).run();
+    return redirectWithToast(url, `/applications/${id}`, 'success', 'Saved.');
+  }
+
+  // New: derive a unique slug.
+  let slug = appSlug(company, role);
+  if (!slug) return redirectWithToast(url, failPath, 'error', 'Could not derive an id from company/role.');
+  if (await getApplication(env, slug)) slug = `${slug}-${randomToken(2)}`;
+
+  await env.DB.prepare(
+    `INSERT INTO applications
+       (id, company, role, location, jd_url, source, status, fit_score, fit_notes, notes, salary,
+        resume_pdf_key, resume_docx_key, cover_pdf_key, cover_docx_key, applied_at, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`
+  ).bind(slug, company, role, location, jd_url, source, validStatus, fit_score, fit_notes, notes, salary,
+         resume_pdf_key, resume_docx_key, cover_pdf_key, cover_docx_key, applied_at).run();
+  return redirectWithToast(url, `/applications/${slug}`, 'success', 'Application created.');
+}
+
+async function deleteApplication(env: Env, id: string): Promise<Response> {
+  const row = await getApplication(env, id);
+  if (row) {
+    for (const k of [row.resume_pdf_key, row.resume_docx_key, row.cover_pdf_key, row.cover_docx_key]) {
+      if (k) await deleteDoc(env, k);
+    }
+  }
+  await env.DB.prepare(`DELETE FROM applications WHERE id = ?`).bind(id).run();
+  return new Response(null, { status: 303, headers: { Location: '/applications?toast=Application%20deleted&kind=success' } });
+}
+
+// ─── private documents (resume / cover letter) ───────────────────────────
+
+// Upload an application document to PRIVATE_BUCKET. Returns { key }.
+async function handleDocUpload(request: Request, env: Env): Promise<Response> {
+  const ct = request.headers.get('Content-Type') ?? '';
+  if (!ct.startsWith('multipart/form-data')) {
+    return Response.json({ error: 'multipart/form-data required' }, { status: 400 });
+  }
+  const form = await request.formData();
+  const fileEntry = form.get('file');
+  if (!fileEntry || typeof fileEntry === 'string' || typeof (fileEntry as any).stream !== 'function') {
+    return Response.json({ error: 'file field missing' }, { status: 400 });
+  }
+  const file = fileEntry as unknown as { name: string; type: string; size: number; stream(): ReadableStream };
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return Response.json({ error: `File too large (max ${MAX_UPLOAD_BYTES / 1024 / 1024} MB)` }, { status: 413 });
+  }
+  if (!ALLOWED_DOC_MIME.has(file.type)) {
+    return Response.json({ error: `Unsupported type: ${file.type || 'unknown'}. Use PDF or DOCX.` }, { status: 415 });
+  }
+  const ext = (file.name.match(/\.[A-Za-z0-9]+$/)?.[0] || '').toLowerCase();
+  const safeBase = file.name.replace(/[^a-zA-Z0-9._-]+/g, '-').slice(0, 60);
+  const key = `apps/${nowSeconds()}-${randomToken(4)}-${safeBase}${safeBase.toLowerCase().endsWith(ext) ? '' : ext}`;
+  await env.PRIVATE_BUCKET.put(key, file.stream(), {
+    httpMetadata: { contentType: file.type, contentDisposition: `inline; filename="${safeBase}"` },
+  });
+  return Response.json({ ok: true, key });
+}
+
+async function deleteDoc(env: Env, key: string): Promise<void> {
+  try { await env.PRIVATE_BUCKET.delete(key); } catch { /* best effort */ }
+}
+
+// Stream a private document. Only reachable behind requireSession, and scoped to
+// the apps/ prefix so this can never serve arbitrary private objects.
+async function serveAppDoc(env: Env, key: string): Promise<Response> {
+  if (!key.startsWith('apps/')) return new Response('Forbidden', { status: 403 });
+  const obj = await env.PRIVATE_BUCKET.get(key);
+  if (!obj) return new Response('Not found', { status: 404 });
+  const headers = new Headers();
+  obj.writeHttpMetadata(headers);
+  headers.set('Cache-Control', 'private, no-store');
+  headers.set('X-Robots-Tag', 'noindex, nofollow');
+  if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/octet-stream');
+  return new Response(obj.body, { headers });
 }
 
 // ─── pages: site content ─────────────────────────────────────────────────
