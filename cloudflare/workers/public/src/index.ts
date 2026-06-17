@@ -223,6 +223,8 @@ async function loadPublishedCaseStudies(env: Env): Promise<CaseStudyRow[]> {
   return results ?? [];
 }
 
+// Loads any case study by slug regardless of status. renderCaseStudy is the
+// gate that decides which statuses get a public page (published + unlisted).
 async function loadCaseStudyBySlug(env: Env, slug: string): Promise<CaseStudyRow | null> {
   return env.DB.prepare(
     `SELECT id, title, company, company_id, role, outcome_metric, hero_image_key, hero_fit,
@@ -231,7 +233,7 @@ async function loadCaseStudyBySlug(env: Env, slug: string): Promise<CaseStudyRow
             meta_role, meta_team, meta_rating,
             kind, external_url, card_only, live_label
        FROM case_studies
-      WHERE id = ? AND status = 'published'`
+      WHERE id = ?`
   ).bind(slug).first<CaseStudyRow>();
 }
 
@@ -671,6 +673,14 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
   const cs = await loadCaseStudyBySlug(env, slug);
   if (!cs) return notFound();
 
+  // Public pages exist only for published and unlisted studies. An unlisted
+  // study renders at /work/:slug but is kept off the homepage, the nav
+  // dropdown, and prev/next (those are built from the published list), and is
+  // marked noindex so search engines skip it. It's reachable only by someone
+  // who has the direct link. Drafts and any other status stay 404.
+  if (cs.status !== 'published' && cs.status !== 'unlisted') return notFound();
+  const unlisted = cs.status === 'unlisted';
+
   // Optional version override. If the version id is malformed or doesn't
   // belong to this case study, render the canonical page rather than 404 —
   // the share-link is still valid, the version reference is just stale.
@@ -732,6 +742,7 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
     navItems,
     tickerPhrases, tickerLabel,
     footerEmail, footerLinkedIn,
+    noindex: unlisted,
   });
 
   return new Response(headOnly ? null : html, {
@@ -739,9 +750,10 @@ async function renderCaseStudy(env: Env, slug: string, headOnly: boolean, versio
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       // Versions shouldn't be cached as long as canonical because they're
-      // transient and recipient-specific. noindex on version variants too.
+      // transient and recipient-specific. noindex on version variants and on
+      // unlisted studies (which should never be indexed).
       'Cache-Control': version ? 'private, no-store' : 'public, max-age=60, stale-while-revalidate=600',
-      ...(version ? { 'X-Robots-Tag': 'noindex, nofollow' } : {}),
+      ...((version || unlisted) ? { 'X-Robots-Tag': 'noindex, nofollow' } : {}),
     },
   });
 }
@@ -860,7 +872,7 @@ function siteHeaderStyles(): string {
     .sn-divider{width:1px;height:20px;background:rgba(13,27,30,0.18);flex-shrink:0;}
     .sn-ticker{display:flex;align-items:center;gap:7px;flex:1;min-width:0;overflow:hidden;}
     .sn-ticker-label{font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#3D4550;white-space:nowrap;line-height:1;flex-shrink:0;}
-    .sn-ticker-track{position:relative;height:1em;overflow:hidden;min-width:140px;max-width:200px;}
+    .sn-ticker-track{position:relative;height:1em;overflow:hidden;min-width:140px;flex:1;}
     .sn-ticker-word{position:absolute;inset:0;display:flex;align-items:center;font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#E2403E;white-space:nowrap;opacity:0;transform:translateY(110%);line-height:1;}
     .sn-ticker-word.is-in{animation:snWordIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;}
     .sn-ticker-word.is-out{animation:snWordOut 0.3s ease-in forwards;}
@@ -1889,6 +1901,7 @@ interface CaseData {
   tickerLabel: string;
   footerEmail: string;
   footerLinkedIn: string;
+  noindex?: boolean; // true for unlisted studies → adds a robots noindex meta
 }
 
 function caseStudyTemplate(d: CaseData): string {
@@ -1949,7 +1962,7 @@ function caseStudyTemplate(d: CaseData): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${titleEsc}</title>
-  <meta name="description" content="${attrEscape(d.subtitle)}">
+  ${d.noindex ? '<meta name="robots" content="noindex,nofollow">\n  ' : ''}<meta name="description" content="${attrEscape(d.subtitle)}">
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="${titleEsc}">
